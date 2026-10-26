@@ -221,7 +221,7 @@ class BodyIndex:
                                "FROM fulltext WHERE status='ok'"):
                 self.by_title.setdefault(norm_title(r["title"]), r["key"])
                 self.by_key[r["key"]] = dict(r)
-            for r in c.execute("SELECT key,status,valid_until,effect_on "
+            for r in c.execute("SELECT key,status,valid_until,effect_on,repealed_on "
                                "FROM eff_ledger"):
                 self.eff[r["key"]] = dict(r)
             c.close()
@@ -515,8 +515,28 @@ def _pack(it: dict, bidx: BodyIndex) -> dict:
     e = bidx.eff.get(bk) if bk else None
     if e and e.get("status") and e["status"] != "no_signal":
         it["eff"] = e["status"]
-        it["eff_date"] = e.get("valid_until") or e.get("effect_on") or ""
+        it["eff_date"] = _eff_date(e)
     return it
+
+
+def _eff_date(e: dict) -> str:
+    """界面上跟在这个状态词后面的那个日期，必须跟状态对得上。
+
+    原来一律取 valid_until or effect_on，于是 repealed 的文件显示的是它的
+    **施行日**：《市政府关于印发南京市国有土地上房屋征收与补偿办法的通知》
+    2012-06-01 施行、2017-10-30 废止，界面上印「已废止 2012-06-01」——
+    差的这五年正好是最需要判断的那五年。日期和状态词对不上，比不给日期更糟：
+    读者会以为这份文件 2012 年就废了。
+    """
+    st = e.get("status") or ""
+    if st == "repealed":
+        return e.get("repealed_on") or ""
+    if st == "pending":
+        return e.get("effect_on") or ""
+    if st in ("expired", "in_force"):
+        return e.get("valid_until") or ""
+    # superseded 没有统一日期的来源，有到期日就用到期日，否则留空。
+    return e.get("valid_until") or ""
 
 
 def _query_catalog(cat: sqlite3.Connection, bidx: BodyIndex, task: dict,

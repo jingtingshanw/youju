@@ -71,8 +71,8 @@ console.log("第一份失效件:", JSON.stringify(info));
 await sleep(900);
 
 const shot = await send("Page.captureScreenshot", { format: "png" });
-fs.writeFileSync(`${OUT}/02b-dead.png`, Buffer.from(shot.result.data, "base64"));
-console.log("写出 02b-dead.png");
+fs.writeFileSync(`${OUT}/03-sources.png`, Buffer.from(shot.result.data, "base64"));
+console.log("写出 03-sources.png");
 
 await fetch(`http://127.0.0.1:${PORT}/json/close/${id}`);
 process.exit(0);
