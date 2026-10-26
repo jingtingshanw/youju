@@ -9,6 +9,12 @@ output/*.json
 last_answer.md
 .server.log
 
+# embedding 向量缓存：427 条 × 1024 维 = 9.7 MB，一个文件占了仓库三分之二。
+# 缓存是拿钱换来的（调 text-embedding-v4），但不是源码，重新跑一次就有。
+# 2026-10-26 第一次 push 时被 GitHub 408 挡下来才发现的——
+# 推送超时的真实原因往往不是网络，是包里塞了不该塞的东西。
+eval/results/emb-*-cache.json
+
 # 调试目录：495 MB。里面 .shots/prof 是一整个 Chrome 用户数据目录，
 # 截图是过程记录，都不该进版本库。
 # 只有根目录下那几个 .mjs 是能复用的浏览器调试脚本，单独放行。
