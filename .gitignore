@@ -18,6 +18,7 @@ eval/results/emb-*-cache.json
 # 调试目录：495 MB。里面 .shots/prof 是一整个 Chrome 用户数据目录，
 # 截图是过程记录，都不该进版本库。
 # 只有根目录下那几个 .mjs 是能复用的浏览器调试脚本，单独放行。
+# README 用的配图不在 .shots 里，在 docs/screenshots/，那个目录要进仓库。
 .shots/*
 !.shots/*.mjs
 !.shots/README.md
