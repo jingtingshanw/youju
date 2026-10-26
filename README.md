@@ -17,13 +17,32 @@
 ```bash
 git clone https://github.com/jingtingshanw/youju.git
 cd youju
-# 拿到 pv-data-YYYYMMDD.tar.gz 之后
-tar -xzf pv-data-YYYYMMDD.tar.gz            # 得到 data/{kb,catalog,app}.db + data/fulltext/
+tar -xzf pv-data-20261026.tar.gz            # 得到 data/kb.db + data/catalog.db + data/fulltext/
 python scripts/selftest.py                  # 过 30/30 说明数据装对了
 ```
 
-数据包 1.0 GB（gzip 压缩），**通过 [Issue](../../issues) 或邮件索取**——1 GB 放在
-GitHub Release 上，国内网络下载要几小时，挂在 OSS 上对你我都更省事。
+数据包 **1.03 GB**（`pv-data-20261026.tar.gz`），解压后 2.8 GB，两个来源任选：
+
+| 来源 | 链接 | 提取码 |
+|---|---|---|
+| 阿里云盘 | `待填` | `待填` |
+| 夸克网盘 | `待填` | `待填` |
+
+下载后建议先校验，确认没传坏：
+
+```
+SHA256  595d28c85b4559452109aa177d86b95b144824b0666e0ac01d6db36a3aa44f28
+字节数  1,106,212,131
+```
+
+```
+PowerShell    Get-FileHash .\pv-data-20261026.tar.gz -Algorithm SHA256
+Mac / Linux   shasum -a 256 pv-data-20261026.tar.gz
+```
+
+**两个解压的坑**：Windows 上别用 WinRAR 双击解 `.tar.gz`（它要先解出 `.tar` 再解一次，
+中间那步常卡住），用 PowerShell 里的 `tar` 命令；Mac 上双击只会得到一个 `.tar`，
+用终端 `tar -xzf`。解压约 1—3 分钟，留 4 GB 空闲空间。
 
 没有数据时，服务能起来但检索是空的。自检会直接停在「数据库存在」那一项并告诉你
 数据文件缺哪几个，这是故意的：比让你看到一个能打开、能提问、但什么都查不到的界面要好。
