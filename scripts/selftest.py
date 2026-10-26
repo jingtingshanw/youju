@@ -64,6 +64,21 @@ def ro(p: Path) -> sqlite3.Connection:
 
 
 def main() -> int:
+    # ── 前置：三个库都在，否则下面 30 项全是噪音 ─────────────
+    # 刚 clone 下来还没装数据的人会走到这里。不先拦的话，第 4 项就抛
+    # sqlite3.OperationalError: unable to open database file ——
+    # 这句话指向「文件打不开」，而人真正需要知道的是「去 Releases 下数据包」。
+    # 部署现场最贵的错误就是这种：报错了，但指向完全错误的方向。
+    missing = [p.name for p in (CAT, KB, APP) if not p.exists()]
+    if missing:
+        print(f"\n  缺数据文件：{'、'.join(missing)}")
+        print(f"  应该在　　：{CAT.parent}\n")
+        print("  这个仓库里没有数据。2.8 GB 的政策正文不进 Git，走 Releases 附件：\n")
+        print("    1. 去仓库 Releases 页下载 pv-data-*.tar.gz")
+        print("    2. tar -xzf pv-data-*.tar.gz -C <项目根>      # 解出 data/")
+        print("    3. 再跑一次 python scripts/selftest.py\n")
+        return 3
+
     today = date.today().isoformat()
 
     # ── 1—6 文件与表都在 ───────────────────────────────────
