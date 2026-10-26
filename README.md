@@ -10,6 +10,23 @@
 
 ---
 
+## 先把数据装上
+
+**这个仓库里没有数据。** 34,634 份政策正文明细加起来 2.8 GB，不在 Git 里。
+数据包挂在 [Releases](../../releases) 页，1.0 GB，解到项目根目录：
+
+```bash
+git clone <repo> && cd policy-verify-engine
+# 从 Releases 下载 pv-data-*.tar.gz 后
+tar -xzf pv-data-YYYYMMDD.tar.gz            # 得到 data/{kb,catalog,app}.db + data/fulltext/
+python scripts/selftest.py                  # 过 30/30 说明数据装对了
+```
+
+只有代码没有数据时，服务能起来但检索是空的，自检会直接在「数据库存在」那一项失败——
+这是故意的，比让你看到一个能打开、能提问、但什么都查不到的界面要好。
+
+---
+
 ## 六十秒
 
 **先开产品入口**（这就是你问的「一个能用的东西」）：
