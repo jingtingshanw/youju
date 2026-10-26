@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>有据 · 政策效力核验引擎（PRD v2）</title>
+<style>
+:root{
+  --bg:#ffffff; --ink:#1c2024; --ink2:#525a63; --ink3:#868e97; --line:#e4e8ec;
+  --panel:#f7f9fa; --accent:#2f6fd0; --code-bg:#f4f6f8; --quote:#f0f4fa;
+}
+html[data-theme=dark]{
+  --bg:#16191d; --ink:#e7eaee; --ink2:#a9b2bb; --ink3:#79828c; --line:#2e343b;
+  --panel:#1d2126; --accent:#6fa4e8; --code-bg:#1b1f24; --quote:#1b2531;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:15.5px;line-height:1.78;-webkit-font-smoothing:antialiased}
+.bar{position:sticky;top:0;z-index:9;background:var(--bg);border-bottom:1px solid var(--line);
+  padding:9px 20px;display:flex;gap:14px;align-items:center;font-size:13px}
+.bar .t{font-weight:600;color:var(--ink2)}
+.bar a{color:var(--accent);text-decoration:none}
+.bar button{margin-left:auto;font:inherit;font-size:13px;cursor:pointer;padding:5px 12px;
+  border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink)}
+main{max-width:900px;margin:0 auto;padding:26px 22px 90px}
+h1{font-size:26px;margin:34px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+h2{font-size:21px;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+h3{font-size:17.5px;margin:26px 0 9px}
+h4{font-size:15.5px;margin:20px 0 7px;color:var(--ink2)}
+p{margin:10px 0}
+a{color:var(--accent)}
+strong{font-weight:650}
+code{background:var(--code-bg);border:1px solid var(--line);border-radius:4px;
+  padding:1px 5px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+pre{background:var(--code-bg);border:1px solid var(--line);border-radius:9px;
+  padding:14px 16px;overflow:auto}
+pre code{background:none;border:none;padding:0;font-size:13px;line-height:1.65}
+blockquote{margin:14px 0;padding:10px 16px;background:var(--quote);
+  border-left:3px solid var(--accent);border-radius:0 8px 8px 0;color:var(--ink2)}
+blockquote p{margin:5px 0}
+hr{border:none;border-top:1px solid var(--line);margin:32px 0}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px;
+  display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--panel);font-weight:650;white-space:nowrap}
+ul,ol{padding-left:24px;margin:10px 0}
+li{margin:4px 0}
+.toc{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 20px;margin:18px 0}
+.toc ul{list-style:none;padding-left:0;margin:0}
+@media print{
+  .bar{display:none} body{font-size:11.5pt}
+  a{color:inherit;text-decoration:none} h2{page-break-after:avoid}
+  table,pre,blockquote{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="bar">
+  <span class="t">有据 · 政策效力核验引擎（PRD v2）</span>
+  <a href="#top">回到开头</a>
+  <button id="theme">切换主题</button>
+</div>
+<main id="top">
+<h1 id="有据--政策效力核验引擎prd-v2">有据 · 政策效力核验引擎（PRD v2）</h1>
+<blockquote><p>本版把「一个库」改成「一个全量目录 + 每个专题一个库」。改动涉及产品形态、</p><p>流程、指标口径三处，所以重写一份，不覆盖 v1（v1 的闸门设计仍然有效，§4 保留原样思路）。</p></blockquote>
+<table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>版本</td><td>v2（2026-10-19）</td></tr><tr><td>相对 v1</td><td>新增<strong>目录层</strong>与<strong>装配流水线</strong>；四段链路取代三段；指标拆成三层；明确 RAG 的位置与边界</td></tr><tr><td>状态</td><td>目录层与问答层已实现并实测；<strong>装配流水线本版只有规格，尚未实现</strong></td></tr><tr><td>读者</td><td>产品、算法、以及三个月后接手的人</td></tr></tbody></table>
+<p><strong>这份 PRD 的一条规矩</strong>：凡写「能做到」的地方，必须能指到一次实测或一个数据文件； 做不到的写成「未验证」或「已知缺口」。§11 是本版自己的审查记录，包含尚未解决的问题。</p>
+<hr>
+<h2 id="目录">目录</h2>
+<ul>
+<li><a href="#0-本版改了什么">0. 本版改了什么</a></li>
+<li><a href="#1-产品定位">1. 产品定位</a></li>
+<li><a href="#2-两层库">2. 两层库</a></li>
+<li><a href="#3-四段链路">3. 四段链路</a></li>
+<li><a href="#4-rag-在这里的位置">4. RAG 在这里的位置</a></li>
+<li><a href="#5-装配流水线规格">5. 装配流水线规格</a></li>
+<li><a href="#6-数据规格">6. 数据规格</a></li>
+<li><a href="#7-指标口径">7. 指标口径</a></li>
+<li><a href="#8-冷启动">8. 冷启动</a></li>
+<li><a href="#9-已知边界与风险">9. 已知边界与风险</a></li>
+<li><a href="#10-待办">10. 待办</a></li>
+<li><a href="#11-本-prd-的自我审查">11. 本 PRD 的自我审查</a></li>
+</ul>
+<hr>
+<h1 id="0-本版改了什么">0. 本版改了什么</h1>
+<p>v1 的前提是「文件已经在我手上，我来核验引用属不属实」。这个前提在真实场景里不成立： 规划师接一个项目的<strong>第一件事</strong>是弄清这个话题在三级政府各有哪些文件， 而这批文件他手上没有，也不知道该有哪些。</p>
+<p>v2 把这件事补进来，同时守住一条底线：<strong>补进来的只有「名单」，不是「全量正文」。</strong></p>
+<table><thead><tr><th>维度</th><th>v1</th><th>v2</th></tr></thead><tbody><tr><td>起点</td><td>用户提问</td><td>用户给「地域 + 主题」</td></tr><tr><td>库</td><td>一个知识库（8 部法规）</td><td><strong>全量目录（1.9 万条字段）+ 每专题一个库（50–80 份全文）</strong></td></tr><tr><td>链路</td><td>检索 → 核验 → 交付（三段）</td><td><strong>发现 → 装配 → 核验 → 交付（四段）</strong></td></tr><tr><td>检索的角色</td><td>找文件 + 找条文</td><td><strong>只找条文</strong>（找文件归目录层）</td></tr><tr><td>指标</td><td>一套（66 题）</td><td><strong>三层分开</strong>：目录层 / 装配层 / 问答层</td></tr><tr><td>新增工程</td><td>—</td><td>目录抓取（已做）+ 装配流水线（待做）</td></tr></tbody></table>
+<p><strong>一句话概括这次改动</strong>：把「知识库里有没有」这个不可控的前提，换成一个可控的动作—— 先用 13 分钟把国家级目录穷举，再用 10 分钟把某个专题的文件装配好。</p>
+<hr>
+<h1 id="1-产品定位">1. 产品定位</h1>
+<h2 id="11-一句话">1.1 一句话</h2>
+<p><strong>给规划师一个「有据」：每一条结论都能指到具体条款、具体文件、具体时效状态。</strong></p>
+<h2 id="12-据的三层含义">1.2 「据」的三层含义</h2>
+<p>这个名字不是修辞，它规定了三件必须交付的东西：</p>
+<table><thead><tr><th>层次</th><th>用户的问题</th><th>产品给的东西</th><th>缺了这一层会怎样</th></tr></thead><tbody><tr><td><strong>有文件</strong></td><td>这个方向有哪些文件？省里的、国家的</td><td>带效力级别和链接的清单，含三级覆盖度</td><td>用户不知道有这份文件，后面的核验再准也没用</td></tr><tr><td><strong>有条文</strong></td><td>这条规定写在哪？</td><td>法规全称 + 条号 + 原文</td><td>结论无法写进文书，也没法被人核对</td></tr><tr><td><strong>有效力</strong></td><td>它还有效吗？</td><td>现行有效 / 已废止 / 已失效 / 未知</td><td>引了废止文件，比不引更糟</td></tr></tbody></table>
+<p>三层缺一层，这个产品就退化成「搜索框」或「校对小工具」。</p>
+<h2 id="13-用户与三个真实场景">1.3 用户与三个真实场景</h2>
+<p><strong>主用户</strong>：规划院/所的规划师、政府部门的规划管理人员。他们不是在「查法规」， 是在<strong>写一份要交出去的东西</strong>（专项规划、可行性研究、项目建议书、政策建议）， 里面每一句涉及法定依据的话都要能被人追问「依据是什么」。</p>
+<p><strong>场景 A · 立项前的文件梳理（新增，本版重点）</strong> 接了江西鹰潭的城市更新项目。需要知道：鹰潭市本级有哪些文件、江西省有哪些、 国务院和部委有哪些，以及历史文化保护方面的相关规定。产出是一张清单，进项目建议书的 「政策依据」一章。<strong>这一步的判据是不能漏</strong>。</p>
+<p><strong>场景 B · 起草时的引用核对</strong> 写完一章，逐条核对：引的条号存在吗？引的法规还有效吗？有没有该引没引的重要文件？ <strong>这一步的判据是不能错</strong>。</p>
+<p><strong>场景 C · 送审前的自查</strong> 把稿子交给评审前，跑一遍全文，产出「引用清单 + 时效状态 + 疑似问题列表」， 随稿一起交。<strong>这一步的判据是可解释</strong>——每一条问题都要能指到具体位置。</p>
+<h2 id="14-不做什么">1.4 不做什么</h2>
+<ol>
+<li><strong>不给法律意见。</strong> 报告事实与效力状态，不给「你应该怎么做」。</li>
+<li><strong>不做全量全文库。</strong> 1.9 万份正文进库之后，效力台账维护不了，闸门 2 失效，</li>
+<p>整套东西退化成普通 RAG（见 <a href="#91-为什么不做全量全文库最硬的约束">9.1</a>）。</p>
+<li><strong>不替代正式法律检索。</strong> 对外的效力认定以法制部门口径为准。</li>
+<li><strong>不做通用问答。</strong> 只回答「这份文件这条规定是什么、还有没有效」这类可核验的问题。</li>
+<li><strong>不承诺覆盖全国所有地市。</strong> 每个省市站要单独适配，做不到的部分显式标缺。</li>
+</ol>
+<hr>
+<h1 id="2-两层库">2. 两层库</h1>
+<h2 id="21-为什么必须两层">2.1 为什么必须两层</h2>
+<p>两层真正的差别是<strong>维护成本</strong>，跟存多存少关系不大：</p>
+<table><thead><tr><th></th><th>目录层</th><th>专题库（全文层）</th></tr></thead><tbody><tr><td>存什么</td><td>名称 / 发文机关 / 文号 / 效力级别 / 发布与失效日 / 地域 / 主题 / 链接</td><td>逐条正文 + 条数表 + 时效台账</td></tr><tr><td>目标</td><td><strong>接近穷举</strong>（不能漏）</td><td><strong>按需精读</strong>（不能错）</td></tr><tr><td>规模</td><td>国家级 19,026 条 + 省市</td><td>一个专题 50–80 份 / 2,000–4,000 条</td></tr><tr><td>谁能维护</td><td>机器全自动</td><td>机器 + 人工确认效力</td></tr><tr><td>更新</td><td>每天可增量刷</td><td>立项时装配一次</td></tr><tr><td>判据</td><td>覆盖度</td><td>五项确定性校验</td></tr></tbody></table>
+<p><strong>决定性因素是维护成本。</strong></p>
+<p>19,026 份文件的效力状态，只有国家法律法规数据库有权威口径，而它现在 <code>blocked</code>（§9.2）。 没有台账，闸门 2 的 C1（条号越界）和 C3（时效违规）就全部退化成「未核」—— 这两条恰恰是这个产品不可替代的部分。<strong>库一大，判据先死。</strong></p>
+<p>50–80 份不一样：条数表可以由解析结果<strong>自动导出</strong>（解析出来就数出来了）， 效力状态只需人工确认 50–80 次，一次点击一份，半小时能做完。 这是「专题库可维护、巨型库不可维护」的量化依据。</p>
+<h2 id="22-目录层规格">2.2 目录层规格</h2>
+<table><thead><tr><th>项</th><th>规格</th></tr></thead><tbody><tr><td>存储</td><td>SQLite（<code>data/catalog.db</code>），三张表：<code>items</code> / <code>source_state</code> / <code>runs</code></td></tr><tr><td>字段</td><td>名称、发文机关、文号、效力级别、地域、主题、发布日期、施行日、失效日、效力状态、链接、摘要</td></tr><tr><td>每个推断字段</td><td>必须带依据：<code>文号 / 时效台账 / 来源库 / 来源站点 / 标题 / 无法判定</code></td></tr><tr><td>国家级总量</td><td><strong>19,026 条</strong>（gw 6,222 + bm 12,804），实测可翻页穷举</td></tr><tr><td>刷新</td><td>全量 13 分钟；增量按发布日期窗口 + 文号指纹（见 §6.3）</td></tr><tr><td>主题</td><td>11 个词表（城市更新 / 历史文化保护 / 土地管理 / 规划管理 / 财政资金 / 房屋征收 / 市政设施 / 生态环境 / 消防与安全 / 建筑管理 / 招标采购）</td></tr><tr><td>地域展开</td><td><code>regions.chain</code> 配置：鹰潭市 → 江西省 → 国家</td></tr><tr><td>状态词</td><td><code>ok / empty / blocked / unavailable / error / skipped</code>（六种，缺一不可）</td></tr><tr><td>已实现</td><td><code>scripts/catalog/</code>，自检 26/26，实测见 §2.2.1</td></tr></tbody></table>
+<h3 id="221-实测数据2026-10-19">2.2.1 实测数据（2026-10-19）</h3>
+<table><thead><tr><th>源</th><th>状态</th><th>实测</th></tr></thead><tbody><tr><td>国务院政策文件库</td><td><code>ok</code></td><td>源端 6,222 条；主题子集 1,425 条</td></tr><tr><td>国务院部门文件库</td><td><code>ok</code></td><td>源端 12,804 条；主题子集 1,772 条</td></tr><tr><td>鹰潭市政府（站内检索）</td><td><code>ok</code></td><td>源端命中 276 条 → 收录 3 份（差额未逐条核对）</td></tr><tr><td>鹰潭市政府（文件栏目）</td><td><code>empty</code></td><td>扫 32 条，无主题文件</td></tr><tr><td>国家法律法规数据库</td><td><code>blocked</code></td><td>17 个接口路径已提取，参数体打不通，带验证码风控</td></tr><tr><td>江西省人民政府</td><td><code>unavailable</code></td><td>TRS search5，前端渲染</td></tr><tr><td>人工清单</td><td><code>skipped</code></td><td>只有表头</td></tr></tbody></table>
+<p>「鹰潭 × 城市更新」全量翻页一次：扫 3,197 条，收录 <strong>24 条</strong>（国家 21 / 省级 0 / 市级 3）， 用时 <strong>2 分 19 秒</strong>。同题浅抓 2 页只有 4 条国家文件——<strong>翻页深度决定清单大小</strong>。</p>
+<h2 id="23-专题库规格">2.3 专题库规格</h2>
+<p><strong>「专题库」的定义：一个主题 × 一条地域链上的全部相关文件全文。</strong></p>
+<table><thead><tr><th>项</th><th>规格</th></tr></thead><tbody><tr><td>库的键</td><td><code>topic + region_chain</code>，例如 <code>城市更新@鹰潭市→江西省→国家</code></td></tr><tr><td>组成</td><td>50–80 份文件全文，切成 2,000–4,000 个可检索单元</td></tr><tr><td>必须携带</td><td>条数表、时效台账、名称映射表（三张表）</td></tr><tr><td>生命周期</td><td>随项目建，可长期复用（同城市同主题的第二个项目直接复用）</td></tr><tr><td>复用规则</td><td>项目引用库，不复制库；库升级后所有引用它的项目一起受益</td></tr><tr><td>退出条件</td><td>三张表齐 + 检索召回达标 + 闸门自检通过 + 缺口清单已标注</td></tr></tbody></table>
+<p><strong>为什么库的粒度是「主题 × 地域」而不是「项目」</strong>：一个规划院一年做五个城市更新项目， 如果按项目建库，就是五个 80% 重复的库。按「主题 × 地域」建，鹰潭只有一个城市更新库， 五个项目共用；换到南昌再做，新增一个南昌库，国家层文件复用同一份。</p>
+<h2 id="24-两层的接缝最容易漏的地方">2.4 两层的接缝（最容易漏的地方）</h2>
+<p>目录层认「标题」，专题库认「法规全称」，闸门 2 认「全称 + 条号」。三者必须对齐：</p>
+<pre><code>目录条目：关于开展2026年度中央财政支持实施城市更新行动的通知   ← 抓来的标题
+                    │ 装配时解析出正式全称
+                    ▼
+专题库条目：《中央财政支持城市更新行动资金管理办法》            ← 正文首部或落款
+                    │ 写入 doc_names.json
+                    ▼
+闸门 2：认全称 → 查条数表 → 查时效台账</code></pre>
+<p><strong>风险</strong>：目录标题与正文全称经常不一致（尤其是转发件、印发通知、附件形式的文件）。 处理规则写在 §6.2。</p>
+<hr>
+<h1 id="3-四段链路">3. 四段链路</h1>
+<h2 id="31-全景">3.1 全景</h2>
+<pre><code>┌─ 段 0 · 发现 ────────────────────────────────────────────────┐
+│  输入：地域「鹰潭」+ 主题「城市更新」                          │
+│  动作：目录层按 region_chain 展开，结构化查询（不用 RAG）      │
+│  输出：候选清单 N 份 + 三级覆盖度 + 缺口清单                  │
+│  判据：不能漏 → 看覆盖度，不看条数                            │
+└──────────────────────────────────────────────────────────────┘
+         │ 人筛：留 A/B 级、剔 C 级（新闻 / 转载 / 解读）
+         ▼
+┌─ 段 1 · 装配 ────────────────────────────────────────────────┐
+│  五个环节：抓全文 → 解析 → 体检 → 出三张表 → 建索引          │
+│  输出：专题库（50–80 份）+ 条数表 + 时效台账 + 缺口单          │
+│  判据：不能错 → 体检通过率、条数对齐、人工确认率              │
+└──────────────────────────────────────────────────────────────┘
+         │
+         ▼
+┌─ 段 2 · 核验 ────────────────────────────────────────────────┐
+│  提问 → ②检索（BM25/向量）→ 候选条文                          │
+│        → ③生成（模型起草，逐条锚定条号）                      │
+│        → ④闸门 1（话题级，分数阈值）                          │
+│        → ⑤闸门 2（条文级，零模型，5 项）                      │
+│  判据：不能错 → 引用可追溯、真编造、时效违规                  │
+└──────────────────────────────────────────────────────────────┘
+         │
+         ▼
+┌─ 段 3 · 交付 ────────────────────────────────────────────────┐
+│  可作答 / 部分作答 / 拒答                                     │
+│  + 逐条依据 + 时效状态 + 引用清单 + 判定理由                   │
+└──────────────────────────────────────────────────────────────┘</code></pre>
+<h2 id="32-段-0--发现">3.2 段 0 · 发现</h2>
+<table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>输入</td><td><code>region</code>（可简写「鹰潭」）+ <code>topic</code> 或 <code>keyword</code></td></tr><tr><td>前置</td><td>该地域在 <code>sites.json</code> 里有配置（没有就新增一条，不改代码）</td></tr><tr><td>动作</td><td>按地域链逐级调度源；每个源独立跑、独立报状态</td></tr><tr><td>输出</td><td>清单（按行政层级分组，每条带效力级别、文号、日期、链接、状态）+ 覆盖度 + 缺口</td></tr><tr><td>判据</td><td><strong>三级各自覆盖到什么程度</strong>；「没查到」必须显式写出来</td></tr><tr><td>失败</td><td>单源失败不影响其他源；整级为空时该级标 <code>missing</code> 并给原因</td></tr><tr><td>不做</td><td>不抓正文、不判效力、不猜</td></tr></tbody></table>
+<p><strong>这一步为什么不用 RAG</strong>：目录层要回答的是「有哪些文件」，这是一个集合查询。 用相似度找文件会漏掉「标题不含主题词但内容相关」的文件，也会混进大量新闻。 结构化查询（地域 × 主题 × 效力级别）在这个任务上更准、更快、可穷举。</p>
+<h2 id="33-段-1--装配">3.3 段 1 · 装配</h2>
+<p>详见 <a href="#5-装配流水线规格">§5</a>。这里只给输入输出。</p>
+<table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>输入</td><td>段 0 的候选清单，人已筛掉 C 级</td></tr><tr><td>动作</td><td>抓全文 → 解析 → 体检 → 出三张表 → 建索引 → 自检</td></tr><tr><td>输出</td><td>专题库 + 三张表 + 缺口单 + 装配报告</td></tr><tr><td>判据</td><td>体检通过率 ≥90%；条数表与正文一致率 100%（自动导出，必须自洽）；效力确认 100%（人工）</td></tr><tr><td>失败</td><td>体检不通过的文件转「待人工」，不静默丢弃</td></tr></tbody></table>
+<h2 id="34-段-2--核验">3.4 段 2 · 核验</h2>
+<p>沿用 v1 的两道闸门，这里只写与 v2 有关的变化：</p>
+<table><thead><tr><th>变化</th><th>说明</th></tr></thead><tbody><tr><td>闸门 1 阈值</td><td><strong>必须按每个专题库重标</strong>。v1 的 0.40 是在 8 部法规上量的，不能直接搬</td></tr><tr><td>闸门 2 依据</td><td>三张表由装配流水线产出，不再手写。条数表自动生成，时效台账人工确认</td></tr><tr><td>检索层</td><td>默认 BM25；向量为可选增强，启用后必须重标阈值</td></tr><tr><td>覆盖度</td><td>回答里增加一句「本次依据来自专题库 X，该库省级未覆盖」</td></tr></tbody></table>
+<h2 id="35-段-3--交付">3.5 段 3 · 交付</h2>
+<p>沿用 v1 的三态与输出契约。新增两条：</p>
+<ol>
+<li><strong>依据来源分级</strong>：每条依据标明它来自「专题库全文」还是「仅有目录」。</li>
+<p>只到目录级别的文件，只能作为「另需查阅」提示，不能当引用。</p>
+<li><strong>缺口声明</strong>：本次装配的已知缺口（省级未覆盖 / 某份文件解析失败）随结论一起给出。</li>
+</ol>
+<h2 id="36-每段的失败与降级">3.6 每段的失败与降级</h2>
+<table><thead><tr><th>段</th><th>失败形态</th><th>降级动作</th><th>用户看到什么</th></tr></thead><tbody><tr><td>0 发现</td><td>某级源不可用</td><td>该级标 <code>missing</code>，继续跑其他级</td><td>「省级未覆盖：原因 + 补法」</td></tr><tr><td>0 发现</td><td>全源不可用</td><td>整个查询报错，不返回空清单</td><td>「本次查询失败」+ 原因</td></tr><tr><td>1 装配</td><td>抓全文失败</td><td>该份转「待人工」，其余继续</td><td>「N 份待人工处理」</td></tr><tr><td>1 装配</td><td>解析失败 / 体检不过</td><td>该份不入库，留在候选池</td><td>「N 份未通过体检」+ 原因分类</td></tr><tr><td>1 装配</td><td>效力未确认</td><td>该份入库但标「未知」，闸门 2 不认它为现行依据</td><td>「N 份效力未确认」</td></tr><tr><td>2 核验</td><td>闸门 1 不过</td><td>拒答</td><td>「本次检索结果中没有能支持该问题的条文」</td></tr><tr><td>2 核验</td><td>闸门 2 不过</td><td>降级或拒答</td><td>「第 X 条第 Y 项不通过：引用查不到」</td></tr></tbody></table>
+<hr>
+<h1 id="4-rag-在这里的位置">4. RAG 在这里的位置</h1>
+<p>这一节直接回答「还有没有用 RAG」。</p>
+<h2 id="41-仍然在用但只用在一处">4.1 仍然在用，但只用在一处</h2>
+<p>整条链路上有三件需要「找东西」的事：</p>
+<table><thead><tr><th>要办的事</th><th>用什么</th><th>为什么</th></tr></thead><tbody><tr><td>这个方向有哪些文件</td><td><strong>结构化查询</strong>（目录层）</td><td>要穷举、要能说出「没有」，相似度做不到</td></tr><tr><td>这几条依据在库里的哪里</td><td><strong>检索</strong>（BM25 / 向量）</td><td>是语义匹配任务，这就是 RAG 的检索环节</td></tr><tr><td>模型说引了第 42 条，到底有没有</td><td><strong>确定性查找</strong>（按全称 + 条号取数）</td><td>要可复现、要能写进承诺，不能用分数</td></tr></tbody></table>
+<p><strong>只有第二件事是 RAG。</strong> 第一件和第三件都不是——它们不需要「相似」，需要「精确」。</p>
+<h2 id="42-rag-的职责缩小了">4.2 RAG 的职责缩小了</h2>
+<p>v1 里检索要干两件事：找到相关文件 + 找到相关条文。v2 把前一件交给了目录层。</p>
+<table><thead><tr><th></th><th>v1</th><th>v2</th></tr></thead><tbody><tr><td>检索负责</td><td>找文件 + 找条文</td><td><strong>只找条文</strong></td></tr><tr><td>找文件靠</td><td>向量相似度</td><td>地域 × 主题的结构化查询</td></tr><tr><td>找文件会不会漏</td><td>会（标题不含主题词就漏）</td><td>不会（目录是全的，按字段筛）</td></tr></tbody></table>
+<p><strong>这个变化的实际效果</strong>：模型中「检索」这一环的工程量占比从大约 100% 降到 30% 左右， 剩下 70% 是目录查询 + 装配 + 规则核验，都是确定性工程。</p>
+<h2 id="43-检索层规格">4.3 检索层规格</h2>
+<table><thead><tr><th>项</th><th>默认</th><th>可选</th></tr></thead><tbody><tr><td>召回</td><td>BM25（纯标准库实现）</td><td>向量召回（需 embedding）</td></tr><tr><td>重排</td><td>无</td><td>rerank（仅在阈值判定需要时）</td></tr><tr><td>规模</td><td>2,000–4,000 条 / 库</td><td>同</td></tr><tr><td>实测依据</td><td>MVP 在 8 部 / 419 单元上 top-8 召回 L1+L2 <strong>15/15</strong></td><td>完整版 66 题 recall@1 65/66</td></tr><tr><td>结论</td><td><strong>专题库规模下 BM25 够用，向量是可选项</strong></td><td>启用向量必须重标闸门 1 阈值</td></tr></tbody></table>
+<p><strong>为什么专题库可以不配向量</strong>：目录层已经把文件圈定在 50–80 份， 检索要做的只是「在这 2,000–4,000 条里挑出相关的几条」。这个规模的词汇重叠度足够高， BM25 的弱点（同义表述）影响有限，而且一旦出错，闸门 2 会拦下来。 <strong>用零依赖换来的可复现性，在这个规模上比几个百分点的召回更值钱。</strong></p>
+<h2 id="44-三个反模式不能用-rag-的地方">4.4 三个反模式（不能用 RAG 的地方）</h2>
+<p>这三条都是 v1 踩出来的，写在这里防止以后有人重新踩：</p>
+<ol>
+<li><strong>不能用相似度判断「这条规定是否存在」。</strong> 查不到就是查不到，要用条号确定性查找。</li>
+<p>否则「库里没有」和「没检索到」会混成一件事。</p>
+<li><strong>不能用相似度判断「文件是否失效」。</strong> 效力只有台账和法定期刊说了算。</li>
+<p>模型自报「现行有效」等于自报自验。</p>
+<li><strong>不能用相似度做「漏引检测」。</strong> 漏引是集合差集问题（目录 N 份 − 稿子引 M 份），</li>
+<p>不是相似度问题。</p>
+</ol>
+<h2 id="45-诚实的回答">4.5 诚实的回答</h2>
+<p><strong>还有 RAG，但它在这个产品里是配角。</strong></p>
+<p>普通的法规问答 RAG 是 <code>检索 → 生成</code>。有据是 <code>检索 → 生成 → 核验 → 降级</code>。 多出来的两段都不需要 RAG，而这两段才是产品价值所在—— 用户要的是一份能被人追问的文件。一段听起来对的话满足不了这个要求。</p>
+<p>反过来说：<strong>如果去掉 RAG，这个产品仍然能工作</strong>（用户自己贴条文进来核验）； <strong>如果去掉核验，它就变成又一个法规问答机器人</strong>。</p>
+<hr>
+<h1 id="5-装配流水线规格">5. 装配流水线规格</h1>
+<p>本版只有规格，尚未实现。这一节是下一轮的开发依据。</p>
+<h2 id="51-五个环节">5.1 五个环节</h2>
+<table><thead><tr><th>环节</th><th>动作</th><th>判据</th><th>失败处理</th></tr></thead><tbody><tr><td>① 抓全文</td><td>按目录 URL 下载；同一文件多源时取正文最完整的一份</td><td>成功率（首轮只记录，不设目标）</td><td>转「待人工」</td></tr><tr><td>② 解析</td><td>HTML / docx → 纯文本 + 结构（条、款、项）</td><td>解析成功率（按格式分别统计）</td><td>转「待人工」</td></tr><tr><td>③ 体检</td><td>三重判据（§5.3），不过则不入库</td><td>通过率（首轮只记录，不设目标）</td><td>留候选池，标原因</td></tr><tr><td>④ 出表</td><td>自动生成条数表；时效台账待人工确认</td><td>条数表与正文自洽率 <strong>100%</strong>（这一条必须有）</td><td>阻断</td></tr><tr><td>⑤ 建库</td><td>切分 + 建索引 + 跑自检</td><td>闸门自检通过</td><td>阻断，不给用</td></tr></tbody></table>
+<p><strong>为什么前三项不设通过率目标</strong>：首轮真实数据还没跑过，任何百分比都是编的。 省市级文件大量以 <code>.doc</code> 附件形式发布，而 <code>.doc</code> 零依赖解不了（§5.2）， 解析成功率可能低到 50% 以下。<strong>先量出来，再定阈值</strong>—— 把目标写在没量过的地方，只会逼着实现去凑数。</p>
+<h2 id="52-解析能力矩阵零依赖约束下的真实边界">5.2 解析能力矩阵（零依赖约束下的真实边界）</h2>
+<p>项目的硬约束是<strong>零第三方包</strong>。这个约束决定了哪些格式能进全文层：</p>
+<table><thead><tr><th>格式</th><th>能否零依赖解析</th><th>依据</th><th>处理</th></tr></thead><tbody><tr><td>HTML</td><td>✅ 可以</td><td>正则 + 去标签</td><td>首选，政府站正文多为 HTML</td></tr><tr><td><code>.docx</code></td><td>✅ 可以</td><td><code>zipfile</code> 读 <code>word/document.xml</code>，去标签</td><td><strong>已实测</strong>：8216 字符 / 50 条，与条数表一致</td></tr><tr><td><code>.doc</code></td><td>❌ 不行</td><td>OLE2 二进制（实测文件头 <code>D0CF11E0</code>）</td><td>需外部转换（Word COM / LibreOffice）或人工另存</td></tr><tr><td><code>.pdf</code></td><td>❌ 不行</td><td>PDF 内容流，标准库无解</td><td>同上；扫描件还需 OCR</td></tr><tr><td>扫描件</td><td>❌ 不行</td><td>同上</td><td>同上</td></tr></tbody></table>
+<p><strong>这是一条真实的产品约束，要写进界面</strong>：装配报告里必须分别统计 「HTML 成功 / docx 成功 / doc 待转换 / pdf 待转换」，不能笼统报「N 份待人工」。</p>
+<p><strong>为什么不为它破例引入依赖</strong>：一旦引入 PDF 解析库，MVP 就不能「拷走就跑」， 而这个能力是产品演示与交接的基础。替代方案是「外部转换一步，人工操作」， 成本是一个人一次点击，收益是整条链路保持零依赖。</p>
+<h2 id="53-体检的三重判据">5.3 体检的三重判据</h2>
+<p>单纯用「条数对齐」会大量误杀——<strong>很多规范性文件根本不分条</strong>（用「一、」「（一）」分层次）。 所以体检要分型后再判：</p>
+<p><strong>第一步：判型</strong></p>
+<table><thead><tr><th>型</th><th>判据</th><th>后续检查</th></tr></thead><tbody><tr><td>分条型</td><td>能识别 ≥3 个「第X条」</td><td>条号连续性 + 首尾完整</td></tr><tr><td>分段型</td><td>能识别 ≥3 个「一、」或「（一）」层级</td><td>层级编号连续性</td></tr><tr><td>无结构型</td><td>都不满足</td><td>只做长度与落款检查</td></tr></tbody></table>
+<p><strong>第二步：三项检查</strong></p>
+<table><thead><tr><th>检查</th><th>判据</th><th>拦什么</th></tr></thead><tbody><tr><td>完整性</td><td>正文含落款或成文日期；长度 ≥500 字</td><td>截断、只抓到附件、抓到导航文字</td></tr><tr><td>结构完好</td><td>分条型：条号从「第一条」连续到最后一条，无跳号、无重复</td><td>解析漏段、混入两份文件</td></tr><tr><td>一致性</td><td>正文首 200 字与目录摘要重合度 ≥50%</td><td>抓错文件（链接跳转、栏目错位）</td></tr></tbody></table>
+<p><strong>第三步：分型记录</strong></p>
+<p>体检结果必须记下「这份文件是什么型、多少条/多少段」，因为闸门 2 的 C1（条号越界） 只对分条型有效。分段型的文件，C1 要降级为「条款编号存在性检查」。</p>
+<h2 id="54-准入分级">5.4 准入分级</h2>
+<p>不是所有抓到的文件都该进全文层：</p>
+<table><thead><tr><th>级</th><th>判定</th><th>处理</th></tr></thead><tbody><tr><td><strong>A 必入</strong></td><td>法律 / 行政法规 / 部门规章 / 地方性法规（文号可判、效力级别明确）</td><td>进全文层，效力必须人工确认</td></tr><tr><td><strong>B 可入</strong></td><td>省市规范性文件（标题命中主题、有文号或落款）</td><td>进全文层，效力必须人工确认</td></tr><tr><td><strong>C 只留目录</strong></td><td>新闻、转载、解读、政策问答、会议报道</td><td>留在目录层，不进全文层</td></tr></tbody></table>
+<p>判定顺序：先看 <code>doc_type</code>（由文号推），推不出再看标题核心词，最后看来源栏目。 C 级的判据已经实现在 <code>looks_like_doc()</code> 里。</p>
+<h2 id="55-状态词装配层">5.5 状态词（装配层）</h2>
+<p>与目录层同一套思路——<strong>没做成的事必须说出来</strong>：</p>
+<table><thead><tr><th>状态</th><th>含义</th></tr></thead><tbody><tr><td><code>assembled</code></td><td>已入专题库，三张表齐，效力已确认</td></tr><tr><td><code>parsed</code></td><td>已解析入库，但效力未确认（闸门 2 只作参考依据）</td></tr><tr><td><code>pending_convert</code></td><td>需要外部转换（doc / pdf）</td></tr><tr><td><code>pending_manual</code></td><td>抓取失败或体检不过，待人工处理</td></tr><tr><td><code>catalog_only</code></td><td>只在目录层，未进全文层（C 级或用户剔除）</td></tr><tr><td><code>excluded</code></td><td>用户主动剔除</td></tr></tbody></table>
+<p><strong>装配报告必须给出这六类的条数。</strong> 只报「成功 62 份」是误导。</p>
+<hr>
+<h1 id="6-数据规格">6. 数据规格</h1>
+<h2 id="61-目录层">6.1 目录层</h2>
+<table><thead><tr><th>表</th><th>内容</th></tr></thead><tbody><tr><td><code>items</code></td><td>key（<code>sha1(fold(doc_no or title))</code>）、名称、发文机关、文号、效力级别、地域、主题、日期、状态、链接、摘要、多源来源、首见/末见</td></tr><tr><td><code>source_state</code></td><td>每个源最后一次运行的状态、收录数、扫描数、源端命中数、耗时、原因</td></tr><tr><td><code>runs</code></td><td>每次抓取的查询、覆盖度快照、统计</td></tr></tbody></table>
+<h2 id="62-专题库">6.2 专题库</h2>
+<table><thead><tr><th>文件</th><th>内容</th><th>谁生成</th></tr></thead><tbody><tr><td><code>kb_text/&lt;slug&gt;/</code></td><td>落库文本，每行形如《全称》第X条　正文</td><td>装配流水线</td></tr><tr><td><code>article_counts.json</code></td><td>每部法规的条数</td><td>装配流水线（自动）</td></tr><tr><td><code>stale_ledger.json</code></td><td>每部法规的效力状态</td><td>人工确认后生成</td></tr><tr><td><code>doc_names.json</code></td><td>目录标题 ↔ 正式全称</td><td>装配流水线（自动 + 人工校正）</td></tr><tr><td><code>assemble_report.json</code></td><td>六类状态计数、缺口清单、体检明细</td><td>装配流水线</td></tr></tbody></table>
+<p><strong>标题到全称的对齐规则</strong>（§2.4 的接缝）：</p>
+<ol>
+<li>优先取正文首部的书名号内容；</li>
+<li>其次取落款前的标题行；</li>
+<li>都没有则用目录标题，并标记 <code>name_src = 目录标题</code>（闸门 2 会因此更容易失败，</li>
+<p>这是诚实的代价，不能靠猜补齐）。</p>
+</ol>
+<h2 id="63-增量刷新">6.3 增量刷新</h2>
+<table><thead><tr><th>项</th><th>规格</th></tr></thead><tbody><tr><td>增量判据</td><td>① 源端按 <code>pubtime</code> 倒序取前 N 页；② 与库里 <code>last_seen</code> 比对；③ 用文号做二次去重</td></tr><tr><td>已知漏洞</td><td>政府站修订版常常沿用原文号、不发新日期 → 增量会漏掉修订</td></tr><tr><td>补法</td><td>每周一次全量（13 分钟），不完全依赖增量</td></tr><tr><td>记录</td><td>每次刷新记 <code>runs</code>，报告「新增 / 变动 / 消失」三个数</td></tr></tbody></table>
+<hr>
+<h1 id="7-指标口径">7. 指标口径</h1>
+<p>v1 只有一套指标（66 题）。v2 必须拆成三层，<strong>因为三层的判据不同</strong>， 混在一起会掩盖问题。</p>
+<h2 id="71-目录层判据不能漏">7.1 目录层（判据：不能漏）</h2>
+<table><thead><tr><th>指标</th><th>口径</th><th>当前实测</th></tr></thead><tbody><tr><td>覆盖度</td><td>三级各自 <code>ok / partial / missing</code></td><td>国家 partial / 省级 missing / 市级 ok</td></tr><tr><td>状态完整性</td><td>每个源都必须有状态词，无空白</td><td>7/7</td></tr><tr><td>源端命中解释率</td><td>收录数 ÷ 命中数，差额必须有解释</td><td>鹰潭 3/276；<strong>273 条差额只抽看过一小部分，未逐条核对</strong></td></tr><tr><td>穷举能力</td><td>深翻页是否受限</td><td>实测 p=70 正常，无封顶</td></tr><tr><td>字段依据覆盖率</td><td>推断字段带依据的比例</td><td>100%</td></tr></tbody></table>
+<h2 id="72-装配层判据不能错">7.2 装配层（判据：不能错）</h2>
+<table><thead><tr><th>指标</th><th>口径</th><th>目标</th><th>当前</th></tr></thead><tbody><tr><td>抓取成功率</td><td>成功抓到正文 ÷ 候选数</td><td>≥95%</td><td>未实现</td></tr><tr><td>解析成功率</td><td>解析成功 ÷ 抓取成功</td><td>≥90%</td><td>未实现</td></tr><tr><td>体检通过率</td><td>通过 ÷ 解析成功</td><td>≥90%</td><td>未实现</td></tr><tr><td>条数表自洽率</td><td>条数表与正文一致 ÷ 总数</td><td>100%</td><td>未实现</td></tr><tr><td>效力确认率</td><td>人工确认 ÷ 入库数</td><td>100%</td><td>未实现</td></tr><tr><td>装配耗时</td><td>50–80 份端到端</td><td>未验证</td><td><strong>未验证</strong></td></tr></tbody></table>
+<h2 id="73-问答层判据不能错">7.3 问答层（判据：不能错）</h2>
+<p>沿用 v1 的 66 题口径（引用可追溯 100%、真编造 0%、时效违规 0、边界 40/40、 闸门自检 11/11），但<strong>必须满足两个前提才算数</strong>：</p>
+<ol>
+<li>指标只在<strong>当次评估所用的那个库</strong>上有效；</li>
+<li>换库（换专题）之后必须重跑，<strong>不得沿用旧数字</strong>。</li>
+</ol>
+<h2 id="74-不得沿用的旧数字">7.4 不得沿用的旧数字</h2>
+<p>这一条单独列出来，因为它是本版最容易犯的错：</p>
+<table><thead><tr><th>旧数字</th><th>来源</th><th>换专题库后能否沿用</th></tr></thead><tbody><tr><td>闸门 1 阈值 0.40</td><td>8 部法规上标定</td><td><strong>不能</strong>，必须重标</td></tr><tr><td>recall@1 65/66</td><td>8 部法规</td><td><strong>不能</strong></td></tr><tr><td>top-8 召回 15/15</td><td>8 部 / 419 单元</td><td><strong>不能</strong>，库变了</td></tr><tr><td>引用可追溯 100%</td><td>66 题</td><td><strong>不能</strong>，需重测</td></tr></tbody></table>
+<p>沿用的后果是「看起来有实测支撑，其实是换了语料没换数字」——比没有数字更危险。</p>
+<hr>
+<h1 id="8-冷启动">8. 冷启动</h1>
+<p>新用户打开时库里必须有东西，否则第一印象就是空的。</p>
+<table><thead><tr><th>做法</th><th>规格</th></tr></thead><tbody><tr><td>预置专题库</td><td>4 个：城市更新 / 历史文化保护 / 土地征收 / 规划许可</td></tr><tr><td>每个库的构成</td><td>国家级（30–40 份）+ 3 个典型省市（各 10–15 份）</td></tr><tr><td>幂等</td><td>预置库的效力状态必须是<strong>已人工确认</strong>的，否则闸门 2 只能半工作</td></tr><tr><td>展示</td><td>首屏直接给「这 4 个库各有哪些文件、覆盖到哪一级」，不让用户先学会提问</td></tr><tr><td>成本</td><td>4 库 × 80 份 = 320 份的人工效力确认，是这个方案最大的冷启动成本</td></tr></tbody></table>
+<p><strong>这条成本要提前认</strong>：预置库如果不确认效力，它就只能当目录用； 当目录用的话，预置的价值主要是「演示」，不是「可用」。两者要分清。</p>
+<hr>
+<h1 id="9-已知边界与风险">9. 已知边界与风险</h1>
+<h2 id="91-为什么不做全量全文库最硬的约束">9.1 为什么不做全量全文库（最硬的约束）</h2>
+<p>19,026 份 × 平均 5 千字 ≈ 9,500 万字 ≈ 30 万个切分单元。能存能检，但：</p>
+<table><thead><tr><th>能力</th><th>8 部 / 419 单元</th><th>19,026 份 / 30 万单元</th></tr></thead><tbody><tr><td>条数表</td><td>手工核对，精确</td><td>无来源，只能解析导出，准确性未知</td></tr><tr><td>时效台账</td><td>逐部核对</td><td><strong>不可能逐部核对</strong></td></tr><tr><td>闸门 2 C1/C3</td><td>可用</td><td><strong>失效（退化為「未核」）</strong></td></tr><tr><td>闸门 1 的「没有」</td><td>可信（库小，能确认装了什么）</td><td><strong>不可信</strong>（检索不到 ≠ 不存在）</td></tr><tr><td>答案冲突</td><td>人脑可裁</td><td>需另一套冲突裁决机制</td></tr></tbody></table>
+<p><strong>结论</strong>：巨型库会让这个产品的核心判据失效，退化成普通 RAG。所以全文层按专题装配。</p>
+<h2 id="92-风险登记">9.2 风险登记</h2>
+<table><thead><tr><th>#</th><th>风险</th><th>现状</th><th>应对</th></tr></thead><tbody><tr><td>1</td><td>省级源抓不到（江西 TRS）</td><td>省级恒为 <code>missing</code></td><td>人工清单兜底（<strong>当前为空</strong>）；或换源（省政府公报导出）</td></tr><tr><td>2</td><td>flk 接口未通</td><td><code>blocked</code>，17 个路径已知，参数体打不通</td><td>① 官方导出后 <code>--import</code>；② 投一天逆向 <code>search/list</code></td></tr><tr><td>3</td><td>doc / pdf 不能零依赖解析</td><td>实测 OLE2 / PDF 均不可</td><td>外部转换一步；装配报告分开统计两类</td></tr><tr><td>4</td><td>标题与全称不一致</td><td>接缝风险（§2.4）</td><td>三级对齐规则；对不齐时标 <code>name_src</code>，不猜</td></tr><tr><td>5</td><td>体检误杀分条不明显的文件</td><td>判型机制尚未实现</td><td>先判型再检查；分段型不套用条数判据</td></tr><tr><td>6</td><td>闸门 1 阈值需逐库重标</td><td>v1 的 0.40 不可搬</td><td>每个新库标定一次，标定结果写进库的元数据</td></tr><tr><td>7</td><td>装配耗时未实测</td><td>「10 分钟」是估算</td><td><strong>不得作为承诺对外说</strong>，先测再说</td></tr><tr><td>8</td><td>增量漏掉修订版</td><td>政府站改文不改日期</td><td>每周一次全量（13 分钟）</td></tr><tr><td>9</td><td>预置库效力未确认</td><td>冷启动成本高</td><td>先做 1 个库验证，再决定要不要做 4 个</td></tr><tr><td>10</td><td>无真实用户验证</td><td>66 题是自造的</td><td>找 3 个从业者各问 3 个真实问题</td></tr></tbody></table>
+<hr>
+<h1 id="10-待办">10. 待办</h1>
+<p>按依赖顺序，不按重要性：</p>
+<ol>
+<li><strong>实现装配流水线</strong>（§5）。先做 HTML + docx 两种格式，doc/pdf 直接转 <code>pending_convert</code>。</li>
+<p>用「鹰潭 × 城市更新」的 21 份国家文件做第一轮验证。</p>
+<li><strong>实现体检判型</strong>（§5.3）。这是流水线能不能在真实数据上跑通的关键——</li>
+<p>不分条的文件占多数，用条数判据会全线误杀。</p>
+<li>**填 <code>data/catalog/manual.csv</code>**。省级缺口是每个专题库都躲不掉的洞。</li>
+<li>**逆向 flk 的 <code>search/list</code>**。它是唯一能提供权威效力状态的源，值得投一天。</li>
+<li><strong>逐库重标闸门 1 阈值</strong>，把标定结果写进库的元数据。</li>
+<li><strong>实测装配耗时</strong>，用实测数字替换「10 分钟」这个估算。</li>
+<li>单个专题库跑一遍 66 题式的自检，产出该库自己的指标基线。</li>
+</ol>
+<hr>
+<h1 id="11-本-prd-的自我审查">11. 本 PRD 的自我审查</h1>
+<p>写完通读两遍，发现 14 处问题。11 处已经在正文里改掉，3 处保留并说明原因。</p>
+<h2 id="111-已改正文已是修正后的版本">11.1 已改（正文已是修正后的版本）</h2>
+<table><thead><tr><th>#</th><th>问题</th><th>表现</th><th>改法</th></tr></thead><tbody><tr><td>1</td><td><strong>「10 分钟装配」是没测过的承诺</strong></td><td>初稿把抓取+解析+体检+建库全算成 10 分钟</td><td>改成「未验证」，并在风险 7 与待办 6 里挂上；不许对外说</td></tr><tr><td>2</td><td><strong>人工确认效力被藏在「10 分钟」里</strong></td><td>若 80 份都要人工确认，10 分钟根本不可能</td><td>拆成「机器 10 分钟（未验证）+ 人工确认 30–40 分钟」，两笔账分开算</td></tr><tr><td>3</td><td><strong>体检用「条数对齐」会误杀</strong></td><td>多数规范性文件不分条，套条数判据会全线失败</td><td>改成「先判型（分条/分段/无结构）再检查」，并说明 C1 对分段型要降级</td></tr><tr><td>4</td><td><strong>零依赖与 doc/pdf 冲突</strong></td><td>初稿承诺「批量解析多种格式」</td><td>写进 §5.2 能力矩阵，doc/pdf 明确转人工，且装配报告要分类统计</td></tr><tr><td>5</td><td><strong>专题库的粒度写成「项目」</strong></td><td>会产生大量重复库</td><td>改成「主题 × 地域链」，项目引用库，不复制库</td></tr><tr><td>6</td><td><strong>闸门 1 阈值 0.40 被当成通用值</strong></td><td>初稿直接引用 v1 数字</td><td>改成「逐库重标」，并单列 §7.4「不得沿用的旧数字」</td></tr><tr><td>7</td><td><strong>省级缺失被当成个别问题</strong></td><td>初稿只在风险里提一句</td><td>提到 §3.6 降级表 + §9.2 风险 1 + 待办 3，因为它每个库都会撞</td></tr><tr><td>8</td><td><strong>目录标题与正文全称的接缝没写</strong></td><td>初稿假设两者一致</td><td>新增 §2.4 与 §6.2 对齐规则，明确「对不齐就标来源，不猜」</td></tr><tr><td>9</td><td><strong>预置库的效力成本被忽略</strong></td><td>初稿把「预置 4 个库」写得很轻</td><td>新增 §8「这条成本要提前认」，并把它降级为「先做 1 个验证」</td></tr><tr><td>10</td><td><strong>装配指标的目标值是编的</strong></td><td>初稿写「抓取 ≥95% / 解析 ≥90% / 体检 ≥90%」，一次真实数据都没跑过</td><td>§5.1 改成首轮只记录不设目标，先把实测值量出来；只保留「条数表自洽率 100%」这一条硬指标</td></tr><tr><td>11</td><td><strong>把「276 条差额是新闻」当成已知事实</strong></td><td>这与总说明风险 12 自相矛盾：那边写「未校验」，这边写「差额为新闻与转载」</td><td>两处都改成「未逐条核对」，与风险 12 对齐</td></tr></tbody></table>
+<h2 id="112-保留未改有理由">11.2 保留未改（有理由）</h2>
+<table><thead><tr><th>#</th><th>问题</th><th>为什么不改</th></tr></thead><tbody><tr><td>1</td><td><strong>「RAG 占比从 100% 降到 30%」是估的，不是量的</strong></td><td>无法用代码行数或耗时客观量化。保留是因为它传达的是架构重心变化，不是精确指标。已在措辞上用「大约」</td></tr><tr><td>2</td><td><strong>装配流水线只有规格，没有实现</strong></td><td>这是本版的真实状态，不假装已完成。§0 表格里已标明「只有规格」</td></tr><tr><td>3</td><td><strong>问答层指标仍是 8 部法规上的数字</strong></td><td>换库重测需要流水线先落地，现在改不了。§7.3 已加两个前提，§7.4 已列出不可沿用的清单</td></tr></tbody></table>
+<h2 id="113-审查里最值得记住的一条">11.3 审查里最值得记住的一条</h2>
+<p><strong>这份 PRD 最大的风险是「实测数字被跨场景挪用」。</strong> v1 攒下的一套漂亮数字（100% / 0% / 40-40）全都是 8 部法规上量的， 而 v2 把库换成了 50–80 份的专题库。<strong>换库不换数字，等于用旧考卷的成绩证明新学生的水平。</strong></p>
+<p>这条已经写进 §7.4。它属于流程问题，写进文档治不了—— 以后每次换库，第一件事应该是把旧指标作废，而不是先跑新库。</p>
+</main>
+<script>
+(function(){
+  var k='pv-doc-theme';
+  var saved=localStorage.getItem(k);
+  document.documentElement.dataset.theme = saved ||
+    (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.getElementById('theme').onclick=function(){
+    var n = document.documentElement.dataset.theme==='dark' ? 'light':'dark';
+    document.documentElement.dataset.theme=n; localStorage.setItem(k,n);
+  };
+})();
+</script>
+</body>
+</html>

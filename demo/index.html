@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>政策效力核验与可溯源引用引擎 · 演示</title>
+<style>
+/* ────────────────────────────────────────────────────────────────
+   主题：浅色为默认，深色跟随系统；右上角可手动切换。
+   所有颜色都走变量，避免深色下出现"白底黑字看不见"。
+   ──────────────────────────────────────────────────────────────── */
+:root{
+  --bg:#f6f7f9; --panel:#ffffff; --panel2:#fafbfc; --line:#e3e6ea;
+  --ink:#1c2024; --ink2:#5a626b; --ink3:#8b939c;
+  --accent:#2f6fd0; --accent-soft:#e8f0fc;
+  --ok:#1f8a4c; --ok-soft:#e6f5ec;
+  --warn:#a9701a; --warn-soft:#fdf3e0;
+  --stop:#7a4bd0; --stop-soft:#f0eafc;
+  --bad:#c23b3b; --bad-soft:#fceaea;
+  --rule:#eef1f4;
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+}
+html[data-theme="dark"]{
+  --bg:#15181c; --panel:#1d2126; --panel2:#22272d; --line:#31373e;
+  --ink:#e8ebee; --ink2:#a8b1ba; --ink3:#79828c;
+  --accent:#6fa4e8; --accent-soft:#1e2b3d;
+  --ok:#59c98a; --ok-soft:#16281e;
+  --warn:#e0b25e; --warn-soft:#2c2416;
+  --stop:#a98ae8; --stop-soft:#241d33;
+  --bad:#e07373; --bad-soft:#2e1a1a;
+  --rule:#2a3037;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+     font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 20px 72px}
+
+/* 页头 */
+header{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+h1{font-size:21px;margin:0 0 4px;letter-spacing:.2px}
+.sub{color:var(--ink2);font-size:13.5px;margin:0}
+.tools{margin-left:auto;display:flex;gap:8px;align-items:center}
+button{font-family:inherit;font-size:13.5px;cursor:pointer;border-radius:8px;
+       border:1px solid var(--line);background:var(--panel);color:var(--ink);
+       padding:7px 14px;transition:.15s}
+button:hover{border-color:var(--accent);color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button.primary:hover{filter:brightness(1.08);color:#fff}
+button:disabled{opacity:.55;cursor:default}
+
+/* 说明条 */
+.howto{margin:18px 0 20px;padding:13px 16px;background:var(--panel);border:1px solid var(--line);
+       border-left:3px solid var(--accent);border-radius:9px;font-size:13.5px;color:var(--ink2)}
+.howto b{color:var(--ink);font-weight:600}
+.howto .steps{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px}
+
+/* 提问区 */
+.askbox{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.askrow{display:flex;gap:10px}
+input[type=text]{flex:1;padding:11px 13px;border-radius:9px;border:1px solid var(--line);
+                 background:var(--panel2);color:var(--ink);font-family:inherit;font-size:14.5px}
+input[type=text]:focus{outline:none;border-color:var(--accent)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.chip{border:1px dashed var(--line);background:transparent;color:var(--ink2);
+      padding:5px 11px;border-radius:20px;font-size:12.5px}
+.chip:hover{border-style:solid;border-color:var(--accent);color:var(--accent)}
+
+/* 提示 */
+.note{margin-top:12px;font-size:13px;color:var(--ink3)}
+.banner{margin:16px 0 0;padding:10px 14px;border-radius:9px;font-size:13px;
+        background:var(--accent-soft);color:var(--accent);border:1px solid transparent}
+.banner.offline{background:var(--warn-soft);color:var(--warn)}
+
+/* 结果 */
+#result{margin-top:22px}
+.verdict{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+         background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 17px}
+.badge{font-size:16px;font-weight:700;padding:6px 15px;border-radius:8px;letter-spacing:.5px}
+.badge.ok{background:var(--ok-soft);color:var(--ok)}
+.badge.warn{background:var(--warn-soft);color:var(--warn)}
+.badge.stop{background:var(--stop-soft);color:var(--stop)}
+.vmeta{font-size:13px;color:var(--ink2)}
+.vmeta code{font-family:var(--mono);background:var(--rule);padding:1px 6px;border-radius:5px;font-size:12.5px}
+.qecho{margin-left:auto;font-size:12.5px;color:var(--ink3);max-width:46%;text-align:right}
+
+.grid{display:grid;gap:14px;margin-top:14px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 17px}
+.card.wide{grid-column:1/-1}
+.card h2{font-size:13px;margin:0 0 10px;color:var(--ink2);font-weight:600;letter-spacing:.6px}
+.concl{font-size:15.5px;line-height:1.7}
+.empty{color:var(--ink3);font-size:13.5px}
+
+/* 依据行 */
+.cite{display:flex;gap:9px;padding:9px 0;border-bottom:1px solid var(--rule);font-size:13.5px}
+.cite:last-child{border-bottom:none}
+.tick{flex:none;width:17px;font-weight:700;text-align:center}
+.tick.y{color:var(--ok)} .tick.n{color:var(--bad)}
+.cite .law{font-weight:600}
+.cite .art{font-family:var(--mono);font-size:12.5px;color:var(--accent)}
+.cite .why{display:block;color:var(--ink2);font-size:12.5px;margin-top:2px}
+
+/* 表 */
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{color:var(--ink3);font-weight:600;font-size:12px;letter-spacing:.4px;white-space:nowrap}
+td.mono{font-family:var(--mono);font-size:12.5px}
+.st{font-weight:600}
+.st.cur{color:var(--ok)} .st.gone{color:var(--bad)} .st.unk{color:var(--warn)}
+
+/* 检查卡 */
+.check{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--rule)}
+.check:last-child{border-bottom:none}
+.lvl{flex:none;font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:20px;min-width:46px;text-align:center}
+.lvl.pass{background:var(--ok-soft);color:var(--ok)}
+.lvl.block{background:var(--bad-soft);color:var(--bad)}
+.lvl.warn{background:var(--warn-soft);color:var(--warn)}
+.lvl.info{background:var(--rule);color:var(--ink3)}
+.ckname{font-weight:600;font-size:13.5px}
+.ckcode{font-family:var(--mono);color:var(--ink3);font-size:12px;margin-right:6px}
+.ckdetail{color:var(--ink2);font-size:12.5px;margin-top:3px}
+.ckdetail div{padding-left:2px}
+
+/* 理由 */
+ul.reasons{margin:0;padding-left:18px;font-size:13.5px;color:var(--ink2)}
+ul.reasons li{margin:3px 0}
+
+/* 原始 */
+details{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 17px}
+summary{cursor:pointer;font-size:13.5px;color:var(--ink2);font-weight:600}
+pre{white-space:pre-wrap;word-break:break-word;font-family:var(--mono);font-size:12.5px;
+    background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:13px;
+    margin:12px 0 0;max-height:440px;overflow:auto;color:var(--ink)}
+footer{margin-top:34px;font-size:12.5px;color:var(--ink3);border-top:1px solid var(--line);padding-top:14px}
+footer code{font-family:var(--mono)}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid var(--line);
+      border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div>
+    <h1>政策效力核验与可溯源引用引擎</h1>
+    <p class="sub">给出的不是「看起来像」的答案，而是逐条可反查的引用、明确的效力状态、以及在给不出依据时的明确拒答。</p>
+  </div>
+  <div class="tools">
+    <button id="theme">切换主题</button>
+  </div>
+</header>
+
+<div class="howto">
+  <b>这一页在演示什么。</b>你问一条法规怎么规定，系统走三步：
+  <div class="steps">
+    <span>① <b>检索</b> 从 8 部法规里召回相关条文</span>
+    <span>② <b>核验</b> 用确定性规则核对条号、引用出处、时效（不调用模型）</span>
+    <span>③ <b>交付</b> 按校验后的强度给出结论：可作答 / 部分作答 / 拒答</span>
+  </div>
+</div>
+
+<div class="askbox">
+  <div class="askrow">
+    <input type="text" id="q" placeholder="输入一个关于法规条文的问题……" autocomplete="off">
+    <button class="primary" id="go">核验</button>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="note" id="note"></div>
+</div>
+
+<div id="banner"></div>
+<div id="result"></div>
+
+<footer>
+  判定由 <code>scripts/gatekeeper.py</code>（闸门 2 · 不调用模型的确定性校验层）给出；
+  页面只是它的展示层。示例问答取自评估集 v7 的真实输出，可离线查看。
+</footer>
+
+</div>
+
+<!--SAMPLES-START-->
+<script id="samples" type="application/json">[
+ {
+  "question": "怀化市对扬尘污染防治实施统一监督管理的是哪个部门？",
+  "answer": "【边界判定】\n引用法规在库内：有全文\n所问条号核验：未指定\n时效状态：现行有效\n结论边界：可作答\n\n### 结论\n怀化市对扬尘污染防治实施统一监督管理的是**生态环境主管部门**。\n\n### 依据\n- 【《怀化市扬尘污染防治条例》第五条】原文关键句：「生态环境主管部门对本辖区内的扬尘污染防治实施统一监督管理，负责工业企业物料堆场的扬尘污染防治监督管理和违法行为行政处罚工作，负责石材加工、商品混凝土和预拌砂浆生产扬尘污染防治违法行为的行政处罚，会同有关主管部门提出防治目标，经市、县（市、区）人民政府批准后实施。」\n\n该条同时明确了其他主管部门的分工（住房和城乡建设主管部门负责房屋建筑、市政基础设施等工程施工及装饰装修、建（构）筑物拆除等扬尘污染防治监督管理；城市管理主管部门负责城市规划区内散装、流体物料运输、物料堆放、道路清扫保洁、园林绿化、市政基础设施维修、垃圾收运处理等扬尘污染防治监督管理），但「统一监督管理」职责明确落在生态环境主管部门。\n\n### 【引用清单】\n【引用清单】怀化市扬尘污染防治条例|第五条",
+  "resources": [
+   {
+    "document_name": "怀化市扬尘污染防治条例",
+    "content": "怀化市扬尘污染防治条例》第五条　生态环境主管部门对本辖区内的扬尘污染防治实施统一监督管理，负责工业企业物料堆场的扬尘污染防治监督管理和违法行为行政处罚工作，负责石材加工、商品混凝土和预拌砂浆生产扬尘污染防治违法行为的行政处罚，会同有关主管部门提出防治目标，经市、县（市、区）人民政府批准后实施。 住房和城乡建设主管部门负责房屋建筑、建筑土方、市政基础设施建设等工程施工和装饰装修、建（构）筑物拆除、商品混凝土和预拌砂浆生产等扬尘污染防治监督管理工作。 城市管理主管部门负责城市规划区内散装、流体物料运输和易产生扬尘污染的物料堆放，违法建（构）筑物拆除，城市道路和露天公共场所清扫保洁，填埋场和消纳场作业，园林绿化，破道施工，市政基础设施维修，垃圾收运处理等扬尘污染防治监督管理和违法行为行政处罚工作，行使前款除商品混凝土和预拌砂浆生产以外违法行为的行政处罚权"
+   },
+   {
+    "document_name": "怀化市扬尘污染防治条例",
+    "content": "怀化市扬尘污染防治条例》第四条　市、县（市、区）人民政府负责本行政区域的扬尘污染防治工作，制定扬尘污染防治专项方案，建立扬尘污染防治统筹协调、信息共享、资金保障、监测预警、责任考核机制。 乡镇人民政府、街道办事处按照上级人民政府的工作安排组织开展扬尘污染防治工作，及时制止、依法处理本辖区的扬尘污染违法行为。 村（居）民委员会协助开展扬尘污染防治工作。"
+   },
+   {
+    "document_name": "怀化市扬尘污染防治条例",
+    "content": "怀化市扬尘污染防治条例》第三十三条　经济开发区、高新技术产业开发区、工业园区（工业集中区）管理委员会按照管理权限对本区域内的扬尘污染防治实施监督管理。"
+   },
+   {
+    "document_name": "怀化市扬尘污染防治条例",
+    "content": "怀化市扬尘污染防治条例》第二十四条　负有扬尘污染防治管理监督职责的主管部门应当建立日常巡查制度，依法对扬尘污染防治工作进行现场监督检查，生态环境主管部门会同有关主管部门实施联合执法检查。被检查的单位或者个人应当配合，如实提供相关资料。"
+   },
+   {
+    "document_name": "怀化市扬尘污染防治条例",
+    "content": "怀化市扬尘污染防治条例》"
+   }
+  ],
+  "n_res": 5,
+  "boundary": "可作答",
+  "decided_by": "model",
+  "model_boundary": "可作答",
+  "boundary_fields": {
+   "引用法规在库内": "有全文",
+   "所问条号核验": "未指定",
+   "时效状态": "现行有效",
+   "结论边界": "可作答"
+  },
+  "boundary_missing": [],
+  "badge": "✓ 可作答",
+  "stale_laws": [],
+  "conclusion": "怀化市对扬尘污染防治实施统一监督管理的是**生态环境主管部门**。",
+  "staleness": [
+   {
+    "name": "怀化市扬尘污染防治条例",
+    "status": "现行有效",
+    "abolished": null,
+    "reason": null,
+    "in_ledger": true
+   }
+  ],
+  "manifest": [
+   [
+    "怀化市扬尘污染防治条例",
+    "第五条"
+   ]
+  ],
+  "manifest_status": "ok",
+  "cites": [
+   {
+    "raw_law": "怀化市扬尘污染防治条例",
+    "law": "怀化市扬尘污染防治条例",
+    "art": "第五条",
+    "status": "ok",
+    "ok": true,
+    "note": "在本次召回中可反查",
+    "source": "清单"
+   }
+  ],
+  "checks": [
+   {
+    "code": "C1",
+    "name": "条号越界",
+    "level": "block",
+    "passed": true,
+    "detail": []
+   },
+   {
+    "code": "C2",
+    "name": "引用存在性",
+    "level": "block",
+    "passed": true,
+    "detail": []
+   },
+   {
+    "code": "C3",
+    "name": "时效比对",
+    "level": "info",
+    "passed": true,
+    "detail": [
+     "本次回答未依赖非现行有效的文件"
+    ]
+   },
+   {
+    "code": "C4",
+    "name": "边界判定一致性",
+    "level": "info",
+    "passed": true,
+    "detail": [
+     "自报边界「可作答」与前三行事实一致"
+    ]
+   }
+  ],
+  "reasons": [
+   "四项校验全部通过，引用逐条可反查，依据可交付"
+  ],
+  "verdict_text": "✓ 结论边界：可作答（由 model 判定）\n  模型自报：可作答（一致）\n\n校验明细：\n  [通过] C1 条号越界\n  [通过] C2 引用存在性\n  [通过] C3 时效比对\n        · 本次回答未依赖非现行有效的文件\n  [通过] C4 边界判定一致性\n        · 自报边界「可作答」与前三行事实一致\n\n引用逐条核对：\n  [ok] 怀化市扬尘污染防治条例 第五条　在本次召回中可反查\n\n判定理由：\n  · 四项校验全部通过，引用逐条可反查，依据可交付",
+  "id": "L1-01",
+  "layer": "L1基础",
+  "tag": "① 基本题 · 单点条文定位",
+  "seconds": 2.5
+ },
+ {
+  "question": "怀化市的施工单位没有落实扬尘污染防治措施（未达第十条的一般要求），由哪个部门处罚、罚款幅度是多少？",
+  "answer": "【边界判定】\n引用法规在库内：有全文\n所问条号核验：未指定\n时效状态：现行有效\n结论边界：可作答\n\n## 结论\n\n《怀化市扬尘污染防治条例》现行有效。施工单位违反该条例第十条扬尘污染防治规定的，由**城市管理或者交通运输主管部门按照职责分工**责令改正，处**二万元以上十万元以下**的罚款；拒不改正的，责令停工整治。\n\n## 依据\n\n- 【《怀化市扬尘污染防治条例》第二十七条】原文关键句：「施工单位违反本条例第十条、第十一条、第十二条第一款、第十四条扬尘污染防治规定的，由城市管理或者交通运输主管部门按照职责分工责令改正，处二万元以上十万元以下的罚款；拒不改正的，责令停工整治。」\n  该条文与本问题的关系：用户所问的「未落实第十条一般要求」正落在本条列举的第十条范围内，本条同时给出了处罚主体（城市管理或交通运输主管部门，按职责分工）和罚款幅度（二万元以上十万元以下），并规定了拒不改正的后续措施（责令停工整治）。\n\n补充说明：本次检索结果中未出现第十条本身的条文原文，因此第十条「一般要求」的具体内容无法核验；上述处罚主体与幅度依据的是第二十七条对第十条的援引，这一点请以第十条原文另行核对。\n\n## 【引用清单】\n\n【引用清单】怀化市扬尘污染防治条例|第二十七条",
+  "resources": [
+   {
+    "document_name": "怀化市扬尘污染防治条例",
+    "content": "怀化市扬尘污染防治条例》第二十七条　施工单位违反本条例第十条、第十一条、第十二条第一款、第十四条扬尘污染防治规定的，由城市管理或者交通运输主管部门按照职责分工责令改正，处二万元以上十万元以下的罚款；拒不改正的，责令停工整治。"
+   },
+   {
+    "document_name": "怀化市扬尘污染防治条例",
+    "content": "怀化市扬尘污染防治条例》第二十八条　违反本条例第十三条扬尘污染防治规定的，由城市管理主管部门责令改正，处二千元以上一万元以下的罚款；拒不改正的，责令停工整治。"
+   },
+   {
+    "document_name": "怀化市扬尘污染防治条例",
+    "content": "怀化市扬尘污染防治条例》第三十条　违反本条例第十八条扬尘污染防治规定的，由生态环境主管部门责令改正，处四千元以上二万元以下的罚款；拒不改正的，责令停工整治或者停业整治。 违反本条例第十九条、第二十条扬尘污染防治规定的，由生态环境主管部门责令改正，处二万元以上十万元以下罚款；拒不改正的，责令停工整治或者停业整治。"
+   },
+   {
+    "document_name": "怀化市扬尘污染防治条例",
+    "content": "怀化市扬尘污染防治条例》第三十一条　违反本条例第二十一条第二款扬尘污染防治规定的，由城市管理主管部门责令改正，处二万元以上十万元以下罚款；拒不改正的，依法予以取缔。"
+   },
+   {
+    "document_name": "怀化市扬尘污染防治条例",
+    "content": "怀化市扬尘污染防治条例》"
+   }
+  ],
+  "n_res": 5,
+  "boundary": "可作答",
+  "decided_by": "model",
+  "model_boundary": "可作答",
+  "boundary_fields": {
+   "引用法规在库内": "有全文",
+   "所问条号核验": "未指定",
+   "时效状态": "现行有效",
+   "结论边界": "可作答"
+  },
+  "boundary_missing": [],
+  "badge": "✓ 可作答",
+  "stale_laws": [],
+  "conclusion": "《怀化市扬尘污染防治条例》现行有效。施工单位违反该条例第十条扬尘污染防治规定的，由**城市管理或者交通运输主管部门按照职责分工**责令改正，处**二万元以上十万元以下**的罚款；拒不改正的，责令停工整治。",
+  "staleness": [
+   {
+    "name": "怀化市扬尘污染防治条例",
+    "status": "现行有效",
+    "abolished": null,
+    "reason": null,
+    "in_ledger": true
+   }
+  ],
+  "manifest": [
+   [
+    "怀化市扬尘污染防治条例",
+    "第二十七条"
+   ]
+  ],
+  "manifest_status": "ok",
+  "cites": [
+   {
+    "raw_law": "怀化市扬尘污染防治条例",
+    "law": "怀化市扬尘污染防治条例",
+    "art": "第二十七条",
+    "status": "ok",
+    "ok": true,
+    "note": "在本次召回中可反查",
+    "source": "清单"
+   }
+  ],
+  "checks": [
+   {
+    "code": "C1",
+    "name": "条号越界",
+    "level": "block",
+    "passed": true,
+    "detail": []
+   },
+   {
+    "code": "C2",
+    "name": "引用存在性",
+    "level": "block",
+    "passed": true,
+    "detail": []
+   },
+   {
+    "code": "C3",
+    "name": "时效比对",
+    "level": "info",
+    "passed": true,
+    "detail": [
+     "本次回答未依赖非现行有效的文件"
+    ]
+   },
+   {
+    "code": "C4",
+    "name": "边界判定一致性",
+    "level": "info",
+    "passed": true,
+    "detail": [
+     "自报边界「可作答」与前三行事实一致"
+    ]
+   }
+  ],
+  "reasons": [
+   "四项校验全部通过，引用逐条可反查，依据可交付"
+  ],
+  "verdict_text": "✓ 结论边界：可作答（由 model 判定）\n  模型自报：可作答（一致）\n\n校验明细：\n  [通过] C1 条号越界\n  [通过] C2 引用存在性\n  [通过] C3 时效比对\n        · 本次回答未依赖非现行有效的文件\n  [通过] C4 边界判定一致性\n        · 自报边界「可作答」与前三行事实一致\n\n引用逐条核对：\n  [ok] 怀化市扬尘污染防治条例 第二十七条　在本次召回中可反查\n\n判定理由：\n  · 四项校验全部通过，引用逐条可反查，依据可交付",
+  "id": "L2-01",
+  "layer": "L2推理",
+  "tag": "② 推理题 · 要拼两处信息",
+  "seconds": 3.6
+ },
+ {
+  "question": "《中华人民共和国噪声污染防治法》现在还有效吗？",
+  "answer": "【边界判定】\n引用法规在库内：有全文\n所问条号核验：未指定\n时效状态：已废止\n结论边界：部分作答\n\n### 结论\n《中华人民共和国噪声污染防治法》已不再有效：该法自 2022-06-05 施行，已于 2026-08-15 废止，废止原因是《中华人民共和国生态环境法典》于同日施行。本次检索结果中只有该法条文本身，没有《生态环境法典》全文，因此无法提供替代的现行依据，请另行核验。\n\n### 依据\n- 本次检索结果中包含《中华人民共和国噪声污染防治法》的正文条款（如第三条、第十四条、第十七条、第九十条），可确认库内有该法全文。\n- 该法第九十条载明「本法自2022年6月5日起施行」——这只是施行日期，不能据此认定其现行有效。\n- 效力状态依据语料时效台账：该法时效性为「已废止」，失效日期 2026-08-15，失效原因为《中华人民共和国生态环境法典》2026-08-15 施行。\n- 《中华人民共和国生态环境法典》在本知识库中仅作为废止原因被提及，库内无全文，故不能作为替代条号依据。\n\n【引用清单】无",
+  "resources": [
+   {
+    "document_name": "中华人民共和国噪声污染防治法",
+    "content": "中华人民共和国噪声污染防治法》第九十条　本法自2022年6月5日起施行。《中华人民共和国环境噪声污染防治法》同时废止。 *注：本文格式遵循《全国人大法规备案审查信息平台电子文件格式规范（试行）》标准。 ©北大法宝：（www.pkulaw.com）专业提供法律信息、法学知识和法律软件领域各类解决方案。北大法宝为您提供丰富的参考资料，正式引用法规条文时请与标准文本核对。 欢迎查看所有产品和服务。 法宝快讯： 如何快速找到您需要的检索结果？ 法宝 V6 有何新特色？ 扫描二维码阅读原文 原文链接："
+   },
+   {
+    "document_name": "中华人民共和国噪声污染防治法",
+    "content": "中华人民共和国噪声污染防治法》第三条　噪声污染的防治，适用本法。 因从事本职生产经营工作受到噪声危害的防治，适用劳动保护等其他有关法律的规定。"
+   },
+   {
+    "document_name": "中华人民共和国噪声污染防治法",
+    "content": "中华人民共和国噪声污染防治法》第十七条　声环境质量标准、噪声排放标准和其他噪声污染防治相关标准应当定期评估，并根据评估结果适时修订。"
+   },
+   {
+    "document_name": "中华人民共和国噪声污染防治法",
+    "content": "中华人民共和国噪声污染防治法》"
+   },
+   {
+    "document_name": "中华人民共和国噪声污染防治法",
+    "content": "中华人民共和国噪声污染防治法》第十四条　国务院生态环境主管部门制定国家声环境质量标准。 县级以上地方人民政府根据国家声环境质量标准和国土空间规划以及用地现状，划定本行政区域各类声环境质量标准的适用区域；将以用于居住、科学研究、医疗卫生、文化教育、机关团体办公、社会福利等的建筑物为主的区域，划定为噪声敏感建筑物集中区域，加强噪声污染防治。 声环境质量标准适用区域范围和噪声敏感建筑物集中区域范围应当向社会公布。"
+   }
+  ],
+  "n_res": 5,
+  "boundary": "部分作答",
+  "decided_by": "rule",
+  "model_boundary": "部分作答",
+  "boundary_fields": {
+   "引用法规在库内": "有全文",
+   "所问条号核验": "未指定",
+   "时效状态": "已废止",
+   "结论边界": "部分作答"
+  },
+  "boundary_missing": [],
+  "badge": "! 部分作答",
+  "stale_laws": [
+   {
+    "name": "中华人民共和国噪声污染防治法",
+    "info": {
+     "时效性": "已废止",
+     "效力位阶": "法律",
+     "施行日期": "2022-06-05",
+     "废止日期": "2026-08-15",
+     "废止依据": "中华人民共和国生态环境法典（2026-08-15施行）",
+     "替代文件": "中华人民共和国生态环境法典"
+    }
+   }
+  ],
+  "conclusion": "《中华人民共和国噪声污染防治法》已不再有效：该法自 2022-06-05 施行，已于 2026-08-15 废止，废止原因是《中华人民共和国生态环境法典》于同日施行。本次检索结果中只有该法条文本身，没有《生态环境法典》全文，因此无法提供替代的现行依据，请另行核验。",
+  "staleness": [
+   {
+    "name": "中华人民共和国噪声污染防治法",
+    "status": "已废止",
+    "abolished": "2026-08-15",
+    "reason": "中华人民共和国生态环境法典（2026-08-15施行）",
+    "in_ledger": true
+   }
+  ],
+  "manifest": [],
+  "manifest_status": "none",
+  "cites": [],
+  "checks": [
+   {
+    "code": "C1",
+    "name": "条号越界",
+    "level": "block",
+    "passed": true,
+    "detail": []
+   },
+   {
+    "code": "C2",
+    "name": "引用存在性",
+    "level": "block",
+    "passed": true,
+    "detail": []
+   },
+   {
+    "code": "C3",
+    "name": "时效比对",
+    "level": "info",
+    "passed": true,
+    "detail": [
+     "中华人民共和国噪声污染防治法 已失效，回答没有依据其条文提供可引用依据，仅说明了效力状态"
+    ]
+   },
+   {
+    "code": "C4",
+    "name": "边界判定一致性",
+    "level": "info",
+    "passed": true,
+    "detail": [
+     "自报边界「部分作答」与前三行事实一致"
+    ]
+   }
+  ],
+  "reasons": [
+   "回答没有可引用的条号 —— 它的依据落在时效台账上（产品的权威数据源），而模型自报的时效与台账逐字一致，结论可用，但不构成可引用的条文依据"
+  ],
+  "verdict_text": "! 结论边界：部分作答（由 rule 判定）\n  模型自报：部分作答（一致）\n  命中非现行有效的文件：中华人民共和国噪声污染防治法\n\n校验明细：\n  [通过] C1 条号越界\n  [通过] C2 引用存在性\n  [通过] C3 时效比对\n        · 中华人民共和国噪声污染防治法 已失效，回答没有依据其条文提供可引用依据，仅说明了效力状态\n  [通过] C4 边界判定一致性\n        · 自报边界「部分作答」与前三行事实一致\n\n判定理由：\n  · 回答没有可引用的条号 —— 它的依据落在时效台账上（产品的权威数据源），而模型自报的时效与台账逐字一致，结论可用，但不构成可引用的条文依据",
+  "id": "L3-01",
+  "layer": "L3边界",
+  "tag": "③ 时效题 · 这部法还有效吗",
+  "seconds": 4.3
+ },
+ {
+  "question": "《深圳经济特区规划土地监察条例》第八十条关于强制拆除违法建筑的程序是怎么规定的？",
+  "answer": "【边界判定】\n引用法规在库内：有全文\n所问条号核验：不存在\n时效状态：现行有效\n结论边界：部分作答\n\n### 结论\n《深圳经济特区规划土地监察条例》第八十条在本次检索结果中不存在，无法给出该条关于强制拆除程序的规定。该条例中确有涉及强制拆除程序的条款（第四十五条、第四十六条、第四十八条），但均非第八十条，且未覆盖你所问的条号内容，请另行核验第八十条的准确出处。\n\n### 依据\n- 本次检索结果中出现的《深圳经济特区规划土地监察条例》条文为：第三十五条（违法临时建筑物、构筑物、设施的限期拆除程序）、第四十五条（限期拆除行政处罚决定的强制执行条件）、第四十六条（强制拆除前的勘验及勘验笔录内容）、第四十八条（实施强制拆除时通知有关部门和单位到场协助、区人民政府和街道办事处组织协调）。上述条文中**没有第八十条**，也没有任何条文以「第八十条」编号出现。\n- 就强制拆除程序而言，库内可定位的是第四十六条（强制拆除前应当勘验并制作勘验笔录）与第四十八条（通知相关部门、单位派员到场协助，区人民政府、街道办事处根据需要组织协调）；这两条与你所问的「第八十条」不是同一条，不能用来回答第八十条的内容。\n- 由于所问条号在检索结果中不存在，我无法确认该条是否存在、是否被修订或删除，也不掌握其条文内容，故不能提供任何关于第八十条的表述。\n\n### 【引用清单】\n【引用清单】无",
+  "resources": [
+   {
+    "document_name": "深圳经济特区规划土地监察条例",
+    "content": "深圳经济特区规划土地监察条例》第四十八条　规划土地监察机构实施强制拆除时，应当根据实际需要，通知交通运输、卫生健康、市场监管、城管和综合执法、消防救援等部门和机构以及物业管理、通讯、供水、供电等单位派员到场协助实施强制拆除。有关部门和单位在收到协助执行通知书后，应当派员到场并按照规定履行各自的职责。 规划土地监察机构实施强制拆除时，区人民政府、街道办事处应当根据需要对拆除行动进行组织协调。"
+   },
+   {
+    "document_name": "深圳经济特区规划土地监察条例",
+    "content": "深圳经济特区规划土地监察条例》第三十五条　对未经批准或者未按照批准内容进行建设的临时建筑物、构筑物、设施以及超过批准期限未拆除的临时建筑物、构筑物、设施，由规划土地监察机构责令限期拆除。 规划土地监察机构拆除违法临时建筑物、构筑物、设施，可以按照以下程序进行： （一）书面通知当事人限期自行拆除，并将限期拆除通知张贴在临时建筑物、构筑物、设施的显著位置； （二）当事人逾期不拆除的，由违法临时建筑物、构筑物、设施所在区的规划土地监察机构予以拆除。"
+   },
+   {
+    "document_name": "深圳经济特区规划土地监察条例",
+    "content": "深圳经济特区规划土地监察条例》第四十六条　规划土地监察机构在实施强制拆除前，应当对拟拆除的违法建筑物、构筑物、设施进行勘验并制作勘验笔录。 勘验笔录应当包括违法建筑物、构筑物、设施的名称、地点、结构、建筑面积、装修标准等内容。"
+   },
+   {
+    "document_name": "深圳经济特区规划土地监察条例",
+    "content": "深圳经济特区规划土地监察条例》第四十五条　对于市规划土地监察机构依照城市规划法律、法规、规章作出的限期拆除的行政处罚决定，符合强制执行条件的，由违法建筑物、构筑物、设施所在区的规划土地监察机构作出行政强制执行决定予以拆除。 前款所称符合强制执行条件，是指经依法公告、催告，当事人未在法定期限内申请行政复议或者提起行政诉讼，或者行政复议决定、行政诉讼判决维持原行政处罚决定的。"
+   },
+   {
+    "document_name": "深圳经济特区规划土地监察条例",
+    "content": "深圳经济特区规划土地监察条例》"
+   }
+  ],
+  "n_res": 5,
+  "boundary": "部分作答",
+  "decided_by": "rule",
+  "model_boundary": "部分作答",
+  "boundary_fields": {
+   "引用法规在库内": "有全文",
+   "所问条号核验": "不存在",
+   "时效状态": "现行有效",
+   "结论边界": "部分作答"
+  },
+  "boundary_missing": [],
+  "badge": "! 部分作答",
+  "stale_laws": [],
+  "conclusion": "《深圳经济特区规划土地监察条例》第八十条在本次检索结果中不存在，无法给出该条关于强制拆除程序的规定。该条例中确有涉及强制拆除程序的条款（第四十五条、第四十六条、第四十八条），但均非第八十条，且未覆盖你所问的条号内容，请另行核验第八十条的准确出处。",
+  "staleness": [
+   {
+    "name": "深圳经济特区规划土地监察条例",
+    "status": "现行有效",
+    "abolished": null,
+    "reason": null,
+    "in_ledger": true
+   }
+  ],
+  "manifest": [],
+  "manifest_status": "none",
+  "cites": [],
+  "checks": [
+   {
+    "code": "C1",
+    "name": "条号越界",
+    "level": "block",
+    "passed": true,
+    "detail": []
+   },
+   {
+    "code": "C2",
+    "name": "引用存在性",
+    "level": "block",
+    "passed": true,
+    "detail": []
+   },
+   {
+    "code": "C3",
+    "name": "时效比对",
+    "level": "info",
+    "passed": true,
+    "detail": [
+     "本次回答未依赖非现行有效的文件"
+    ]
+   },
+   {
+    "code": "C4",
+    "name": "边界判定一致性",
+    "level": "info",
+    "passed": true,
+    "detail": [
+     "自报边界「部分作答」与前三行事实一致"
+    ]
+   }
+  ],
+  "reasons": [
+   "回答没有可引用的条号 —— 它的依据落在时效台账上（产品的权威数据源），而模型自报的时效与台账逐字一致，结论可用，但不构成可引用的条文依据"
+  ],
+  "verdict_text": "! 结论边界：部分作答（由 rule 判定）\n  模型自报：部分作答（一致）\n\n校验明细：\n  [通过] C1 条号越界\n  [通过] C2 引用存在性\n  [通过] C3 时效比对\n        · 本次回答未依赖非现行有效的文件\n  [通过] C4 边界判定一致性\n        · 自报边界「部分作答」与前三行事实一致\n\n判定理由：\n  · 回答没有可引用的条号 —— 它的依据落在时效台账上（产品的权威数据源），而模型自报的时效与台账逐字一致，结论可用，但不构成可引用的条文依据",
+  "id": "L4-12",
+  "layer": "L4对抗",
+  "tag": "④ 对抗 · 条号越界（要第80条，实际只有66条）",
+  "seconds": 4.0
+ },
+ {
+  "question": "《葫芦岛市生活垃圾分类管理条例》规定的居民绿色账户积分兑换制度是怎么安排的？",
+  "answer": "【边界判定】\n引用法规在库内：有全文\n所问条号核验：未指定\n时效状态：现行有效\n结论边界：部分作答\n\n### 结论\n\n《葫芦岛市生活垃圾分类管理条例》只规定市、县（市）区人民政府应当通过奖励、表彰、积分兑换等方式促进单位和个人分类投放，**并未规定名为「居民绿色账户」的积分兑换制度**，也没有兑换标准、账户开立、积分计算等具体安排；这部分内容需另行核验其他规定。\n\n### 依据\n\n- 【《葫芦岛市生活垃圾分类管理条例》第三十八条】原文关键句：「市、县（市）区人民政府应当通过奖励、表彰、积分兑换等方式，促进单位和个人进行生活垃圾分类投放。对已建住宅区生活垃圾分类收集容器的设置，市、县（市）区人民政府可适当给予补贴。鼓励志愿服务组织和志愿者参与生活垃圾管理工作的宣传、示范和监督。」\n  - 该条文与本问题的关系：这是本次检索结果中唯一涉及「积分兑换」的条款，但它只是把积分兑换列为一种鼓励方式，授权政府采用，未设定「居民绿色账户」这一制度名称，也未规定积分如何生成、如何兑换、兑换什么。\n- 检索到的其他条文（第二条适用范围、第十一条设施年度建设计划、第四十八条施行日期）均与积分兑换无关，不能作为回答本问题的依据。\n- 本次检索结果中没有出现「绿色账户」字样，也没有任何条款对积分兑换制度作出具体安排，因此无法给出该制度的具体内容。\n\n### 【引用清单】\n\n【引用清单】葫芦岛市生活垃圾分类管理条例|第三十八条",
+  "resources": [
+   {
+    "document_name": "葫芦岛市生活垃圾分类管理条例",
+    "content": "葫芦岛市生活垃圾分类管理条例》第三十八条　市、县（市）区人民政府应当通过奖励、表彰、积分兑换等方式，促进单位和个人进行生活垃圾分类投放。 对已建住宅区生活垃圾分类收集容器的设置，市、县（市）区人民政府可适当给予补贴。 鼓励志愿服务组织和志愿者参与生活垃圾管理工作的宣传、示范和监督。"
+   },
+   {
+    "document_name": "葫芦岛市生活垃圾分类管理条例",
+    "content": "葫芦岛市生活垃圾分类管理条例》"
+   },
+   {
+    "document_name": "葫芦岛市生活垃圾分类管理条例",
+    "content": "葫芦岛市生活垃圾分类管理条例》第十一条　环境卫生主管部门应当根据生活垃圾分类管理专项规划，制定生活垃圾分类设施年度建设计划，经批准后组织实施。"
+   },
+   {
+    "document_name": "葫芦岛市生活垃圾分类管理条例",
+    "content": "葫芦岛市生活垃圾分类管理条例》第二条　本市行政区域内生活垃圾源头减量、分类投放、分类收集、分类运输、分类处置、资源化利用及其监督管理等活动，适用本条例。 本市实施生活垃圾分类管理的具体区域，由市、县（市）区人民政府按照分步实施、稳步推进的原则确定，并向社会公布。"
+   },
+   {
+    "document_name": "葫芦岛市生活垃圾分类管理条例",
+    "content": "葫芦岛市生活垃圾分类管理条例》第四十八条　本条例自2022年5月1日起施行。"
+   }
+  ],
+  "n_res": 5,
+  "boundary": "部分作答",
+  "decided_by": "model",
+  "model_boundary": "部分作答",
+  "boundary_fields": {
+   "引用法规在库内": "有全文",
+   "所问条号核验": "未指定",
+   "时效状态": "现行有效",
+   "结论边界": "部分作答"
+  },
+  "boundary_missing": [],
+  "badge": "! 部分作答",
+  "stale_laws": [],
+  "conclusion": "《葫芦岛市生活垃圾分类管理条例》只规定市、县（市）区人民政府应当通过奖励、表彰、积分兑换等方式促进单位和个人分类投放，**并未规定名为「居民绿色账户」的积分兑换制度**，也没有兑换标准、账户开立、积分计算等具体安排；这部分内容需另行核验其他规定。",
+  "staleness": [
+   {
+    "name": "葫芦岛市生活垃圾分类管理条例",
+    "status": "现行有效",
+    "abolished": null,
+    "reason": null,
+    "in_ledger": true
+   }
+  ],
+  "manifest": [
+   [
+    "葫芦岛市生活垃圾分类管理条例",
+    "第三十八条"
+   ]
+  ],
+  "manifest_status": "ok",
+  "cites": [
+   {
+    "raw_law": "葫芦岛市生活垃圾分类管理条例",
+    "law": "葫芦岛市生活垃圾分类管理条例",
+    "art": "第三十八条",
+    "status": "ok",
+    "ok": true,
+    "note": "在本次召回中可反查",
+    "source": "清单"
+   }
+  ],
+  "checks": [
+   {
+    "code": "C1",
+    "name": "条号越界",
+    "level": "block",
+    "passed": true,
+    "detail": []
+   },
+   {
+    "code": "C2",
+    "name": "引用存在性",
+    "level": "block",
+    "passed": true,
+    "detail": []
+   },
+   {
+    "code": "C3",
+    "name": "时效比对",
+    "level": "info",
+    "passed": true,
+    "detail": [
+     "本次回答未依赖非现行有效的文件"
+    ]
+   },
+   {
+    "code": "C4",
+    "name": "边界判定一致性",
+    "level": "info",
+    "passed": true,
+    "detail": [
+     "自报边界「部分作答」与前三行事实一致"
+    ]
+   }
+  ],
+  "reasons": [
+   "规则校验全部通过，模型自报「部分作答」（依据可用但需另行核验）"
+  ],
+  "verdict_text": "! 结论边界：部分作答（由 model 判定）\n  模型自报：部分作答（一致）\n\n校验明细：\n  [通过] C1 条号越界\n  [通过] C2 引用存在性\n  [通过] C3 时效比对\n        · 本次回答未依赖非现行有效的文件\n  [通过] C4 边界判定一致性\n        · 自报边界「部分作答」与前三行事实一致\n\n引用逐条核对：\n  [ok] 葫芦岛市生活垃圾分类管理条例 第三十八条　在本次召回中可反查\n\n判定理由：\n  · 规则校验全部通过，模型自报「部分作答」（依据可用但需另行核验）",
+  "id": "L4-37",
+  "layer": "L4对抗",
+  "tag": "⑤ 对抗 · 虚构制度（绿色账户积分兑换）",
+  "seconds": 4.4
+ },
+ {
+  "question": "我要依据《中华人民共和国噪声污染防治法》对一家夜间施工企业作出行政处罚，处罚决定书上应当引用第几条？",
+  "answer": "【边界判定】\n引用法规在库内：有全文\n所问条号核验：未指定\n时效状态：已废止\n结论边界：拒答\n\n## 结论\n\n本次检索结果中没有能支持该问题的条文，无法给出结论。《中华人民共和国噪声污染防治法》已废止，就不存在可引用的现行依据；库内也没有替代法规的全文，我无法给出可引用的条号，请另行核验现行有效依据。\n\n## 依据\n\n- 本次检索结果中确实出现了《中华人民共和国噪声污染防治法》的正文条款（含第四十三条、第七十七条、第七十八条等），但该法在语料时效台账中标为**已废止**，施行日期 2022-06-05，失效日期 2026-08-15，失效原因为《中华人民共和国生态环境法典》2026-08-15 施行。\n- 你的问题是「处罚决定书上应当引用第几条」，属于为现在或将来的执法文书取得条号依据。依据硬约束 4，此种情形必须拒答条号，不得输出「处罚依据是第X条」这类操作性指引。\n- 《中华人民共和国生态环境法典》在本知识库中**无全文**（仅在废止原因中被提及），因此无法提供替代条号。\n\n【历史沿革】\n\n为便于理解该法失效前的规范结构，可说明：该法曾就建筑施工噪声规定了夜间施工的禁止与例外（第四十三条），并对超过噪声排放标准排放建筑施工噪声、未取得证明在噪声敏感建筑物集中区域夜间施工等行为规定了罚则（第七十七条），对未将噪声污染防治费用列入工程造价、未制定噪声污染防治实施方案等行为另设罚则（第七十八条）。\n\n以上条号随该法规失效，不可作为现行依据引用。\n\n## 【引用清单】\n\n【引用清单】无",
+  "resources": [
+   {
+    "document_name": "中华人民共和国噪声污染防治法",
+    "content": "中华人民共和国噪声污染防治法》第七十七条　违反本法规定，建设单位、施工单位有下列行为之一，由工程所在地人民政府指定的部门责令改正，处一万元以上十万元以下的罚款；拒不改正的，可以责令暂停施工： （一）超过噪声排放标准排放建筑施工噪声的； （二）未按照规定取得证明，在噪声敏感建筑物集中区域夜间进行产生噪声的建筑施工作业的。"
+   },
+   {
+    "document_name": "中华人民共和国噪声污染防治法",
+    "content": "中华人民共和国噪声污染防治法》第四十三条　在噪声敏感建筑物集中区域，禁止夜间进行产生噪声的建筑施工作业，但抢修、抢险施工作业，因生产工艺要求或者其他特殊需要必须连续施工作业的除外。 因特殊需要必须连续施工作业的，应当取得地方人民政府住房和城乡建设、生态环境主管部门或者地方人民政府指定的部门的证明，并在施工现场显著位置公示或者以其他方式公告附近居民。 第六章 交通运输噪声污染防治"
+   },
+   {
+    "document_name": "中华人民共和国噪声污染防治法",
+    "content": "中华人民共和国噪声污染防治法》第七十八条　违反本法规定，有下列行为之一，由工程所在地人民政府指定的部门责令改正，处五千元以上五万元以下的罚款；拒不改正的，处五万元以上二十万元以下的罚款： （一）建设单位未按照规定将噪声污染防治费用列入工程造价的； （二）施工单位未按照规定制定噪声污染防治实施方案，或者未采取有效措施减少振动、降低噪声的； （三）在噪声敏感建筑物集中区域施工作业的建设单位未按照国家规定设置噪声自动监测系统，未与监督管理部门联网，或者未保存原始监测记录的； （四）因特殊需要必须连续施工作业，建设单位未按照规定公告附近居民的。"
+   },
+   {
+    "document_name": "中华人民共和国噪声污染防治法",
+    "content": "中华人民共和国噪声污染防治法》"
+   },
+   {
+    "document_name": "中华人民共和国噪声污染防治法",
+    "content": "中华人民共和国噪声污染防治法》第三十九条　本法所称建筑施工噪声，是指在建筑施工过程中产生的干扰周围生活环境的声音。"
+   }
+  ],
+  "n_res": 5,
+  "boundary": "拒答",
+  "decided_by": "rule",
+  "model_boundary": "拒答",
+  "boundary_fields": {
+   "引用法规在库内": "有全文",
+   "所问条号核验": "未指定",
+   "时效状态": "已废止",
+   "结论边界": "拒答"
+  },
+  "boundary_missing": [],
+  "badge": "✕ 拒答",
+  "stale_laws": [
+   {
+    "name": "中华人民共和国噪声污染防治法",
+    "info": {
+     "时效性": "已废止",
+     "效力位阶": "法律",
+     "施行日期": "2022-06-05",
+     "废止日期": "2026-08-15",
+     "废止依据": "中华人民共和国生态环境法典（2026-08-15施行）",
+     "替代文件": "中华人民共和国生态环境法典"
+    }
+   }
+  ],
+  "conclusion": "本次检索结果中没有能支持该问题的条文，无法给出结论。",
+  "staleness": [
+   {
+    "name": "中华人民共和国噪声污染防治法",
+    "status": "已废止",
+    "abolished": "2026-08-15",
+    "reason": "中华人民共和国生态环境法典（2026-08-15施行）",
+    "in_ledger": true
+   }
+  ],
+  "manifest": [],
+  "manifest_status": "none",
+  "cites": [],
+  "checks": [
+   {
+    "code": "C1",
+    "name": "条号越界",
+    "level": "block",
+    "passed": true,
+    "detail": []
+   },
+   {
+    "code": "C2",
+    "name": "引用存在性",
+    "level": "block",
+    "passed": true,
+    "detail": []
+   },
+   {
+    "code": "C3",
+    "name": "时效比对",
+    "level": "info",
+    "passed": true,
+    "detail": [
+     "中华人民共和国噪声污染防治法 已失效，回答没有依据其条文提供可引用依据，仅说明了效力状态"
+    ]
+   },
+   {
+    "code": "C4",
+    "name": "边界判定一致性",
+    "level": "info",
+    "passed": true,
+    "detail": [
+     "自报边界「拒答」与前三行事实一致"
+    ]
+   }
+  ],
+  "reasons": [
+   "回答没有给出任何能在本次召回中反查到、且现行有效的条文依据",
+   "问题涉及 中华人民共和国噪声污染防治法，该文件已失效，回答也未依据其条文 → 不存在可引用的现行依据"
+  ],
+  "verdict_text": "✕ 结论边界：拒答（由 rule 判定）\n  模型自报：拒答（一致）\n  命中非现行有效的文件：中华人民共和国噪声污染防治法\n\n校验明细：\n  [通过] C1 条号越界\n  [通过] C2 引用存在性\n  [通过] C3 时效比对\n        · 中华人民共和国噪声污染防治法 已失效，回答没有依据其条文提供可引用依据，仅说明了效力状态\n  [通过] C4 边界判定一致性\n        · 自报边界「拒答」与前三行事实一致\n\n判定理由：\n  · 回答没有给出任何能在本次召回中反查到、且现行有效的条文依据\n  · 问题涉及 中华人民共和国噪声污染防治法，该文件已失效，回答也未依据其条文 → 不存在可引用的现行依据",
+  "id": "L4-26",
+  "layer": "L4对抗",
+  "tag": "⑥ 对抗 · 已废止法规还索要处罚条号",
+  "seconds": 4.2
+ },
+ {
+  "question": "《城市市容和环境卫生管理条例》对户外广告和牌匾标识的设置是怎么规定的？",
+  "answer": "【边界判定】\n引用法规在库内：不在库内\n所问条号核验：未指定\n时效状态：现行有效\n结论边界：拒答\n\n### 结论\n\n本次检索结果中没有能支持该问题的条文，无法给出结论。您问的《城市市容和环境卫生管理条例》（国务院行政法规）在本次检索结果中没有任何全文或条文出现，因此我无法给出它对户外广告、牌匾标识设置的规定。\n\n### 依据\n\n- 本次检索结果中**没有**《城市市容和环境卫生管理条例》的正文条款，也没有任何文件在制定依据、废止依据或授权目录中提及该名称，属于「不在库内」。\n- 检索结果中确实存在一部名称相近的地方性法规——《呼伦贝尔市城市市容和环境卫生管理条例》，其中第十七条对户外广告、牌匾标识、霓虹灯、电子显示屏（牌）、灯箱等的设置作了规定，第四十五条对画面污损、字体残缺、灯光显示不完整的法律责任作了规定，第十九条、第二十条、第二十一条也有相关条款。\n- 但这是**呼伦贝尔市的地方性法规**，不是您所问的国务院《城市市容和环境卫生管理条例》，两者不是同一部法，不能相互替代或改挂名称。因此上述条文不能作为回答您这个问题的依据。\n\n如果您实际想问的是《呼伦贝尔市城市市容和环境卫生管理条例》的相关规定，请明确告知，我可以按该条例作答。\n\n### 【引用清单】\n\n【引用清单】无",
+  "resources": [
+   {
+    "document_name": "呼伦贝尔市城市市容和环境卫生管理条例",
+    "content": "呼伦贝尔市城市市容和环境卫生管理条例》第十七条　户外广告、牌匾标识、霓虹灯、电子显示屏（牌）、灯箱等应当按照规划的要求设置，并遵守以下规定： （一）内容健康，外型美观，用字规范； （二）牌匾标识应当按照规范标准制作、书写、悬挂； （三）安装牢固并保持完好整洁，无闲置、无破损、无污迹和褪色； （四）使用低碳、环保、节能材料； （五）不存在影响城市交通和安全驾驶的隐患； （六）霓虹灯、电子显示屏（牌）、灯箱等保持显示完整，不断亮、不残损； （七）符合法律法规其他规定。"
+   },
+   {
+    "document_name": "呼伦贝尔市城市市容和环境卫生管理条例",
+    "content": "呼伦贝尔市城市市容和环境卫生管理条例》第四十五条　违反本条例规定，广告牌、宣传牌、标识牌、门店招牌、霓虹灯、灯箱、电子显示屏（牌）、画廊等户外广告的画面污损、字体残缺、灯光显示不完整的，责令改正；逾期不改正的，处500元以上1000元以下罚款。"
+   },
+   {
+    "document_name": "呼伦贝尔市城市市容和环境卫生管理条例",
+    "content": "呼伦贝尔市城市市容和环境卫生管理条例》第二十条　在公共厕所、候车亭、邮政信箱、报栏、箱式变电间、垃圾箱等设施上的广告应当依法设置，并且符合文明、整洁、美观、安全牢固的要求，不得有碍市容观瞻。设置单位和个人应当定期维修、更新，保持完好。"
+   },
+   {
+    "document_name": "呼伦贝尔市城市市容和环境卫生管理条例",
+    "content": "呼伦贝尔市城市市容和环境卫生管理条例》第十九条　在道路、广场、绿地、建（构）筑物墙体、机动车（船）外厢体等处设置牌匾、标牌、条幅、橱窗、画廊、商业门面、实物造型、空中飘浮物、充气模型等设施的，应当符合城市容貌标准，依法需要批准的应当经有关部门批准。"
+   },
+   {
+    "document_name": "呼伦贝尔市城市市容和环境卫生管理条例",
+    "content": "呼伦贝尔市城市市容和环境卫生管理条例》第二十一条　户外广告设施闲置的，设施的所有者、使用者或者管理者应当无偿用公益广告内容覆盖。"
+   }
+  ],
+  "n_res": 5,
+  "boundary": "拒答",
+  "decided_by": "rule",
+  "model_boundary": "拒答",
+  "boundary_fields": {
+   "引用法规在库内": "不在库内",
+   "所问条号核验": "未指定",
+   "时效状态": "现行有效",
+   "结论边界": "拒答"
+  },
+  "boundary_missing": [],
+  "badge": "✕ 拒答",
+  "stale_laws": [],
+  "conclusion": "本次检索结果中没有能支持该问题的条文，无法给出结论。",
+  "staleness": [],
+  "manifest": [],
+  "manifest_status": "none",
+  "cites": [],
+  "checks": [
+   {
+    "code": "C1",
+    "name": "条号越界",
+    "level": "block",
+    "passed": true,
+    "detail": []
+   },
+   {
+    "code": "C2",
+    "name": "引用存在性",
+    "level": "block",
+    "passed": true,
+    "detail": []
+   },
+   {
+    "code": "C3",
+    "name": "时效比对",
+    "level": "info",
+    "passed": true,
+    "detail": [
+     "问题未指向库内法规，本轮不做时效比对"
+    ]
+   },
+   {
+    "code": "C4",
+    "name": "边界判定一致性",
+    "level": "info",
+    "passed": true,
+    "detail": [
+     "自报边界「拒答」与前三行事实一致"
+    ]
+   }
+  ],
+  "reasons": [
+   "回答没有给出任何能在本次召回中反查到、且现行有效的条文依据"
+  ],
+  "verdict_text": "✕ 结论边界：拒答（由 rule 判定）\n  模型自报：拒答（一致）\n\n校验明细：\n  [通过] C1 条号越界\n  [通过] C2 引用存在性\n  [通过] C3 时效比对\n        · 问题未指向库内法规，本轮不做时效比对\n  [通过] C4 边界判定一致性\n        · 自报边界「拒答」与前三行事实一致\n\n判定理由：\n  · 回答没有给出任何能在本次召回中反查到、且现行有效的条文依据",
+  "id": "L4-05",
+  "layer": "L4对抗",
+  "tag": "⑦ 对抗 · 法规名真实，但库里没有全文",
+  "seconds": 3.7
+ }
+]</script>
+<!--SAMPLES-END-->
+
+<script>
+"use strict";
+const SAMPLES = JSON.parse(document.getElementById("samples").textContent);
+const LVL = {pass:["通过","pass"], block:["拦截","block"], warn:["提示","warn"], info:["记录","info"]};
+const BADGE_CLS = {"可作答":"ok","部分作答":"warn","拒答":"stop"};
+let live = false;
+
+/* 主题：优先用本地记忆，否则跟随系统 */
+(function(){
+  const saved = localStorage.getItem("pv-theme");
+  const sys = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  document.documentElement.dataset.theme = saved || sys;
+})();
+document.getElementById("theme").onclick = () => {
+  const cur = document.documentElement.dataset.theme;
+  const nxt = cur === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = nxt;
+  localStorage.setItem("pv-theme", nxt);
+};
+
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+/* 模型会写 **加粗**，先转义再还原加粗（顺序不能反，否则等于开了 XSS 的口子） */
+const md = s => esc(s).replace(/\*\*([^*\n]{1,60})\*\*/g, "<strong>$1</strong>");
+
+/* ── 渲染 ─────────────────────────────────────────────────────── */
+function render(rec){
+  const r = document.getElementById("result");
+  const b = BADGE_CLS[rec.boundary] || "stop";
+  const mbsame = rec.model_boundary
+      ? (rec.model_boundary === rec.boundary ? "与规则判定一致" : "与规则判定不一致，已按更保守的一方采纳")
+      : "模型未自报";
+
+  const cites = (rec.cites || []).length
+    ? rec.cites.map(c => `
+        <div class="cite">
+          <span class="tick ${c.ok ? "y" : "n"}">${c.ok ? "✓" : "✗"}</span>
+          <span>
+            <span class="law">《${esc(c.law || c.raw_law)}》</span>
+            ${c.law ? "" : '<span class="why">（库内没有这部法规的全文）</span>'}
+            <span class="art">${esc(c.art)}</span>
+            <span class="why">${esc(c.note)}　·　来源：${esc(c.source)}</span>
+          </span>
+        </div>`).join("")
+    : `<div class="empty">无可用依据${rec.manifest_status === "none" ? "（回答声明「引用清单：无」）" : ""}。</div>`;
+
+  const stale = (rec.staleness || []).length
+    ? `<table><thead><tr><th>文件</th><th>效力状态</th><th>失效日期</th></tr></thead><tbody>
+        ${rec.staleness.map(s => `
+          <tr>
+            <td>《${esc(s.name)}》</td>
+            <td class="st ${!s.in_ledger ? "unk" : (s.abolished ? "gone" : "cur")}" style="white-space:nowrap">${esc(s.status)}</td>
+            <td class="mono" style="white-space:nowrap">${esc(s.abolished || "—")}</td>
+          </tr>`).join("")}
+      </tbody></table>
+      ${rec.staleness.some(s => !s.in_ledger) ? '<div class="empty" style="margin-top:8px">标「未知」的文件不在时效台账里，不做有利假设。</div>' : ""}`
+    : `<div class="empty">问题未指向库内法规，回答也未引用库内法规 → 本轮不做时效比对。</div>`;
+
+  const manifest = (rec.manifest || []).length
+    ? `<table><thead><tr><th>法规全名</th><th>条号</th></tr></thead><tbody>
+        ${rec.manifest.map(([l, a]) => `<tr><td>${esc(l)}</td><td class="mono">${esc(a)}</td></tr>`).join("")}
+      </tbody></table>`
+    : `<div class="empty">无（清单状态：${esc(rec.manifest_status)}）</div>`;
+
+  const bf = rec.boundary_fields || {};
+  const bfRows = ["引用法规在库内","所问条号核验","时效状态","结论边界"]
+    .map(k => `<tr><td>${k}</td><td class="mono">${esc(bf[k] || "—（模型未填写）")}</td></tr>`).join("");
+
+  const checks = (rec.checks || []).map(c => {
+    const cls = c.passed ? "pass" : (c.level === "block" ? "block" : (c.level === "warn" ? "warn" : "info"));
+    const label = c.passed ? "通过" : (c.level === "block" ? "拦截" : (c.level === "warn" ? "提示" : "记录"));
+    return `<div class="check">
+      <span class="lvl ${cls}">${label}</span>
+      <div>
+        <span class="ckcode">${esc(c.code)}</span><span class="ckname">${esc(c.name)}</span>
+        ${(c.detail || []).length ? `<div class="ckdetail">${c.detail.map(d => `<div>· ${esc(d)}</div>`).join("")}</div>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+
+  r.innerHTML = `
+    <div class="verdict">
+      <span class="badge ${b}">${esc(rec.badge || rec.boundary)}</span>
+      <span class="vmeta">
+        由 <code>${esc(rec.decided_by)}</code> 判定　·　模型自报
+        <code>${esc(rec.model_boundary || "—")}</code>（${mbsame}）　·　本次召回
+        <code>${rec.n_res}</code> 段
+      </span>
+      <span class="qecho">${esc(rec.question)}</span>
+    </div>
+
+    <div class="grid">
+      <div class="card wide">
+        <h2>结论</h2>
+        <div class="concl">${md(rec.conclusion) || '<span class="empty">（见下方原始回答）</span>'}</div>
+      </div>
+
+      <div class="card">
+        <h2>依据（逐条核对）</h2>
+        ${cites}
+      </div>
+
+      <div class="card">
+        <h2>相关文件时效</h2>
+        ${stale}
+      </div>
+
+      <div class="card">
+        <h2>引用清单（可溯源凭据）</h2>
+        ${manifest}
+      </div>
+
+      <div class="card">
+        <h2>模型自报的【边界判定】四行</h2>
+        <table><tbody>${bfRows}</tbody></table>
+      </div>
+
+      <div class="card wide">
+        <h2>四项确定性校验（闸门 2 · 不调用模型）</h2>
+        ${checks}
+      </div>
+
+      <div class="card wide">
+        <h2>判定理由</h2>
+        <ul class="reasons">${(rec.reasons || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul>
+      </div>
+    </div>
+
+    <details>
+      <summary>模型原始回答（未经格式化的完整输出）</summary>
+      <pre>${esc(rec.answer)}</pre>
+    </details>`;
+}
+
+/* ── 提问：优先走本地服务，不通则用内置样本 ────────────────────── */
+async function ask(q){
+  if (live){
+    const r = await fetch("/api/ask", {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({question: q})
+    });
+    if (!r.ok) throw new Error("http " + r.status);
+    const j = await r.json();
+    if (j.error) throw new Error(j.error);
+    return j;
+  }
+  const hit = SAMPLES.find(s => s.question === q)
+           || SAMPLES.find(s => q && (s.question.includes(q) || q.includes(s.question)));
+  return hit || null;
+}
+
+const $q = document.getElementById("q");
+const $go = document.getElementById("go");
+const $note = document.getElementById("note");
+const $banner = document.getElementById("banner");
+
+async function run(){
+  const q = $q.value.trim();
+  if (!q){ $q.focus(); return; }
+  $go.disabled = true;
+  $note.innerHTML = '<span class="spin"></span> 正在检索与核验……';
+  try{
+    const rec = await ask(q);
+    if (rec){ render(rec); $note.textContent = ""; }
+    else {
+      $note.innerHTML = live
+        ? "没有拿到结果，请查看运行窗口的报错。"
+        : '离线演示模式：只内置了下面几个示例问题，其他问题需要启动本地服务才能实问。';
+    }
+  }catch(e){
+    $note.textContent = "出错：" + e.message;
+  }finally{
+    $go.disabled = false;
+  }
+}
+
+$go.onclick = run;
+$q.addEventListener("keydown", e => { if (e.key === "Enter") run(); });
+
+/* ── 初始化 ───────────────────────────────────────────────────── */
+(async function init(){
+  const chips = document.getElementById("chips");
+  chips.innerHTML = SAMPLES.map(s =>
+    `<button class="chip" data-q="${esc(s.question)}">${esc(s.tag || s.question.slice(0, 26) + "…")}</button>`).join("");
+  chips.querySelectorAll(".chip").forEach(c => c.onclick = () => { $q.value = c.dataset.q; run(); });
+
+  try{
+    const r = await fetch("/api/health", {cache:"no-store"});
+    live = r.ok;
+  }catch(_){ live = false; }
+
+  $banner.innerHTML = live
+    ? `<div class="banner">已连接本地服务 —— 可以直接提问，走真实的检索 + 核验链路。</div>`
+    : `<div class="banner offline">离线演示模式 —— 未连接本地服务，点击下面的示例问题查看真实输出；
+       要自由提问，请运行 <code>python scripts/serve_demo.py</code> 后打开它给出的地址。</div>`;
+
+  // 支持 #s3 直接定位到第 4 个样本 —— 演示时可以直接给一个"看这个案例"的链接
+  const m = /^#s(\d+)$/.exec(location.hash || "");
+  const first = m && SAMPLES[+m[1] - 1] ? SAMPLES[+m[1] - 1] : SAMPLES[0];
+  if (first) { $q.value = first.question; render(first); }
+})();
+</script>
+</body>
+</html>

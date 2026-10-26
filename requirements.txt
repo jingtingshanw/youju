@@ -1,0 +1,14 @@
+# 零第三方依赖。
+#
+# 整个项目只用标准库：http.server、sqlite3、urllib、json、re、html、zipfile。
+# 没有 requests、没有 Flask、没有 openai SDK——模型调用是 urllib 手写的 POST。
+#
+# 这是刻意的，不是偷懒：
+#   1. 部署少一步。新机器上只要有 python3 就能跑，不用等 pip install。
+#   2. 不会被依赖版本打破。两年后回来再看，还能跑。
+#   3. 排查问题只需要懂 HTTP 和 SQL，不用懂某个框架的隐式行为。
+#
+# 代价也认：并发、连接池、重试、超时全部自己写。这些在 app/core.py 和
+# app/server.py 里有注释说明为什么这么写。
+#
+# 唯一的外部要求：Python ≥ 3.10（用到了 `X | None` 语法）。

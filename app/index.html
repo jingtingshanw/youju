@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>有据 · 政策依据梳理</title>
+<style>
+:root{
+  --ink:#1c1917; --ink2:#57534e; --ink3:#8a8380;
+  --line:#e7e5e4; --line2:#f0efee; --bg:#fffefd; --bg2:#faf9f7;
+  --teal:#0f766e; --teal-bg:#effcf9; --red:#b91c1c; --red-bg:#fef2f2;
+  --blue:#1d4ed8; --blue-bg:#eff4ff; --purple:#6d28d9; --purple-bg:#f6f3ff;
+  --amber:#a16207; --amber-bg:#fef8e7;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font:15px/1.72 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",
+    "Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  color:var(--ink); background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:860px;margin:0 auto;padding:0 24px 120px}
+a{color:var(--teal);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ── 检索范围 ── */
+.rangerow{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+.rangelabel{font-size:12.5px;color:var(--ink3);letter-spacing:.02em;flex:0 0 auto}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--bg2)}
+.seg button{
+  border:0;background:none;font:inherit;font-size:13px;color:var(--ink3);
+  padding:6px 13px;cursor:pointer;line-height:1.5;border-right:1px solid var(--line);
+}
+.seg button:last-child{border-right:0}
+.seg button:hover{color:var(--ink)}
+.seg button.on{background:var(--teal-bg);color:var(--teal);font-weight:600}
+.rangehint{font-size:12.5px;color:var(--ink3);flex:1 1 240px;min-width:0}
+
+/* ── 顶栏 ── */
+
+header{
+  display:flex;align-items:center;gap:14px;
+  padding:26px 0 20px;border-bottom:1px solid var(--line2);margin-bottom:34px;
+}
+.logo{font-size:17px;font-weight:650;letter-spacing:.02em}
+.logo span{color:var(--ink3);font-weight:400;font-size:13px;margin-left:8px}
+.spacer{flex:1}
+.tracebtn{
+  font-size:12.5px;color:var(--ink3);border:1px solid var(--line);
+  background:none;border-radius:100px;padding:5px 12px;cursor:pointer;
+}
+.tracebtn:hover{color:var(--ink);border-color:var(--ink3)}
+.tracebtn b{color:var(--amber);font-weight:600}
+
+/* ── 步骤 ── */
+.step{display:none;animation:up .28s ease}
+.step.on{display:block}
+@keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.stepno{
+  font-size:12px;color:var(--ink3);letter-spacing:.14em;
+  text-transform:uppercase;margin-bottom:10px;
+}
+h1{font-size:25px;line-height:1.45;font-weight:600;margin:0 0 6px;letter-spacing:-.01em}
+h1 small{display:block;font-size:14px;color:var(--ink3);font-weight:400;margin-top:8px;letter-spacing:0}
+
+textarea,input[type=text]{
+  width:100%;font:inherit;color:var(--ink);background:var(--bg2);
+  border:1px solid var(--line);border-radius:10px;padding:15px 16px;
+  resize:vertical;outline:none;transition:border-color .15s;
+}
+textarea{min-height:96px;line-height:1.7}
+textarea:focus,input[type=text]:focus{border-color:var(--teal);background:#fff}
+textarea::placeholder{color:var(--ink3)}
+
+.btn{
+  font:inherit;font-weight:500;border:none;border-radius:9px;cursor:pointer;
+  padding:10px 20px;background:var(--ink);color:#fff;transition:opacity .15s;
+}
+.btn:hover{opacity:.86}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.ghost{background:none;color:var(--ink2);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--ink3);opacity:1}
+.btn.sm{padding:6px 13px;font-size:13.5px;border-radius:7px}
+.bar{display:flex;align-items:center;gap:12px;margin-top:22px}
+.bar .hint{font-size:13px;color:var(--ink3);flex:1}
+
+/* ── 拆解：指令卡 ── */
+.reading{
+  background:var(--bg2);border-left:3px solid var(--teal);
+  padding:14px 18px;border-radius:0 8px 8px 0;margin:20px 0 26px;
+  font-size:14.5px;color:var(--ink2);
+}
+.reading b{color:var(--ink);font-weight:600}
+.group{margin-bottom:8px}
+.ghead{
+  display:flex;align-items:baseline;gap:10px;padding:10px 0 6px;
+  border-bottom:1px solid var(--line2);margin-bottom:4px;
+}
+.gname{font-size:13px;font-weight:600;letter-spacing:.02em}
+.gdesc{font-size:12.5px;color:var(--ink3)}
+.task{
+  display:flex;gap:11px;padding:11px 2px;border-bottom:1px solid var(--line2);
+  align-items:flex-start;
+}
+.task:last-child{border-bottom:none}
+.task.off{opacity:.42}
+.chk{
+  flex:none;width:17px;height:17px;margin-top:3px;border:1.5px solid #c7c2be;
+  border-radius:4px;cursor:pointer;position:relative;background:#fff;transition:.12s;
+}
+.chk.on{background:var(--teal);border-color:var(--teal)}
+.chk.on::after{
+  content:"";position:absolute;left:4.5px;top:1.5px;width:4px;height:8px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(42deg);
+}
+.tmain{flex:1;min-width:0}
+.ttitle{font-size:14.5px;font-weight:500;line-height:1.5}
+.twhy{font-size:12.5px;color:var(--ink3);margin-top:2px;line-height:1.55}
+.tq{font-size:11.5px;color:var(--ink3);margin-top:5px}
+.tq i{
+  font-style:normal;background:var(--bg2);border:1px solid var(--line2);
+  padding:1px 6px;border-radius:4px;margin-right:4px;display:inline-block;
+  margin-bottom:3px;color:var(--ink2);
+}
+.tmeta{flex:none;font-size:11.5px;color:var(--ink3);text-align:right;padding-top:3px}
+
+/* ── 结果 ── */
+.toolbar{
+  display:flex;align-items:center;gap:10px;padding:12px 0;
+  border-bottom:1px solid var(--line);margin-bottom:6px;position:sticky;
+  top:0;background:var(--bg);z-index:5;
+}
+.cnt{font-size:13px;color:var(--ink2)}
+.cnt b{color:var(--ink);font-weight:600}
+.tgroup{margin:22px 0 0}
+.tghead{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.tgname{font-size:13.5px;font-weight:600}
+.tgnum{font-size:12px;color:var(--ink3)}
+.tgnote{
+  font-size:12px;color:var(--amber);background:var(--amber-bg);
+  padding:2px 8px;border-radius:5px;
+}
+/* 方向级的说明：为什么这一栏全是「仅目录」、为什么这条是空的。
+   放在组头上，用户展开列表之前就知道该不该信这一栏。 */
+.tnote{
+  font-size:12.5px;color:#57534e;background:#f5f5f4;border-left:2px solid #d6d3d1;
+  padding:7px 10px;border-radius:0 5px 5px 0;margin-bottom:6px;line-height:1.6;
+}
+.item{
+  display:flex;gap:11px;padding:10px 2px;border-bottom:1px solid var(--line2);
+  align-items:flex-start;
+}
+.item.pick{background:linear-gradient(90deg,var(--teal-bg),transparent 60%)}
+.imain{flex:1;min-width:0}
+.ititle{font-size:14px;line-height:1.55;word-break:break-word}
+.ititle a{color:inherit;border-bottom:1px solid var(--line)}
+.ititle a:hover{color:var(--teal);border-color:var(--teal);text-decoration:none}
+.iline{font-size:12px;color:var(--ink3);margin-top:3px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.tag{
+  display:inline-block;font-size:11px;padding:0 6px;border-radius:4px;
+  line-height:17px;border:1px solid transparent;
+}
+.t-reg{background:var(--red-bg);color:var(--red)}
+.t-plan{background:var(--blue-bg);color:var(--blue)}
+.t-pol{background:var(--teal-bg);color:var(--teal)}
+.t-case{background:var(--purple-bg);color:var(--purple)}
+.t-neu{background:var(--bg2);color:var(--ink3);border-color:var(--line)}
+.t-body{background:#f0fdf4;color:#15803d}
+.t-cat{background:var(--bg2);color:var(--ink3);border-color:var(--line)}
+/* 时效徽标。红色两档（已废止 / 已届满）分开写，因为用户看到「已届满」
+   需要的是「该换哪份」，看到「已废止」需要的是「谁废的」，动作不一样。 */
+.t-dead{background:var(--red-bg);color:var(--red);font-weight:600}
+.t-pend{background:var(--amber-bg);color:var(--amber);font-weight:600}
+.t-ok{background:#f0fdf4;color:#15803d}
+/* 原文引文。报告里只有这一段是从原文抄的，其余都是模型的话，所以必须能一眼分出来 */
+.oq{
+  background:#f4f1ec;border-radius:3px;padding:0 3px;color:var(--ink2);
+  box-decoration-break:clone;-webkit-box-decoration-break:clone;
+}
+.noise{
+  flex:none;font-size:11.5px;color:#c7c2be;background:none;border:none;
+  cursor:pointer;padding:2px 4px;border-radius:4px;opacity:0;transition:opacity .12s;
+}
+.item:hover .noise{opacity:1}
+.noise:hover{color:var(--red);background:var(--red-bg)}
+.more{
+  font-size:12.5px;color:var(--ink3);background:none;border:none;
+  cursor:pointer;padding:8px 2px;
+}
+.more:hover{color:var(--teal)}
+.emptybox{
+  font-size:13.5px;color:var(--ink3);background:var(--bg2);
+  border-radius:8px;padding:14px 16px;margin:8px 0;
+}
+/* 源站被挡：视觉上必须比「没找到」重一档，否则读不出「我们没看到」这层意思 */
+.blockbox{
+  font-size:13px;line-height:1.7;color:#7c2d12;background:#fef2e8;
+  border-left:3px solid #c2410c;border-radius:6px;
+  padding:12px 15px;margin:8px 0;
+}
+.blockbox b{color:#9a3412}
+
+/* ── 报告 ── */
+.report{margin-top:26px}
+.sec{margin-bottom:30px}
+.sech{
+  font-size:13px;font-weight:600;color:var(--ink);letter-spacing:.04em;
+  padding-bottom:7px;border-bottom:1px solid var(--line);margin-bottom:13px;
+  display:flex;align-items:baseline;gap:9px;
+}
+.sech span{font-size:12px;font-weight:400;color:var(--ink3);letter-spacing:0}
+.par{font-size:15px;line-height:1.85;color:var(--ink);margin:0 0 12px}
+.li{
+  font-size:14.5px;line-height:1.8;color:var(--ink);margin:0 0 10px;
+  padding-left:20px;position:relative;
+}
+.li::before{
+  content:attr(data-n);position:absolute;left:0;top:0;
+  font-size:12px;color:var(--ink3);font-weight:500;
+}
+.cite{
+  display:inline-block;font-size:11.5px;line-height:17px;padding:0 6px;
+  border-radius:4px;background:var(--teal-bg);color:var(--teal);
+  border:1px solid #cbeee8;cursor:pointer;margin:0 2px;vertical-align:1px;
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.cite:hover{background:#dff7f2}
+.cite.bad{background:var(--red-bg);color:var(--red);border-color:#fbd5d5}
+.cite.unv{background:var(--bg2);color:var(--ink3);border-color:var(--line)}
+.gap{
+  font-size:13.5px;line-height:1.75;color:var(--ink2);margin:0 0 9px;
+  padding-left:16px;position:relative;
+}
+.gap::before{content:"—";position:absolute;left:0;color:var(--amber)}
+
+/* 核验条 */
+.vbox{
+  border:1px solid var(--line);border-radius:10px;padding:15px 17px;
+  margin:26px 0 0;background:var(--bg2);
+}
+.vhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.vbadge{
+  font-size:12.5px;font-weight:600;padding:3px 10px;border-radius:100px;
+}
+.v-ok{background:#dcfce7;color:#15803d}
+.v-part{background:var(--amber-bg);color:var(--amber)}
+.v-bad{background:var(--red-bg);color:var(--red)}
+.v-none{background:var(--line2);color:var(--ink3)}
+.vwhy{font-size:12.5px;color:var(--ink2);flex:1}
+.vstat{font-size:12px;color:var(--ink3);display:flex;gap:16px;flex-wrap:wrap}
+.vstat b{color:var(--ink2);font-weight:600}
+.cites{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+.crow{
+  display:flex;gap:9px;font-size:12.5px;padding:5px 0;align-items:baseline;
+}
+.cdot{flex:none;width:7px;height:7px;border-radius:50%;margin-top:6px}
+.d-ok{background:#15803d}.d-unv{background:#c7c2be}.d-bad{background:var(--red)}
+.cname{flex:1;color:var(--ink2);word-break:break-word}
+.creason{color:var(--ink3);font-size:11.5px}
+
+/* 留痕 */
+.marks{margin-top:18px}
+.mhead{
+  display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink3);
+  cursor:pointer;user-select:none;
+}
+.mhead:hover{color:var(--ink2)}
+.mlist{margin-top:9px;display:none}
+.mlist.on{display:block}
+.mrow{
+  font-size:12.5px;color:var(--ink2);padding:5px 0 5px 14px;
+  position:relative;line-height:1.6;
+}
+.mrow::before{
+  content:attr(data-k);position:absolute;left:0;color:var(--amber);
+  font-size:11px;
+}
+
+/* 加载 */
+.loading{display:flex;align-items:center;gap:10px;color:var(--ink3);font-size:14px;padding:40px 0}
+.dotpulse{display:flex;gap:4px}
+.dotpulse i{
+  width:5px;height:5px;border-radius:50%;background:var(--ink3);
+  animation:p 1.2s infinite;
+}
+.dotpulse i:nth-child(2){animation-delay:.16s}
+.dotpulse i:nth-child(3){animation-delay:.32s}
+@keyframes p{0%,60%,100%{opacity:.25}30%{opacity:1}}
+.err{
+  font-size:13.5px;color:var(--red);background:var(--red-bg);
+  border-radius:8px;padding:12px 15px;margin:14px 0;line-height:1.65;
+}
+.scope{margin-top:44px;padding-top:22px;border-top:1px solid var(--line2)}
+.scopeh{font-size:11.5px;color:var(--ink3);letter-spacing:.12em;margin-bottom:11px}
+.scoperow{font-size:13px;color:var(--ink3);line-height:1.85}
+.scoperow b{display:inline-block;min-width:52px;color:var(--ink2);font-weight:600}
+.back{
+  font-size:13px;color:var(--ink3);background:none;border:none;
+  cursor:pointer;padding:0;margin-bottom:16px;
+}
+.back:hover{color:var(--ink)}
+
+/* ── 步骤条 ── */
+.steps{display:flex;margin:0 0 32px;border-bottom:1px solid var(--line2);flex-wrap:nowrap}
+.steps .st{
+  display:flex;align-items:center;gap:8px;padding:0 0 13px;margin-right:30px;
+  font-size:12.5px;color:#b5aeaa;position:relative;transition:color .2s;
+  white-space:nowrap;flex:none;
+}
+.steps .st i{
+  flex:none;width:20px;height:20px;border-radius:50%;border:1px solid #e2dedb;background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-style:normal;font-size:11px;font-weight:600;color:#b5aeaa;transition:.2s;
+}
+.steps .st.on{color:var(--ink);font-weight:600}
+.steps .st.on i{background:var(--ink);border-color:var(--ink);color:#fff}
+.steps .st.on::after{
+  content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--ink);
+}
+.steps .st.done{color:var(--ink3)}
+.steps .st.done i{background:var(--teal);border-color:var(--teal);color:#fff}
+
+/* ── 首屏 ── */
+.hero{margin:4px 0 30px}
+.hero h1{font-size:30px;line-height:1.4;letter-spacing:-.015em}
+.hero .sub{
+  font-size:15px;color:var(--ink2);line-height:1.8;margin-top:12px;max-width:620px;
+}
+.hero .sub b{color:var(--ink);font-weight:600}
+.exs{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.ex{
+  font-size:12.5px;color:var(--ink2);background:var(--bg2);border:1px solid var(--line);
+  border-radius:7px;padding:6px 12px;cursor:pointer;transition:.13s;text-align:left;
+  font-family:inherit;line-height:1.5;
+}
+.ex:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-bg)}
+.ex span{color:#b5aeaa;margin-right:5px;font-size:11px}
+
+/* ── 报告：结论卡 ── */
+.verdict{
+  background:#fff;border:1px solid var(--line);border-left:3px solid var(--teal);
+  border-radius:0 11px 11px 0;padding:17px 21px;margin:22px 0 22px;
+}
+.vt{font-size:11px;letter-spacing:.13em;color:var(--ink3);margin-bottom:8px}
+.vb{font-size:17px;line-height:1.68;font-weight:600;color:var(--ink)}
+.vb .cite{font-size:11px;font-weight:400}
+.vfoot{
+  margin-top:14px;padding-top:12px;border-top:1px solid var(--line2);
+  font-size:12.5px;color:var(--ink2);display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+}
+.vfoot a{font-size:12px;color:var(--ink3);margin-left:auto;border-bottom:1px solid var(--line)}
+.vfoot a:hover{color:var(--teal);border-color:var(--teal);text-decoration:none}
+.vfb{font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:100px}
+.vfb-ok{background:#dcfce7;color:#15803d}
+.vfb-bad{background:var(--red-bg);color:var(--red)}
+
+/* ── 报告：段落导航 ── */
+.toc{
+  display:flex;gap:6px;flex-wrap:wrap;margin:0 0 26px;
+  padding-bottom:15px;border-bottom:1px solid var(--line2);
+}
+.toc a{
+  font-size:12.5px;color:var(--ink3);padding:4px 11px;border-radius:6px;
+  background:var(--bg2);border:1px solid transparent;
+}
+.toc a:hover{color:var(--teal);border-color:#cbeee8;text-decoration:none}
+.toc a b{color:var(--ink);font-weight:600;margin-right:4px}
+
+/* ── 报告：依据分组标题 ── */
+.gh{
+  font-size:12.5px;font-weight:600;color:var(--ink2);margin:22px 0 9px;
+  padding-left:10px;border-left:2px solid var(--teal);letter-spacing:.01em;
+}
+.gh:first-child{margin-top:0}
+
+/* ── 报告：操作条 ── */
+.actbar{
+  display:flex;gap:9px;align-items:center;margin:0 0 4px;padding:14px 0;
+  border-bottom:1px solid var(--line2);
+}
+.actbar .spacer{flex:1}
+.actbar .tiny{font-size:12px;color:var(--ink3)}
+
+/* ── 核验矩阵 ── */
+.crow2{
+  display:grid;grid-template-columns:1fr auto;gap:12px;padding:8px 0;
+  border-bottom:1px solid var(--line);align-items:center;
+}
+.crow2:last-child{border-bottom:none}
+.crow2.head{padding-top:0;padding-bottom:6px}
+.cname2{font-size:12.5px;color:var(--ink2);line-height:1.5}
+.cname2 em{font-style:normal;color:var(--ink3);font-size:11.5px}
+.cm{display:flex;gap:3px;flex:none}
+.cm .lab{font-size:10.5px;color:#c7c2be;display:flex;align-items:center;margin-right:3px}
+.cb{
+  width:25px;height:18px;border-radius:3px;font-size:10px;display:flex;
+  align-items:center;justify-content:center;font-weight:600;letter-spacing:.01em;
+}
+.cb.p{background:#dcfce7;color:#15803d}
+.cb.f{background:var(--red-bg);color:var(--red)}
+.cb.s{background:var(--line2);color:#a8a29e}
+.cb.w{background:var(--amber-bg);color:var(--amber)}
+.legend{font-size:11.5px;color:var(--ink3);margin-top:10px;display:flex;gap:14px}
+.legend i{
+  display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:0;
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="logo">有据<span>政策依据梳理</span></div>
+  <div class="spacer"></div>
+  <button class="tracebtn" id="tracebtn" style="display:none">
+    本次留痕 <b id="traceN">0</b>
+  </button>
+</header>
+
+<nav class="steps" id="steps">
+  <div class="st on" data-n="1"><i>1</i>说清要办的事</div>
+  <div class="st" data-n="2"><i>2</i>确认取证方向</div>
+  <div class="st" data-n="3"><i>3</i>勾选可用文件</div>
+  <div class="st" data-n="4"><i>4</i>拿带依据的判断</div>
+</nav>
+
+<!-- ① 输入 -->
+<section class="step on" id="s1">
+  <div class="hero">
+    <h1>把一句含糊的话，<br>变成一份引得到条款的依据</h1>
+    <div class="sub">
+      不用写清楚。说个地名、说个担心的事就行。系统会先拆成「该查哪几层文件」，
+      再去库里找，找到的每条都标<strong>能不能引</strong>，找不到的会写进缺口段，不会假装没有。
+    </div>
+  </div>
+  <div>
+    <textarea id="q" placeholder="例：我想要做南京老门西历史文化街区的城市更新，想知道建筑高度能不能突破现行控规"></textarea>
+  </div>
+  <div class="exs">
+    <button class="ex" data-q="南京老门西历史文化街区更新，建筑高度和密度能不能突破现行控规"><span>例</span>南京老门西 · 高度能不能突破</button>
+    <button class="ex" data-q="广州恩宁路历史文化街区更新，核心保护范围内的骑楼能不能拆改"><span>例</span>广州恩宁路 · 骑楼能不能动</button>
+    <button class="ex" data-q="城市更新项目里，公益性用地移交比例一般按什么标准执行"><span>例</span>城市更新 · 公益性用地比例</button>
+  </div>
+  <div class="rangerow">
+    <span class="rangelabel">检索范围</span>
+    <div class="seg" id="scope">
+      <button data-v="kb" class="on">只用知识库</button>
+      <button data-v="both">库 + 联网补漏</button>
+      <button data-v="web">只用联网</button>
+    </div>
+    <span class="rangehint" id="scopehint">快，条文能逐字核对，但只能查已入库的文件。</span>
+  </div>
+  <div class="bar">
+    <div class="hint">会先拆成「该查哪几层文件」，确认后再去找。</div>
+    <button class="btn" id="go1">拆解</button>
+  </div>
+  <div class="scope">
+    <div class="scopeh">这个库里有什么</div>
+    <div class="scoperow"><b>国家级</b><span id="cv-nat">1.86 万份</span>全文。可以引到条，能逐字核对。</div>
+    <div class="scoperow"><b>地方</b><span id="cv-loc">南京 1,581 份、江苏 1,585 份</span>有全文；另有 <span id="cv-cat">6.75 万条目录，覆盖 1,489 个市/县</span>，多数只有标题和链接。</div>
+    <div class="scoperow"><b>库外城市</b>广州有政策库接口可以直接现抓（含源端「有效/失效」标记）；其他城市靠现探门户栏目，成功率不稳，建议先把城市抓进库。</div>
+    <div class="scoperow"><b>时效</b><span id="cv-eff">3.07 万份</span>都查过有没有被别的文件点名废止。<span id="cv-exp"></span>没查到会写「未见废止记录」，不等于一定有效。</div>
+  </div>
+</section>
+
+<!-- ② 拆解 -->
+<section class="step" id="s2">
+  <button class="back" id="back2">← 改问题</button>
+  <h1>我打算这样取证<small>取消不要的方向，缺的可以补。确认后才去查。</small></h1>
+  <div class="reading" id="reading"></div>
+  <div id="tasks"></div>
+  <div class="bar">
+    <button class="btn ghost sm" id="addtask">+ 补一个方向</button>
+    <div class="hint" id="taskhint"></div>
+    <button class="btn" id="go2">开始取证</button>
+  </div>
+</section>
+
+<!-- ③ 取证结果 -->
+<section class="step" id="s3">
+  <button class="back" id="back3">← 改取证方向</button>
+  <h1>找到这些<small>勾掉不要的。没找到的方向会自动记进报告的「缺口」段。</small></h1>
+  <div class="toolbar">
+    <div class="cnt" id="cnt"></div>
+    <div class="spacer" style="flex:1"></div>
+    <button class="btn ghost sm" id="selpeak">只选有正文的</button>
+    <button class="btn" id="go3">开始撰写</button>
+  </div>
+  <div id="results"></div>
+</section>
+
+<!-- ④ 报告 -->
+<section class="step" id="s4">
+  <button class="back" id="back4">← 改选文件</button>
+  <h1 id="r4title">依据梳理</h1>
+  <div id="r4sub" style="font-size:13.5px;color:var(--ink3);margin-top:6px"></div>
+  <div id="verdict"></div>
+  <div class="actbar" id="actbar" style="display:none">
+    <button class="btn ghost sm" id="copyev">复制依据段</button>
+    <button class="btn ghost sm" id="copyall">复制全文</button>
+    <div class="spacer"></div>
+    <span class="tiny" id="r4meta"></span>
+  </div>
+  <div id="toc"></div>
+  <div id="writing" class="loading" style="display:none">
+    <div class="dotpulse"><i></i><i></i><i></i></div>
+    <span id="wtext">正在读原文</span>
+  </div>
+  <div id="report" class="report"></div>
+  <div id="vbox"></div>
+  <div class="marks" id="marks"></div>
+</section>
+
+</div>
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+  .replace(/"/g,"&quot;");
+
+const S = {
+  run: "", q: "", plan: null, tasks: [],
+  picked: new Set(), default: new Set(),
+  items: new Map(),   // title -> item
+  marks: 0, verify: null, report: "",
+  scope: "kb",        // 检索范围：kb / both / web
+};
+
+/* ── 检索范围选择 ── */
+const SCOPE_HINT = {
+  kb:   "快，条文能逐字核对，但只能查已入库的文件。",
+  both: "先查库，某个方向不够 3 份有正文的才去联网补。慢一些，但覆盖更宽。",
+  web:  "直接到目标城市政府站现抓。覆盖无上限，但可能抓不到——失败原因会写出来。",
+};
+document.querySelectorAll("#scope button").forEach(b => {
+  b.onclick = () => {
+    const from = S.scope;
+    document.querySelectorAll("#scope button").forEach(x => x.classList.remove("on"));
+    b.classList.add("on");
+    S.scope = b.dataset.v;
+    $("scopehint").textContent = SCOPE_HINT[S.scope] || "";
+    if(from !== S.scope) track("scope_switch", {from, to:S.scope});
+  };
+});
+
+/* 示例问题：点一下填进去，不直接提交——留着让人改地名 */
+document.querySelectorAll(".ex").forEach(b => {
+  b.onclick = () => { $("q").value = b.dataset.q; $("q").focus(); };
+});
+
+/* ── SSE ── */
+async function sse(url, body, onEvent){
+  const r = await fetch(url, {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify(body)
+  });
+  if(!r.ok){ onEvent({step:"error", error:"服务端返回 "+r.status}); return; }
+  const reader = r.body.getReader();
+  const dec = new TextDecoder();
+  let buf = "";
+  for(;;){
+    const {done, value} = await reader.read();
+    if(done) break;
+    buf += dec.decode(value, {stream:true});
+    const parts = buf.split("\n\n");
+    buf = parts.pop();
+    for(const p of parts){
+      const line = p.trim();
+      if(!line.startsWith("data:")) continue;
+      try{ onEvent(JSON.parse(line.slice(5).trim())); }catch(e){}
+    }
+  }
+}
+
+/* ── 前端行为埋点（PRD §8.1 里后端记不到的那几个） ── */
+function track(name, data){
+  try{
+    fetch("/api/ev", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({event:name, run_id:S.run || "", data:data || {}}),
+      keepalive:true
+    }).catch(()=>{});
+  }catch(e){}
+}
+
+function show(n){
+  for(let i=1;i<=4;i++) $("s"+i).classList.toggle("on", i===n);
+  document.querySelectorAll("#steps .st").forEach(el => {
+    const k = +el.dataset.n;
+    el.classList.toggle("on", k === n);
+    el.classList.toggle("done", k < n);
+  });
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+async function mark(kind, target, note){
+  if(!S.run) return;
+  try{
+    const r = await fetch("/api/mark", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({run_id:S.run, kind, target, note:note||""})
+    });
+    const d = await r.json();
+    S.marks = d.n || S.marks + 1;
+    $("tracebtn").style.display = "";
+    $("traceN").textContent = S.marks;
+  }catch(e){}
+}
+
+/* ══════════ ① 输入 ══════════ */
+$("go1").onclick = async () => {
+  const q = $("q").value.trim();
+  if(q.length < 4){ $("q").focus(); return; }
+  S.q = q; S.picked.clear(); S.default.clear(); S.items.clear();
+  $("go1").disabled = true;
+  $("go1").textContent = "拆解中";
+  show(2);
+  $("reading").innerHTML = '<div class="loading"><div class="dotpulse"><i></i><i></i><i></i></div>正在理解这件事要办什么</div>';
+  $("tasks").innerHTML = "";
+
+  await sse("/api/plan", {q}, ev => {
+    if(ev.step === "start"){
+      S.run = ev.run_id;
+      track("q_start", {q_len:q.length, scope:S.scope});
+    }
+    else if(ev.step === "plan"){
+      S.plan = ev.plan; S.tasks = ev.plan.tasks.map(t => ({...t, on:true}));
+      renderPlan();
+    } else if(ev.step === "error"){
+      $("reading").innerHTML = `<div class="err">${esc(ev.error)}</div>`;
+    }
+    if(ev.step === "plan" || ev.step === "error"){
+      $("go1").disabled = false; $("go1").textContent = "拆解";
+    }
+  });
+};
+
+/* ══════════ ② 拆解 ══════════ */
+function kindTag(k){
+  if(k.startsWith("reg")) return "t-reg";
+  if(k === "plan_local") return "t-plan";
+  if(k === "case") return "t-case";
+  if(k === "standard") return "t-neu";
+  return "t-pol";
+}
+
+function renderPlan(){
+  const p = S.plan;
+  const where = [p.place.city, p.place.district, p.place.site].filter(Boolean).join(" · ");
+  $("reading").innerHTML =
+    `<b>${esc(p.reading || "按标准取证路径梳理")}</b>` +
+    (where ? `<div style="margin-top:6px;font-size:13px;color:var(--ink3)">检索范围：${esc(where)}</div>` : "") +
+    (p.source !== "llm" ? `<div style="margin-top:8px;font-size:12.5px;color:var(--amber)">模型未返回结构化拆解，以下按规则生成，建议逐条核对</div>` : "");
+
+  // 按类型分组
+  const groups = new Map();
+  for(const t of S.tasks){
+    if(!groups.has(t.label)) groups.set(t.label, []);
+    groups.get(t.label).push(t);
+  }
+  let h = "";
+  for(const [label, list] of groups){
+    const k = list[0].kind;
+    h += `<div class="group"><div class="ghead">
+      <span class="tag ${kindTag(k)}">${esc(label)}</span>
+      <span class="gdesc">${esc(list[0].desc || "")}</span></div>`;
+    for(const t of list){
+      h += `<div class="task" data-id="${esc(t.id)}">
+        <div class="chk on" data-t="${esc(t.id)}"></div>
+        <div class="tmain">
+          <div class="ttitle">${esc(t.title)}</div>
+          ${t.why ? `<div class="twhy">${esc(t.why)}</div>` : ""}
+          <div class="tq">${(t.queries||[]).map(q=>`<i>${esc(q)}</i>`).join("")}</div>
+        </div>
+        <div class="tmeta">${esc(t.geo || "")}${t.auto ? '<br><span style="color:var(--amber)">自动补齐</span>' : ""}${t.must ? "<br>必查" : ""}</div>
+      </div>`;
+    }
+    h += "</div>";
+  }
+  $("tasks").innerHTML = h;
+  $("tasks").querySelectorAll(".chk").forEach(el => {
+    el.onclick = () => {
+      const t = S.tasks.find(x => x.id === el.dataset.t);
+      t.on = !t.on;
+      el.classList.toggle("on", t.on);
+      el.closest(".task").classList.toggle("off", !t.on);
+      hintTasks();
+    };
+  });
+  hintTasks();
+  $("go2").disabled = false;
+}
+
+function hintTasks(){
+  const n = S.tasks.filter(t => t.on).length;
+  const must = S.tasks.filter(t => t.must && !t.on).length;
+  $("taskhint").textContent = must
+    ? `${n} 个方向，其中 ${must} 个必查方向被取消了`
+    : `${n} 个方向`;
+  $("taskhint").style.color = must ? "var(--amber)" : "";
+}
+
+$("addtask").onclick = () => {
+  const title = prompt("想补一个什么方向？（一句话，例如「区级实施文件」）");
+  if(!title || title.trim().length < 2) return;
+  const kw = prompt("用哪些词去撞文件标题？（逗号分隔，例如：老城保护,历史风貌区）");
+  if(!kw) return;
+  const queries = kw.split(/[,，、\s]+/).filter(x => x.length >= 2).slice(0, 4);
+  if(!queries.length) return;
+  const geo = prompt("查哪个范围？（填城市名或省名，跨地域填「不限」）", S.plan.place.city || "不限");
+  const t = {
+    id: "u" + Date.now(), kind: "policy_local", label: "自定方向",
+    desc: "你自己补的方向", title: title.trim(), why: "",
+    geo: (geo||"不限").trim(), queries, must: false, on: true, id2: "",
+  };
+  t.id = "u" + Date.now();
+  S.tasks.push(t);
+  renderPlan();
+  mark("user_task", title.trim(), queries.join(","));
+};
+
+$("back2").onclick = () => show(1);
+$("back3").onclick = () => show(2);
+$("back4").onclick = () => show(3);
+
+/* ══════════ ③ 取证 ══════════ */
+$("go2").onclick = async () => {
+  const on = S.tasks.filter(t => t.on);
+  if(!on.length) return;
+  $("go2").disabled = true;
+  $("go2").textContent = "取证中";
+  const plan = {...S.plan, tasks: on.map(t => ({
+    id:t.id, kind:t.kind, title:t.title, why:t.why||"",
+    geo:t.geo, queries:t.queries, must:!!t.must,
+    label:t.label, desc:t.desc, auto:!!t.auto, rank:t.rank
+  }))};
+  S.plan = plan;
+
+  show(3);
+  $("results").innerHTML = '<div class="loading"><div class="dotpulse"><i></i><i></i><i></i></div>正在按方向逐一查找</div>';
+  $("cnt").textContent = "";
+
+  await sse("/api/gather", {run_id:S.run, plan, scope:S.scope}, ev => {
+    if(ev.step === "gather"){
+      S.tasks = ev.tasks;
+      autoPick();
+      renderResults();
+    } else if(ev.step === "error"){
+      $("results").innerHTML = `<div class="err">${esc(ev.error)}</div>`;
+    }
+    $("go2").disabled = false;
+    $("go2").textContent = "开始取证";
+  });
+};
+
+// 默认勾选：直接命中 + 有正文的；每类至少 1 条
+function autoPick(){
+  S.picked.clear(); S.default.clear(); S.items.clear();
+  for(const t of S.tasks)
+    for(const it of t.items) S.items.set(it.title, {...it, _task:t.label, _tk:t.kind});
+
+  const pick = it => { S.picked.add(it.title); S.default.add(it.title); };
+  const CAP = 3;
+  // 已废止 / 已届满 / 旧版的文件不进默认勾选。
+  // 「默认勾上」这个动作本身就是在替用户背书，而这类文件恰恰不能背书——
+  // 用户点「开始撰写」时不会一条条看标签，他信任的是系统替他选的那几条。
+  // 它们仍然留在列表里、带红色徽标，要引的话得自己勾。
+  const DEAD = new Set(["expired", "repealed", "superseded"]);
+  const ok = i => !DEAD.has(i.eff);
+
+  // 第一轮：每个方向一条「找的就是它」，全局只取一次。
+  // 顺序即优先级（本地法规 → 本地规划 → …），所以一份文件出现在两个方向时，
+  // 它归排在前面的那个方向。案例方向因此自然会往下翻到外地案例，
+  // 而不是把「本地规划」已经选过的南京保护规划再选一遍。
+  for(const t of S.tasks){
+    const it = t.items.find(i => i.bucket === "strong" && ok(i) && !S.picked.has(i.title));
+    if(it) pick(it);
+  }
+
+  // 第二轮：每个方向补到 3 条。先有正文的，再有正文不够才拿目录条目。
+  // 关键是「跳过已被别处选中的之后继续往下找」——旧版是先算出 take 再交给
+  // Set 去重，被跳过的位置不会补，于是案例方向会拿一条低质的补位
+  // （实测补进了《六合文庙历史地段保护规划》，跟老门西不在一个量级）。
+  for(const t of S.tasks){
+    let n = t.items.filter(i => S.picked.has(i.title)).length;
+    let rest = t.items.filter(i => !S.picked.has(i.title) && ok(i));
+    // 这个方向全是失效件时不再硬撑：允许选，但选进来的每一条都会在撰写时
+    // 被标成「不得作为现行依据」，模型照此写，缺口段会自己说出来。
+    if(!rest.length) rest = t.items.filter(i => !S.picked.has(i.title));
+    for(const it of [...rest.filter(i => i.has_body), ...rest.filter(i => !i.has_body)]){
+      if(n >= CAP) break;
+      pick(it); n++;
+    }
+  }
+}
+
+function renderResults(){
+  const times = new Map();
+  for(const t of S.tasks) for(const it of t.items)
+    times.set(it.title, (times.get(it.title) || 0) + 1);
+  let h = "";
+  for(const t of S.tasks){
+    h += `<div class="tgroup">
+      <div class="tghead">
+        <span class="tag ${kindTag(t.kind)}">${esc(t.label)}</span>
+        <span class="tgname">${esc(t.title)}</span>
+        <span class="tgnum">${t.total} 份</span>
+        ${typeof t.n_usable === "number" && t.n_usable < t.total
+          ? `<span class="tgnote">其中 ${t.n_usable} 份有正文可引</span>` : ""}
+        ${t.n_strong > 0 && t.n_strong < t.total
+          ? `<span class="tgnote">直接命中 ${t.n_strong} 份，其余为同类</span>` : ""}
+        ${t.n_strong === 0 && t.total > 0 ? '<span class="tgnote">没有专门针对本项目的，以下是同类</span>' : ""}
+      </div>
+      ${t.total > 0 && t.note
+        ? `<div class="tnote">${esc(t.note)}</div>` : ""}`;
+    if(!t.items.length){
+      const qs = (t.queries_used || []).slice(0, 5).join("、");
+      if(t.blocked){
+        // 「源站挡住了」必须和「确实没有」视觉上分开。
+        // 放进灰色空状态里，用户只会读成「这个城市没这方面政策」。
+        h += `<div class="blockbox"><b>看不到，不等于没有</b><br>${esc(t.note)}</div>`;
+      } else {
+      h += `<div class="emptybox">这一层没有检索到文件。
+        ${t.note ? `<br><span style="color:#57534e">${esc(t.note)}</span>` : ""}
+        ${t.must ? "<br>这是必查方向，缺口已经记下——撰写时会在「缺口」段写出来。" : ""}
+        ${qs ? `<br><span style="color:#a8a29e">试过的词：${esc(qs)}</span>` : ""}</div>`;
+      }
+    }
+    for(const it of t.items){
+      h += itemHTML(it, t, times.get(it.title) || 1);
+    }
+    if(t.overflow > 0){
+      h += `<button class="more" data-over="${esc(t.id)}">还有 ${t.overflow} 份相关性更低的，展开</button>`;
+    }
+    h += "</div>";
+  }
+  $("results").innerHTML = h;
+  bindItems();
+  updateCnt();
+}
+
+function itemHTML(it, t, times){
+  const picked = S.picked.has(it.title);
+  const shapeCls = it.shape === "条例" || it.shape === "规章" || it.shape === "办法" ? "t-reg"
+    : it.shape === "规划" ? "t-plan"
+    : it.shape === "批复" || it.shape === "通知" ? "t-neu"
+    : "t-neu";
+  // 三档而不是两档：规划类文件源站常只发一两百字的「批后公布」公告，
+  // 规划本体是图件。这种「有正文」是个壳，勾了也引不到条文——
+  // 不标出来，用户会以为能引，结果核验区一片红。
+  const bodyTag = !it.has_body
+    ? '<span class="tag t-cat">仅目录</span>'
+    : (it.chars || 0) < 800
+      ? '<span class="tag t-cat" title="源站只发了公布公告，文件本体是图件">仅公告</span>'
+      : '<span class="tag t-body">有正文</span>';
+  // 时效徽标。台账都不给 no_signal 出徽标——它占九成，出了等于整列都是字。
+  const EFF_TXT = {expired:"已届满", pending:"未生效", repealed:"已废止",
+                   superseded:"旧版", in_force:"有效"};
+  const EFF_CLS = {expired:"t-dead", repealed:"t-dead", superseded:"t-dead",
+                   pending:"t-pend", in_force:"t-ok"};
+  const EFF_TIP = {expired:"原文载明有效期截止日已过，到期失效不需要别的文件宣布",
+                   repealed:"已被明确宣布废止，不得作为现行依据",
+                   superseded:"同名文件已有更新版本入库，应引新版",
+                   pending:"原文载明的施行日还没到，引用须注明施行日",
+                   in_force:"原文载明有效期，且未过"};
+  const effTag = it.eff && EFF_TXT[it.eff]
+    ? `<span class="tag ${EFF_CLS[it.eff]}" title="${esc(EFF_TIP[it.eff] || "")}">${EFF_TXT[it.eff]}${it.eff_date ? " " + esc(it.eff_date) : ""}</span>`
+    : "";
+  return `<div class="item ${picked ? "pick" : ""}" data-title="${esc(it.title)}">
+    <div class="chk ${picked ? "on" : ""}" data-k="${esc(it.title)}"></div>
+    <div class="imain">
+      <div class="ititle">${it.url
+        ? `<a href="${esc(it.url)}" target="_blank" rel="noopener">${esc(it.title)}</a>`
+        : esc(it.title)}</div>
+      <div class="iline">
+        <span class="tag ${shapeCls}">${esc(it.shape || "文件")}</span>
+        ${bodyTag}
+        ${effTag}
+        <span>${esc(it.region || "")}</span>
+        ${it.doc_no ? `<span>${esc(it.doc_no)}</span>` : ""}
+        ${it.published ? `<span>${esc(it.published)}</span>` : ""}
+        ${it.bucket === "strong" ? "" : '<span style="color:var(--ink3)">同类</span>'}
+        ${it.more ? `<span style="color:var(--ink3)" title="${esc((it.more_titles||[]).join(" / "))}">另有 ${it.more} 条同模板文件</span>` : ""}
+        ${times > 1 ? `<span style="color:var(--ink3)">另 ${times - 1} 个方向也有</span>` : ""}
+      </div>
+    </div>
+    <button class="noise" data-noise="${esc(it.title)}" title="这条不相关">不相关</button>
+  </div>`;
+}
+
+function bindItems(){
+  $("results").querySelectorAll(".chk[data-k]").forEach(el => {
+    el.onclick = e => {
+      e.stopPropagation();
+      const k = el.dataset.k;
+      if(S.picked.has(k)) S.picked.delete(k); else S.picked.add(k);
+      el.classList.toggle("on", S.picked.has(k));
+      el.closest(".item").classList.toggle("pick", S.picked.has(k));
+      updateCnt();
+    };
+  });
+  $("results").querySelectorAll(".noise").forEach(el => {
+    el.onclick = () => {
+      const k = el.dataset.noise;
+      S.picked.delete(k);
+      mark("user_irrelevant", k, "");
+      const row = el.closest(".item");
+      row.style.opacity = ".34";
+      row.querySelector(".chk").classList.remove("on");
+      row.classList.remove("pick");
+      updateCnt();
+    };
+  });
+  $("results").querySelectorAll(".more").forEach(el => {
+    el.onclick = () => {
+      mark("want_more", el.dataset.over, el.textContent);
+      el.textContent = "（本次没有加载更低分的条目，已记录这个需求）";
+      el.disabled = true;
+    };
+  });
+}
+
+function updateCnt(){
+  const n = S.picked.size;
+  const nb = [...S.picked].filter(t => (S.items.get(t)||{}).has_body).length;
+  const total = [...S.items.keys()].length;
+  const nd = [...S.picked].filter(t => {
+    const it = S.items.get(t) || {};
+    return ["expired", "repealed", "superseded"].indexOf(it.eff) >= 0;
+  }).length;
+  $("cnt").innerHTML = `候选 <b>${total}</b> 份 · 已选 <b>${n}</b> 份` +
+    (n ? ` · 其中 <b>${nb}</b> 份有正文可引原文` : "") +
+    (nd ? ` · <b style="color:var(--red)">${nd}</b> 份已失效` : "");
+  $("go3").disabled = n === 0;
+}
+
+$("selpeak").onclick = () => {
+  S.picked.clear();
+  const DEAD2 = new Set(["expired", "repealed", "superseded"]);
+  for(const [t, it] of S.items) if(it.has_body && !DEAD2.has(it.eff)) S.picked.add(t);
+  renderResults();
+};
+
+/* ══════════ ④ 撰写 ══════════ */
+$("go3").onclick = async () => {
+  const picked = [...S.picked].map(t => S.items.get(t)).filter(Boolean);
+  if(!picked.length) return;
+  $("go3").disabled = true; $("go3").textContent = "撰写中";
+  show(4);
+  $("r4title").textContent = "依据梳理";
+  $("r4sub").textContent = `${S.plan.place.city || ""}${S.plan.place.site || ""} · 依据 ${picked.length} 份文件`;
+  $("report").innerHTML = "";
+  $("vbox").innerHTML = "";
+  $("marks").innerHTML = "";
+  $("verdict").innerHTML = "";
+  $("toc").innerHTML = "";
+  $("actbar").style.display = "none";
+  S.report = "";
+  $("writing").style.display = "";
+  $("wtext").textContent = "正在读原文";
+
+  await sse("/api/write", {
+    run_id:S.run, q:S.q, plan:S.plan, picked,
+    default:[...S.default]
+  }, ev => {
+    if(ev.step === "bodies"){
+      $("wtext").textContent = `读到 ${ev.n_body} 份正文，正在撰写`;
+    } else if(ev.step === "write"){
+      $("writing").style.display = "none";
+      if(ev.error){ $("report").innerHTML = `<div class="err">${esc(ev.error)}</div>`; return; }
+      S.report = ev.answer || "";
+      $("report").innerHTML = renderMD(ev.answer);
+      $("wtext").textContent = "正在核对每一处引注";
+      $("writing").style.display = "";
+    } else if(ev.step === "verify"){
+      S.verify = ev;
+      $("writing").style.display = "none";
+      $("vbox").innerHTML = renderVerify(ev);
+      paintCites(ev);
+      /* 核验结论提到结论卡下面。报告 5,000 字，核验区在最后——
+         不搬上来，用户根本走不到那儿，「可交付」等于没说过。 */
+      const vf = $("vfoot");
+      if(vf){
+        const bad = ev.n_fail_occ || ev.n_fail || 0;
+        vf.innerHTML = `<div class="vfoot">
+          <span class="vfb ${bad ? "vfb-bad" : "vfb-ok"}">${esc(ev.strength || "")}</span>
+          依据核验：${(ev.cites || []).length} 处引注
+          ${bad ? `，<b style="color:var(--red)">${bad} 处对不上原文</b>` : "，全部回原文核对通过"}
+          <a href="#vbox">看逐条核验 ↓</a></div>`;
+      }
+      $("actbar").style.display = "";
+      $("r4meta").textContent = `${(S.report || "").length} 字 · ${picked.length} 份文件 · ${ev.strength || ""}`;
+    } else if(ev.step === "done"){
+      S.marks = ev.marks;
+      $("tracebtn").style.display = "";
+      $("traceN").textContent = ev.marks;
+      loadMarks();
+    } else if(ev.step === "error"){
+      $("writing").style.display = "none";
+      $("report").innerHTML = `<div class="err">${esc(ev.error)}</div>`;
+    }
+    if(ev.step === "done" || ev.step === "error" || ev.step === "write" && ev.error){
+      $("go3").disabled = false; $("go3").textContent = "开始撰写";
+    }
+  });
+};
+
+/* Markdown → 五段卡片 + 结论卡 + 段落导航 */
+function renderMD(md){
+  const raw = [];
+  let cur = {name:"", lines:[]};
+  for(const ln of md.split("\n")){
+    const line = ln.replace(/\s+$/,"");
+    const m = line.match(/^#{1,3}\s*(.+?)\s*$/);
+    if(m){
+      if(cur.name || cur.lines.join("").trim()) raw.push(cur);
+      cur = {name:m[1].replace(/[一二三四五六七八九十]+、/,""), lines:[]};
+      continue;
+    }
+    cur.lines.push(line);
+  }
+  if(cur.name || cur.lines.join("").trim()) raw.push(cur);
+  const secs = raw.filter(s => (s.lines.join("").trim()) || s.name);
+
+  /* 结论卡：把判断段的第一句捞出来单独放。
+     张工在第三步之后第一个动作是「这段话能不能直接用」，
+     让他先看到结论，再决定要不要往下读 4,000 字。 */
+  const sj = secs.find(x => /判断|结论/.test(x.name || "")) || secs[0];
+  if(sj){
+    const t = sj.lines.join("\n").trim();
+    let lead = "";
+    const bm = t.match(/\*\*([^*]{8,300})\*\*/);
+    if(bm) lead = bm[1].trim();
+    else {
+      const pm = t.match(/^([^。！？\n]{10,220}[。！？])/);
+      lead = pm ? pm[1] : "";
+    }
+    lead = lead.replace(/^#+\s*/, "");
+    $("verdict").innerHTML = lead
+      ? `<div class="verdict"><div class="vt">结论</div>
+           <div class="vb">${inline(lead)}</div>
+           <div id="vfoot"></div></div>`
+      : "";
+  }
+
+  let h = "";
+  const toc = [];
+  secs.forEach((s, i) => {
+    const body = s.lines.join("\n").trim();
+    const name = s.name || "正文";
+    const isGap = /缺口/.test(name);
+    const isNext = /下一步|建议/.test(name);
+    const isEv = /依据|文件/.test(name);
+    const isPath = /路径|审批/.test(name);
+    toc.push({name, i});
+    h += `<div class="sec" id="sec-${i}"><div class="sech">${esc(name)}` +
+      (isGap ? '<span>没找到依据的地方</span>'
+        : isNext ? '<span>接下来能做</span>'
+        : isEv ? '<span>按效力排序</span>'
+        : isPath ? '<span>走哪级、多久、什么代价</span>' : "") +
+      `</div>${isGap ? gapHTML(body) : (isEv || isNext || isPath) ? liHTML(body) : parHTML(body)}</div>`;
+  });
+
+  $("toc").innerHTML = toc.length > 1
+    ? `<div class="toc">${toc.map(x =>
+        `<a href="#sec-${x.i}"><b>${String(x.i + 1).padStart(2, "0")}</b>${esc(x.name)}</a>`).join("")}</div>`
+    : "";
+  return h;
+}
+
+function inline(s){
+  return esc(s)
+    .replace(/【([^】]{2,90})】/g, (m, g) =>
+      `<span class="cite" data-c="${esc(g)}">${esc(g)}</span>`)
+    .replace(/\*\*([^*]{1,300})\*\*/g, "<b>$1</b>")
+    // 引文单独标出来。整份报告里只有这几十个字是从原文抄的，其余都是模型写的。
+    // 不标，用户没法分辨哪句能直接引、哪句得自己回去核——而这正是这个产品
+    // 跟通用 AI 的区别所在。背景压得很淡，是因为一条依据里引文占一半篇幅，
+    // 上重色会让整段读起来像高亮笔涂满。
+    .replace(/「([^「」]{8,400})」/g, '<span class="oq">「$1」</span>');
+}
+
+function parHTML(t){
+  return t.split(/\n+/).filter(x => x.trim())
+    .map(x => `<p class="par">${inline(x)}</p>`).join("");
+}
+function liHTML(t){
+  const out = [];
+  let n = 0;
+  for(const ln of t.split("\n")){
+    const s = ln.trim();
+    if(!s) continue;
+    // 整行只有一个粗体 = 分组标题（「**一、硬约束**」）。
+    // 不先拦这一条，`*` 会被当成列表符号，标题变成正文里的一个星号。
+    const gh = s.match(/^\*\*([^*]{2,40})\*\*[:：]?$/);
+    if(gh){ out.push(`<div class="gh">${esc(gh[1])}</div>`); continue; }
+    const m = s.match(/^([-*]|\d+[.、)])\s*(.*)$/);
+    if(!m){ out.push(`<p class="par">${inline(s)}</p>`); continue; }
+    n++;
+    out.push(`<div class="li" data-n="${n}.">${inline(m[2])}</div>`);
+  }
+  return out.join("");
+}
+function gapHTML(t){
+  const out = [];
+  for(const ln of t.split("\n")){
+    const s = ln.replace(/^([-*]|\d+[.、)])\s*/,"").trim();
+    if(s.length < 4) continue;
+    out.push(`<div class="gap">${inline(s)}</div>`);
+  }
+  return out.join("") || `<p class="par">${inline(t)}</p>`;
+}
+
+const CORDER = ["C1", "C2", "C3", "C4", "C5"];
+function cbox(chk){
+  const st = chk.state === "pass" ? "p" : chk.state === "fail" ? "f"
+    : chk.state === "warn" ? "w" : "s";
+  const code = (chk.name || "").slice(0, 2);
+  const tip = `${chk.name || ""}：${chk.detail || ""}`;
+  return `<span class="cb ${st}" title="${esc(tip)}">${esc(code)}</span>`;
+}
+
+function renderVerify(v){
+  const cls = (v.strength === "可交付" || v.strength === "基本可用") ? "v-ok"
+    : (v.strength === "需修正" || v.strength === "无引注") ? "v-bad" : "v-part";
+  const cites = v.cites || [];
+  const nVer = cites.filter(c => c.kind === "verified").reduce((a, c) => a + (c.count || 1), 0);
+  const nUnv = cites.filter(c => c.kind === "unverifiable").reduce((a, c) => a + (c.count || 1), 0);
+  const nSkip = cites.reduce((a, c) => a +
+    (c.checks || []).filter(x => ["pass","fail","warn"].indexOf(x.state) < 0).length, 0);
+
+  const rows = cites.map(c => {
+    const byCode = {};
+    for(const ch of c.checks || []) byCode[(ch.name || "").slice(0, 2)] = ch;
+    const boxes = CORDER.map(k => byCode[k] ? cbox(byCode[k])
+      : `<span class="cb s" title="${k}：未执行">${k}</span>`).join("");
+    const note = c.kind === "verified" ? "已回原文核对"
+      : c.kind === "unverifiable" ? "仅有目录，未核内容"
+      : (c.checks || []).filter(x => x.state === "fail").map(x => x.detail).join("；").slice(0, 60);
+    const dot = c.kind === "verified" ? "d-ok" : c.kind === "unverifiable" ? "d-unv" : "d-bad";
+    return `<div class="crow2">
+      <div class="cname2"><span class="cdot ${dot}" style="display:inline-block;margin-right:7px"></span
+        >《${esc(c.claimed)}》${c.article ? "第" + c.article + "条" : ""}${c.count > 1 ? ` ×${c.count}` : ""}
+        <em>　${esc(note)}</em></div>
+      <div class="cm">${boxes}</div></div>`;
+  }).join("");
+
+  return `<div class="vbox">
+    <div class="vhead">
+      <span class="vbadge ${cls}">${esc(v.strength)}</span>
+      <span class="vwhy">${esc(v.reason)}</span>
+    </div>
+    <div class="vstat">
+      <span>引注 <b>${v.n_all || cites.length}</b> 处</span>
+      <span>回原文核对 <b>${nVer}</b></span>
+      <span>仅目录 <b>${nUnv}</b></span>
+      ${v.n_fail ? `<span style="color:var(--red)">对不上 <b>${v.n_fail_occ || v.n_fail}</b></span>` : ""}
+      ${nSkip ? `<span title="判据缺失时标未核，不默认通过；问题未点名法规时 C5 必然未核">未核 <b>${nSkip}</b></span>` : ""}
+      <span>依据段逐句有出处 <b>${Math.round((v.ratio || 0) * 100)}%</b></span>
+    </div>
+    ${rows ? `<div class="cites">${rows}
+      <div class="legend">
+        <span><i style="background:#dcfce7"></i>通过</span>
+        <span><i style="background:#fef2f2"></i>对不上</span>
+        <span><i style="background:#fef8e7"></i>引文被改写</span>
+        <span><i style="background:#f0efee"></i>未核（判据缺失，不默认通过）</span>
+        <span style="color:#a8a29e">C1 条号越界 · C2 引文查不到 · C3 时效违规 · C4 名称错配 · C5 所问法规</span>
+      </div>` : ""}
+  </div>`;
+}
+
+function paintCites(v){
+  const map = new Map();
+  for(const c of v.cites || []){
+    const k = (c.claimed || "").replace(/[《》\s]/g,"");
+    if(!map.has(k) || c.kind === "failed") map.set(k, c);
+  }
+  document.querySelectorAll(".cite").forEach(el => {
+    let raw = el.dataset.c || "";
+    const bm = raw.match(/《([^》]+)》/);
+    raw = bm ? bm[1] : raw.replace(/第[〇零一二三四五六七八九十百千\d]+条/g,"")
+                              .replace(/[（(].*$/,"").trim();
+    raw = raw.replace(/[《》\s]/g,"");
+    let hit = map.get(raw);
+    if(!hit){
+      let cands = [];
+      for(const [k, c] of map){
+        if(k.includes(raw) || raw.includes(k)) cands.push(c);
+      }
+      // 同一份文件可能同时有「已验证」和「仅目录」两条记录，优先给已验证的
+      cands.sort((x,y) => (x.kind === "verified" ? -1 : 1) - (y.kind === "verified" ? -1 : 1));
+      hit = cands[0];
+    }
+    if(!hit) return;
+    if(hit.kind === "failed") el.classList.add("bad");
+    else if(hit.kind === "unverifiable") el.classList.add("unv");
+    const why = hit.kind === "verified" ? "已回原文核对"
+      : hit.kind === "unverifiable" ? "仅有目录条目，未核内容"
+      : "对不上原文";
+    el.title = why;
+    el.onclick = () => {
+      track("cite_click", {title:(hit.title || "").slice(0, 60),
+                           kind:hit.kind || "", article:hit.article || 0});
+      const it = S.items.get(hit.title) || [...S.items.values()].find(x => x.title.includes(raw) || raw.includes(x.title));
+      if(it && it.url) window.open(it.url, "_blank");
+    };
+  });
+}
+
+/* 复制：两个入口分开记，因为「只复制依据段」才是真实用法——
+   判断段要改写成自己的话，依据段是直接贴进稿子的。 */
+async function doCopy(text, section){
+  if(!text){ return; }
+  try{
+    await navigator.clipboard.writeText(text);
+  }catch(e){
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); }catch(_){ }
+    document.body.removeChild(ta);
+  }
+  track("copy_report", {section, chars:text.length});
+}
+
+$("copyev").onclick = () => {
+  const md = S.report || "";
+  const m = md.match(/##\s*依据\s*\n([\s\S]*?)(?=\n##\s|$)/);
+  const txt = (m ? m[1] : md).trim();
+  doCopy(txt, "依据");
+  $("copyev").textContent = "已复制";
+  setTimeout(() => { $("copyev").textContent = "复制依据段"; }, 1600);
+};
+$("copyall").onclick = () => {
+  doCopy(S.report || "", "全文");
+  $("copyall").textContent = "已复制";
+  setTimeout(() => { $("copyall").textContent = "复制全文"; }, 1600);
+};
+
+/* 留痕 */
+async function loadMarks(){
+  if(!S.run) return;
+  const r = await fetch("/api/trace?run_id=" + encodeURIComponent(S.run));
+  const d = await r.json();
+  const ms = (d.marks || []);
+  if(!ms.length){ $("marks").innerHTML = ""; return; }
+  const KIND = {
+    drop:"未入选", add:"自选", task_empty:"方向为空", cite_fail:"引注对不上",
+    low_trace:"出处偏少", gap:"缺口", plan_fallback:"拆解降级",
+    no_place:"未识别地点", no_body:"无可引正文", user_irrelevant:"判为不相关",
+    user_task:"自补方向", want_more:"想看更多",
+  };
+  $("marks").innerHTML = `<div class="mhead" id="mh">本次留下 ${ms.length} 处痕迹，用于改进
+      <span style="color:#c7c2be">▾</span></div>
+    <div class="mlist" id="ml">${ms.map(m => `<div class="mrow" data-k="${esc((KIND[m.kind]||m.kind).slice(0,4))}">
+      <b style="color:var(--ink2);font-weight:500">${esc(KIND[m.kind]||m.kind)}</b>
+      ${m.target ? " · " + esc(String(m.target).slice(0,80)) : ""}
+      ${m.note ? `<span style="color:var(--ink3)"> — ${esc(String(m.note).slice(0,70))}</span>` : ""}
+    </div>`).join("")}</div>`;
+  $("mh").onclick = () => $("ml").classList.toggle("on");
+}
+
+$("tracebtn").onclick = async () => {
+  if(!S.run) return;
+  await loadMarks();
+  const el = $("ml"); if(el) el.classList.add("on");
+  $("marks").scrollIntoView({behavior:"smooth", block:"center"});
+};
+
+/* 快捷键 */
+$("q").addEventListener("keydown", e => {
+  if(e.key === "Enter" && (e.metaKey || e.ctrlKey)) $("go1").click();
+});
+
+/* ── 首页那四个数字，从 /v1/coverage 现取 ──
+   原来这几个数是写死在 HTML 里的。库从 1.86 万份涨到 3 万多份之后，
+   页面上还印着 1.86 万 —— 一个卖点是「可溯源」的产品，自己的数字靠手抄，
+   这件事说不过去。取不到就保留 HTML 里的旧值，页面不会空。 */
+(async () => {
+  const wan = n => n >= 10000
+    ? (n / 10000).toFixed(2).replace(/\.?0+$/, "") + " 万"
+    : Number(n).toLocaleString("zh-CN");
+  try {
+    const r = await fetch("/v1/coverage");
+    if (!r.ok) return;
+    const c = await r.json();
+    const reg = (c.fulltext || {}).by_region || {};
+    const cat = c.catalog || {};
+    const eff = c.efficacy || {};
+
+    const nat = reg["国家"] || 0;
+    if (nat) $("cv-nat").textContent = wan(nat) + "份";
+
+    const loc = Object.entries(reg)
+      .filter(([k]) => k && k !== "国家")
+      .sort((a, b) => b[1] - a[1]).slice(0, 3);
+    if (loc.length)
+      $("cv-loc").textContent = loc.map(([k, v]) => `${k} ${v.toLocaleString("zh-CN")} 份`).join("、");
+
+    if (cat.items)
+      $("cv-cat").textContent =
+        `${wan(cat.items)}条目录，覆盖 ${Number(cat.regions).toLocaleString("zh-CN")} 个市/县`;
+
+    const tot = Object.values(eff).reduce((a, b) => a + b, 0);
+    if (tot) $("cv-eff").textContent = wan(tot) + "份";
+    const n_exp = eff.expired || 0;
+    if (n_exp) $("cv-exp").textContent = `其中 ${n_exp} 份有效期已届满，引用会被拦下。`;
+  } catch (e) { /* 取不到就用静态值，不弹错 */ }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,698 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "有据 · 政策依据核验引擎",
+    "version": "1.0.0",
+    "description": "把一句人话拆成取证指令，到知识库（或政府网站实时）取证，写成可回原文核对的判断。\n\n三段分开调，中间必须有人确认——这是这套系统的核心，不做成一次调完。\n\n## 调用顺序\n\n1. `POST /v1/plan` 传问题，拿到 `tasks`（每个方向带 `queries`）。人可以改、可以删。\n2. `POST /v1/gather` 传改完的 `plan`，拿到每个方向的候选文件。人可以勾选。\n3. `POST /v1/write` 传勾选的 `picked`，拿到正文、核验结果和强度判定。\n\n## scope 三档\n\n- `kb`：只查库。快（百毫秒级），条文能逐字核对，但只能查已入库的文件。\n- `both`：先查库，某方向库内不足 3 份有正文的才联网补。慢一些（数十秒），覆盖更宽。\n- `web`：只联网现抓。最慢、可能失败，覆盖无上限。\n\n## 强度判定\n\n返回里的 `verify.strength` 是这套系统对外唯一敢给的结论等级：\n`可交付` / `部分可核` / `需修正` / `不可交付`。它由「多少处引注真的回到原文找到了」决定，不由模型自评。",
+    "contact": {
+      "name": "有据"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8848",
+      "description": "本地开发"
+    }
+  ],
+  "paths": {
+    "/v1/plan": {
+      "post": {
+        "operationId": "plan",
+        "summary": "拆解：把问题拆成取证方向",
+        "description": "不检索，只拆解。返回 4—9 条取证方向，每条说清去哪个范围、找哪类文件、用哪些词去撞标题。\n\n人的价值在这里：模型给的方向可能多、可能偏，界面让人删掉不要的、补上缺的，确认后才去查。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "q"
+                ],
+                "properties": {
+                  "q": {
+                    "type": "string",
+                    "description": "问题，一句话即可，可以模糊",
+                    "example": "广州的城市更新有哪些政策，旧村改造要走什么程序？"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "拆解结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanResp"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "plan"
+        ]
+      }
+    },
+    "/v1/gather": {
+      "post": {
+        "operationId": "gather",
+        "summary": "取证：按方向找候选文件",
+        "description": "每个方向返回一组候选。每条带 `has_body`（有没有正文）、`chars`（正文字数）、`where`（`catalog` 库内 / `web` 联网）、`eff_state`（源端时效标记）。\n\n失败要说清：`web_reports` 里每个方向都有 `channel` 和 `error`，能回答「是没搜到，还是搜到了抓不下来」。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "plan"
+                ],
+                "properties": {
+                  "plan": {
+                    "type": "object",
+                    "description": "上一步返回的 plan 对象，可修改后回传"
+                  },
+                  "run_id": {
+                    "type": "string",
+                    "description": "上一步返回的 run_id，用于留痕"
+                  },
+                  "scope": {
+                    "type": "string",
+                    "enum": [
+                      "kb",
+                      "both",
+                      "web"
+                    ],
+                    "default": "kb"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "候选清单",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatherResp"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "gather"
+        ]
+      }
+    },
+    "/v1/write": {
+      "post": {
+        "operationId": "write",
+        "summary": "撰写：出判断、依据、路径、缺口、下一步",
+        "description": "把勾选的文件的正文装配进去（每份按字数预算装满，不是固定取 3 段），写成五段结构，再逐处引注回原文核对。\n\n返回的 `verify.cites` 是核验明细：每处引注是 `verified`（原文找到）、`unverifiable`（库里没正文）、`failed`（条号或内容对不上）。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "q",
+                  "plan",
+                  "picked"
+                ],
+                "properties": {
+                  "q": {
+                    "type": "string"
+                  },
+                  "plan": {
+                    "type": "object"
+                  },
+                  "run_id": {
+                    "type": "string"
+                  },
+                  "picked": {
+                    "type": "array",
+                    "description": "上一步 tasks[].items[] 里的元素原样传回来，不要只传标题——正文键、联网块都挂在对象上",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "default": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "系统默认勾选的文件名，用于算「用户丢掉了哪些」"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "正文与核验",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteResp"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "write"
+        ]
+      }
+    },
+    "/v1/coverage": {
+      "get": {
+        "operationId": "coverage",
+        "summary": "库与联网的真实能力边界",
+        "description": "界面上那几个数字从这里取，不在前端写死。包括全文库份数、块数、条数、地域分布、目录条数、时效台账四态、联网已适配的城市。",
+        "responses": {
+          "200": {
+            "description": "覆盖情况",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "coverage"
+        ]
+      }
+    },
+    "/v1/health": {
+      "get": {
+        "operationId": "health",
+        "summary": "存活与可用模型",
+        "responses": {
+          "200": {
+            "description": "健康状态",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/v1/jobs": {
+      "post": {
+        "operationId": "jobsStart",
+        "summary": "异步提交：plan / gather / write 的长任务版本",
+        "description": "同步接口在百炼插件与魔笔数据源里会超时（write 实测 17—60 秒，客户端的等待上限通常 10—30 秒）。本接口立即返回 job_id，再用 GET /v1/jobs/{job_id} 轮询。参数与对应同步接口完全一致，只多一个 op。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "op"
+                ],
+                "properties": {
+                  "op": {
+                    "type": "string",
+                    "enum": [
+                      "plan",
+                      "gather",
+                      "write"
+                    ],
+                    "description": "要执行哪一步"
+                  },
+                  "q": {
+                    "type": "string",
+                    "description": "用户原问题（op=plan 或 write 时必填）"
+                  },
+                  "plan": {
+                    "type": "object",
+                    "description": "op=gather/write 时传上一步返回的 plan"
+                  },
+                  "scope": {
+                    "type": "string",
+                    "enum": [
+                      "kb",
+                      "both",
+                      "web"
+                    ],
+                    "description": "仅 gather：只查库 / 库优先联网补漏 / 只联网"
+                  },
+                  "picked": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    },
+                    "description": "op=write 时传用户勾选的条目"
+                  },
+                  "run_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "已受理",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "job_id": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "async"
+        ]
+      }
+    },
+    "/v1/jobs/{job_id}": {
+      "get": {
+        "operationId": "jobsGet",
+        "summary": "异步任务状态与结果",
+        "description": "state=running 时继续轮询（建议间隔 2 秒）；state=done 时 result 里是同步接口的完整返回；state=error 时看 error。结果保留 1 小时。",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "状态",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "job_id": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string",
+                      "enum": [
+                        "running",
+                        "done",
+                        "error"
+                      ]
+                    },
+                    "ms": {
+                      "type": "integer"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "object",
+                      "description": "与对应同步接口的返回一致"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "任务不存在或已过期"
+          }
+        },
+        "tags": [
+          "async"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Task": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "reg_local",
+              "plan_local",
+              "policy_local",
+              "reg_prov",
+              "policy_prov",
+              "reg_nation",
+              "policy_nation",
+              "case",
+              "standard"
+            ],
+            "description": "取证方向类型。前三个是本市，中间两个是省，后两个是国家，case 是别城做法，standard 是技术标准"
+          },
+          "label": {
+            "type": "string",
+            "description": "方向的中文名"
+          },
+          "title": {
+            "type": "string",
+            "description": "这个方向具体查什么"
+          },
+          "why": {
+            "type": "string",
+            "description": "为什么必须查这一层"
+          },
+          "geo": {
+            "type": "string"
+          },
+          "queries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "用来撞标题的词，必须是会出现在文件名里的名词短语"
+          },
+          "must": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Item": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string"
+          },
+          "doc_no": {
+            "type": "string",
+            "description": "文号，如 穗建规字〔2022〕7号"
+          },
+          "published": {
+            "type": "string",
+            "description": "YYYY-MM-DD"
+          },
+          "url": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "has_body": {
+            "type": "boolean",
+            "description": "有没有正文。没有正文的只能引标题，不能引条文"
+          },
+          "chars": {
+            "type": "integer",
+            "description": "全文字数"
+          },
+          "n_art": {
+            "type": "integer",
+            "description": "能切出多少条条文。0 表示这份文件不分条"
+          },
+          "where": {
+            "type": "string",
+            "enum": [
+              "catalog",
+              "web"
+            ],
+            "description": "catalog=库内已入库；web=本次联网现抓，未入库"
+          },
+          "eff_state": {
+            "type": "string",
+            "description": "源端时效标记（联网条目才有），如 有效 / 失效 / 失效（提前废止）"
+          },
+          "eff_hint": {
+            "type": "string",
+            "enum": [
+              "repealed",
+              "ok",
+              ""
+            ]
+          },
+          "score": {
+            "type": "number"
+          },
+          "task_kind": {
+            "type": "string"
+          }
+        }
+      },
+      "PlanResp": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "run_id": {
+            "type": "string"
+          },
+          "plan": {
+            "type": "object",
+            "properties": {
+              "reading": {
+                "type": "string",
+                "description": "对问题的理解，一句话"
+              },
+              "place": {
+                "type": "object",
+                "properties": {
+                  "city": {
+                    "type": "string"
+                  },
+                  "province": {
+                    "type": "string"
+                  },
+                  "district": {
+                    "type": "string"
+                  },
+                  "site": {
+                    "type": "string"
+                  }
+                }
+              },
+              "theme": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "tasks": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "llm",
+                  "rule"
+                ],
+                "description": "rule 表示模型没返回结构化结果、走了规则兜底，这次拆解质量要打折看"
+              }
+            }
+          },
+          "provider": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "ms": {
+            "type": "integer"
+          }
+        }
+      },
+      "GatherResp": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Task"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Item"
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "overflow": {
+                      "type": "integer",
+                      "description": "还有多少条相关性更低的没列出来"
+                    },
+                    "note": {
+                      "type": "string",
+                      "description": "这一层为什么是空的。空着不等于没有"
+                    },
+                    "web_error": {
+                      "type": "string"
+                    },
+                    "queries_used": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "n_items": {
+            "type": "integer"
+          },
+          "n_body": {
+            "type": "integer",
+            "description": "有正文的条数"
+          },
+          "n_web": {
+            "type": "integer"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "ms": {
+            "type": "integer"
+          }
+        }
+      },
+      "WriteResp": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "answer": {
+            "type": "string",
+            "description": "五段 markdown：判断 / 依据 / 路径 / 缺口 / 下一步"
+          },
+          "error": {
+            "type": "string"
+          },
+          "run_id": {
+            "type": "string"
+          },
+          "bodies": {
+            "type": "object",
+            "properties": {
+              "n_body": {
+                "type": "integer"
+              },
+              "n_picked": {
+                "type": "integer"
+              }
+            }
+          },
+          "verify": {
+            "type": "object",
+            "properties": {
+              "strength": {
+                "type": "string",
+                "enum": [
+                  "可交付",
+                  "部分可核",
+                  "需修正",
+                  "不可交付"
+                ]
+              },
+              "reason": {
+                "type": "string"
+              },
+              "ratio": {
+                "type": "number",
+                "description": "依据密度：多少比例的句子能在原文找到出处"
+              },
+              "n_fail": {
+                "type": "integer"
+              },
+              "cites": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "verified",
+                        "unverifiable",
+                        "failed"
+                      ]
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "article": {
+                      "type": "string"
+                    },
+                    "claimed": {
+                      "type": "string"
+                    },
+                    "checks": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

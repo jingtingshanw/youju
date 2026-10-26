@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>有据 · 政策效力核验与可溯源引用引擎（PRD v4）</title>
+<style>
+:root{
+  --bg:#ffffff; --ink:#1c2024; --ink2:#525a63; --ink3:#868e97; --line:#e4e8ec;
+  --panel:#f7f9fa; --accent:#2f6fd0; --code-bg:#f4f6f8; --quote:#f0f4fa;
+}
+html[data-theme=dark]{
+  --bg:#16191d; --ink:#e7eaee; --ink2:#a9b2bb; --ink3:#79828c; --line:#2e343b;
+  --panel:#1d2126; --accent:#6fa4e8; --code-bg:#1b1f24; --quote:#1b2531;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:15.5px;line-height:1.78;-webkit-font-smoothing:antialiased}
+.bar{position:sticky;top:0;z-index:9;background:var(--bg);border-bottom:1px solid var(--line);
+  padding:9px 20px;display:flex;gap:14px;align-items:center;font-size:13px}
+.bar .t{font-weight:600;color:var(--ink2)}
+.bar a{color:var(--accent);text-decoration:none}
+.bar button{margin-left:auto;font:inherit;font-size:13px;cursor:pointer;padding:5px 12px;
+  border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink)}
+main{max-width:900px;margin:0 auto;padding:26px 22px 90px}
+h1{font-size:26px;margin:34px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+h2{font-size:21px;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+h3{font-size:17.5px;margin:26px 0 9px}
+h4{font-size:15.5px;margin:20px 0 7px;color:var(--ink2)}
+p{margin:10px 0}
+a{color:var(--accent)}
+strong{font-weight:650}
+code{background:var(--code-bg);border:1px solid var(--line);border-radius:4px;
+  padding:1px 5px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+pre{background:var(--code-bg);border:1px solid var(--line);border-radius:9px;
+  padding:14px 16px;overflow:auto}
+pre code{background:none;border:none;padding:0;font-size:13px;line-height:1.65}
+blockquote{margin:14px 0;padding:10px 16px;background:var(--quote);
+  border-left:3px solid var(--accent);border-radius:0 8px 8px 0;color:var(--ink2)}
+blockquote p{margin:5px 0}
+hr{border:none;border-top:1px solid var(--line);margin:32px 0}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px;
+  display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--panel);font-weight:650;white-space:nowrap}
+ul,ol{padding-left:24px;margin:10px 0}
+li{margin:4px 0}
+.toc{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 20px;margin:18px 0}
+.toc ul{list-style:none;padding-left:0;margin:0}
+@media print{
+  .bar{display:none} body{font-size:11.5pt}
+  a{color:inherit;text-decoration:none} h2{page-break-after:avoid}
+  table,pre,blockquote{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="bar">
+  <span class="t">有据 · 政策效力核验与可溯源引用引擎（PRD v4）</span>
+  <a href="#top">回到开头</a>
+  <button id="theme">切换主题</button>
+</div>
+<main id="top">
+<h1 id="有据--政策效力核验与可溯源引用引擎prd-v4">有据 · 政策效力核验与可溯源引用引擎（PRD v4）</h1>
+<table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody><tr><td>文档名称</td><td>「有据」政策效力核验与可溯源引用引擎 产品需求文档（PRD）</td></tr><tr><td>版本号</td><td><strong>V4.0</strong></td></tr><tr><td>产品线</td><td>规划行业 · 政策依据工具线</td></tr><tr><td>上游依赖</td><td>目录与全文抓取：<code>scripts/catalog/</code>（自检 30/30）、<code>scripts/harvest/</code>（十个脚本，含国家级全文与省市县三级目录）；核验层：<code>scripts/gatekeeper.py</code>（C1–C5）</td></tr><tr><td>需求来源</td><td>① 真实项目：江西鹰潭城市更新（规划院立项前置政策梳理）② 49 条 AI 产品经理 JD 反推的能力项</td></tr><tr><td>撰写人</td><td>王（产品负责人，兼工程实现）</td></tr><tr><td>评审人</td><td>待定：规划师 2 人（领域）、研发 1 人、测试 1 人、数据合规 1 人</td></tr><tr><td>评审状态</td><td><strong>未评审</strong>（V1、V2 均被打回，理由见 0.1；V3.1 未进入评审即被 V4 取代）</td></tr><tr><td>最后更新</td><td>2026-10-20</td></tr><tr><td>密级</td><td>内部</td></tr></tbody></table>
+<h2 id="目录">目录</h2>
+<table><thead><tr><th>章</th><th>内容</th><th>谁看</th></tr></thead><tbody><tr><td><a href="#01-修订记录">0</a></td><td>修订记录、干系人、<strong>竞品与定位（按新数据重算）</strong></td><td>全部</td></tr><tr><td><a href="#1-背景与目标">1</a></td><td>背景、问题定义（带新基线）、三套目标</td><td>业务 / 甲方</td></tr><tr><td><a href="#2-用户与场景">2</a></td><td>角色、权限、端到端场景</td><td>业务</td></tr><tr><td><a href="#3-功能范围">3</a></td><td>In Scope / Out of Scope（含「扩库扩到什么程度为止」）</td><td>全部</td></tr><tr><td><a href="#4-业务流程">4</a></td><td>三段数据层 × 四步使用流程、<strong>异常与降级</strong></td><td>研发 / 测试</td></tr><tr><td><a href="#5-功能需求">5</a></td><td>FR-01–FR-09，每条含验收标准与实现状态</td><td>研发 / 测试</td></tr><tr><td><a href="#6-ai-能力设计">6</a></td><td>模型在哪、不在哪；检索策略在 16.7 万块上的实测</td><td>算法</td></tr><tr><td><a href="#7-效果标准">7</a></td><td>评测集、<strong>两组新指标（数据层质量 / 覆盖诚实度）</strong></td><td>算法 / 测试</td></tr><tr><td><a href="#8-数据与埋点">8</a></td><td>埋点、飞轮、监控</td><td>研发</td></tr><tr><td><a href="#9-成本与性能">9</a></td><td>单位经济、扩容对部署的影响、延迟</td><td>业务 / 甲方</td></tr><tr><td><a href="#10-风险与合规">10</a></td><td>合规、内容安全、风险清单（R1–R15）</td><td>全部</td></tr><tr><td><a href="#11-附录">11</a></td><td>术语、三层数据总表、文档关系</td><td>全部</td></tr></tbody></table>
+<h2 id="01-修订记录">0.1 修订记录</h2>
+<table><thead><tr><th>版本</th><th>日期</th><th>修订内容</th><th>评审结论</th></tr></thead><tbody><tr><td>V1.0</td><td>2026-10-15</td><td>两道闸门 + 五项确定性检查（C1–C5），基于 8 部法规语料</td><td><strong>打回</strong>：只有核验，没有「发现」，用户拿不到文件清单</td></tr><tr><td>V2.0</td><td>2026-10-19</td><td>补目录层、四段链路、RAG 的位置与边界</td><td><strong>打回</strong>：通篇在论证设计，没有基线、阈值、成本、验收标准、埋点</td></tr><tr><td>V3.0 / V3.1</td><td>2026-10-19</td><td>按可验收规格重写；补 §0.3 竞品分析</td><td>未评审即被 V4 取代</td></tr><tr><td><strong>V4.0</strong></td><td><strong>2026-10-20</strong></td><td><strong>数据层从「8 部法规」扩到三层（法律名录 308 / 地方目录 65,111 / 国家级全文 18,608）。全文重写 §1.2、§5、§7 的基线数字；§0.3 竞品结论按新数据重算（数量级差距从 4–5 个数量级缩到 1–2 个）；新增 §7.2「数据层质量组」指标（这组指标此前完全没有）；新增 R11–R15 五项风险</strong></td><td>待评审</td></tr></tbody></table>
+<p><strong>V4 改的不是文字，是前提。</strong> v3 的每一个效果指标都建立在「8 部法规、419 个检索单元」上，而那套语料只是为了让核验层能跑通而组装的样本。现在库里有 18,608 份能引原文的文件、65,111 条地方目录、308 条法律名录——<strong>v3 里「差 4–5 个数量级，不可追赶」这句话已经不成立了，必须重算。</strong> 同时，v3 里所有标「未测」的基线，有一半现在有了实测。</p>
+<h2 id="02-干系人与职责">0.2 干系人与职责</h2>
+<table><thead><tr><th>角色</th><th>姓名/部门</th><th>职责</th></tr></thead><tbody><tr><td>产品负责人</td><td>王</td><td>需求撰写、范围界定、评测集主编、效果验收判定</td></tr><tr><td>工程实现</td><td>王（暂兼）</td><td>抓取、索引、检索、核验、跑批</td></tr><tr><td><strong>领域专家</strong></td><td>待定（规划师 2 人，其中 1 人做过鹰潭项目）</td><td>提供真实问题、标注标准答案、确认效力状态、参与验收</td></tr><tr><td>知识库内容负责人</td><td>待定</td><td>目录源维护、失效标记、切分质量抽检</td></tr><tr><td>测试</td><td>待定（暂由王兼）</td><td>功能测试 + 效果回归</td></tr><tr><td>数据合规</td><td>待定</td><td>抓取与使用边界、来源授权、留痕</td></tr></tbody></table>
+<p><strong>这两个空位在 V4 里比在 V3 里更致命。</strong> 理由是量级：v3 时「效力台账只覆盖 8 部」还能靠人工兜住——8 份，一天就能核完。现在 18,608 份，人工兜底已经不成立，必须有人对「这批文件的时效是不是最新的」负责，而且必须是能持续投入的人。详见 §7.3 与 R1。</p>
+<h2 id="03-竞品分析与定位按-v4-数据重算">0.3 竞品分析与定位（按 V4 数据重算）</h2>
+<blockquote><p>数据口径：竞品数据来自 2026-10 公开检索（厂商官网、高校图书馆采购介绍、第三方测评），<strong>未逐一实测</strong>。本产品数据全部为本地实测，可复跑。</p></blockquote>
+<h3 id="031-重算差距从45-个数量级变成12-个数量级">0.3.1 重算：差距从「4–5 个数量级」变成「1–2 个数量级」</h3>
+<p>V3 的对比表写的是「8 部 / 419 条 vs 320 万篇，差 4–5 个数量级」。V4 的库不是那个量级了：</p>
+<table><thead><tr><th>资产</th><th>规模</th><th>能不能直接引用</th></tr></thead><tbody><tr><td>地方目录（<code>items</code> 表，含法律名录 308 与国家级条目 22）</td><td>65,111 条</td><td>❌ 只有标题 / 文号 / 日期 / 链接</td></tr><tr><td>国家级政策清单（gov.cn 全量）</td><td>18,916 条</td><td>❌ 同上</td></tr><tr><td>└ 其中已取到正文的</td><td>18,608 份 / 7,291 万字</td><td>✅ 有正文，可逐条引</td></tr><tr><td>核验语料（条数表 + 时效台账覆盖）</td><td>8 部 / 419 单元</td><td>✅ 可做 C1/C3 判定</td></tr><tr><td><strong>合计记录</strong></td><td><strong>84,027 条</strong>（65,111 + 18,916，两表无重叠）</td><td><strong>能直接引用的占 22.1%</strong></td></tr></tbody></table>
+<p>对照竞品：北大法宝 44 万+ 件、威科 320 万+ 篇、法信 1.42 亿篇文献。</p>
+<ul>
+<li>按「件」比：84,027 vs 440,000 = <strong>差 5.2 倍</strong></li>
+<li>按「篇」比：84,027 vs 3,200,000 = <strong>差 38 倍</strong></li>
+<li>按「能引原文」比：18,608 vs 3,200,000 = <strong>差 172 倍</strong></li>
+</ul>
+<p><strong>这个变化必须写清楚，因为它改变了论证方式。</strong> v3 可以说「不可比」，所以换战场；V4 不能这么说了——1–2 个数量级是可以被追问的差距，用户会直接问「那你为什么不用法宝」。答案不再是「量级不同」，而是下面这三条：</p>
+<ol>
+<li><strong>78% 的库是「有名字没正文」</strong>，这不是缺陷，是分工：目录层回答「有哪些文件」，全文层回答「这一条怎么写的」。竞品把两者混在一个检索框里，用户分不清「搜到了」和「能引」。</li>
+<li><strong>C1–C5 是机器闸门，不是概率改善。</strong> 这一点与数据量无关，是结构差异。</li>
+<li><strong>私有稿件入口</strong>，三家都没有。</li>
+</ol>
+<h3 id="032-能力对比v4-重算">0.3.2 能力对比（V4 重算）</h3>
+<table><thead><tr><th>能力</th><th>有据</th><th>头部竞品</th><th>判断</th></tr></thead><tbody><tr><td>规范文件收录</td><td>84,027 条（含 18,608 份全文）</td><td>44 万–320 万</td><td><strong>落后 1–2 个数量级，可被追问，不再是不可比</strong></td></tr><tr><td>地方非立法类文件</td><td>65,111 条（省 21 / 市 408 / 县 1,060 个地域）</td><td>收录弱（不在立法体系内）</td><td><strong>领先位置成立，但覆盖率只有 62%，且见 §0.3.4</strong></td></tr><tr><td>效力状态认定</td><td>法律名录 308 条可判「在不在目录」；全文库 3.8% 有源端失效标记；其余标「未知」</td><td>专业团队修校</td><td>落后，且人工模式在 1.8 万份上不可扩展</td></tr><tr><td>检索技术</td><td>SQLite FTS5 + 中文 2-gram</td><td>语义检索 + AI 匹配</td><td>落后，但<strong>在 16.7 万块上查询 5–35 ms</strong>，这个延迟允许做交互式核对</td></tr><tr><td><strong>引用核验的可复现性</strong></td><td><strong>确定性规则 C1–C5，断网可跑，同输入同结论</strong></td><td>模型侧能力 + 溯源展示</td><td><strong>结构性领先</strong></td></tr><tr><td><strong>私有稿件入口</strong></td><td>FR-05（当前 P1）</td><td>无一家提供</td><td><strong>独有</strong></td></tr><tr><td>可写进合同的 SLA</td><td>可追溯率 / 真编造率 / 状态诚实率 / 断网可跑 / 两次运行一致</td><td>营销话术</td><td>领先</td></tr></tbody></table>
+<h3 id="033-能引与有是两件事这是-v4-的组织原则">0.3.3 「能引」与「有」是两件事，这是 V4 的组织原则</h3>
+<table><thead><tr><th></th><th>竞品</th><th>有据</th></tr></thead><tbody><tr><td>回答的问题</td><td>有哪些文件</td><td>有哪些文件 <strong>+ 你引的这一条站不站得住</strong></td></tr><tr><td>判据</td><td>覆盖</td><td>覆盖 <strong>+ 判定</strong></td></tr><tr><td>赢的条件</td><td>数据量</td><td>数据量够用之后，<strong>规则完备</strong></td></tr></tbody></table>
+<p>V4 的赌注是：<strong>在 8 万条这个量级上，覆盖已经「够用」了</strong>——足够让一个规划师做完鹰潭这种城市更新项目的前置政策梳理。继续往 44 万爬，边际收益递减；把 8 万条里「哪一条能引、哪一条已经废了、哪一条引错了」判准，边际收益上升。</p>
+<p>这是一个<strong>可被证伪的判断</strong>，证伪条件是 §7.2「数据层质量组」的两个指标：目录主题召回率 ≥ 85%、时效台账覆盖率 ≥ 60%。两者达不到，说明 8 万条不够用，得回去扩库。</p>
+<h3 id="034-竞品的三个盲区以及我们自己新暴露的两个">0.3.4 竞品的三个盲区，以及我们自己新暴露的两个</h3>
+<p>原三条（地方非立法文件、无私有稿件入口、不对结论负责）仍然成立。V4 新增两条自己的：</p>
+<p><strong>新盲区一 · 我们抓不到 38% 的政府门户。</strong> 2,491 个站点，可抓 1,545 个（62%）。省级 21/31、市级 409/685、县级 1,115/1,775。抓不到的 946 个站分三类：前端渲染（Vue/React 壳）、反爬（412 / 隧道不通）、首页真的没有文件入口。<strong>这三类里只有第一类能靠渲染解决，而给 2,491 站上浏览器要 8.3 小时且模板一改全废</strong>（论证见 <code>scripts/harvest/README.md</code>）。</p>
+<p><strong>新盲区二 · 我们抓到的条目，七成多缺关键字段。</strong> 文号缺失 76.6%（49,897/65,111）、日期缺失 10.7%（6,952）。没有文号，效力级别只能靠标题后缀猜；没有日期，新旧排序失效。这两个字段在列表页上根本没有，只在正文里。<strong>出路不是调模型猜，是把正文抓回来抽</strong>——<code>gov_full.py</code> 那条链路已经证明可行，只是还没接到地方站上（FR-03 的 P0 理由）。</p>
+<h3 id="035-一处必须如实记录的数据分歧">0.3.5 一处必须如实记录的数据分歧</h3>
+<p>威科的时效能力，两个来源结论相反（官网详情页有「时效性」字段 vs 第三方 MCP 测评说没有筛选参数）。<strong>推断（非事实）</strong>：网页端有，接口层未开放。若成立，集成方会撞上与本产品目录层相同的困境——能查，接不进来。<strong>未验证前不得作为对外口径</strong>（T-11）。</p>
+<h3 id="036-定位v4-版可采纳">0.3.6 定位（V4 版，可采纳）</h3>
+<blockquote><p>有据是一个政策引用的确定性校验层，外面套了三层可检索的数据。</p><p>目录层告诉你<strong>有哪些文件</strong>（8.4 万条，来自 62% 可达的政府门户）；</p><p>全文层告诉你<strong>这一条怎么写的</strong>（1.86 万份国家级正文，可逐条引）；</p><p>法律名录告诉你<strong>这部法还在不在</strong>（308 条现行有效名录）。</p><p>三者之上是核验层：不调用模型，逐条核对条号是否越界、引文是否真实、法规是否失效、名称是否错配、所问法规划界。</p><p>核不过，就不给结论。</p></blockquote>
+<p>V3 说这条定位「有三个前提，一个都没验」。V4 的进展：前提 2（C3 时效可用）<strong>部分验了</strong>——法律层 308 条可以判「在不在现行名录」，实测《环境保护法》已不在目录、被 2026 年《生态环境法典》替代；前提 3（C5 在稿件场景失效）<strong>没变</strong>，稿件里没有「问题」，C5 仍需重新定义；前提 1（送审被打回常因引用错）<strong>仍是未访谈</strong>。</p>
+<h2 id="04-v4-引出的待办">0.4 V4 引出的待办</h2>
+<table><thead><tr><th>编号</th><th>待办</th><th>优先级</th><th>说明</th></tr></thead><tbody><tr><td>T-16</td><td>条数表从 8 部扩到「装配进来的每一份」，自动生成 + 抽检</td><td><strong>P0</strong></td><td>不扩，C1 在 1.86 万份上全标「未核」</td></tr><tr><td>T-17</td><td>时效台账扩到全文库：先吃源端已标的 702 条，再补人工</td><td><strong>P0</strong></td><td>3.8% 有标记，剩下 96.2% 是「未知」</td></tr><tr><td>T-18</td><td>地方站正文抓取接入（先做 20 个抽样站，抽文号 + 日期）</td><td><strong>P0</strong></td><td>解决 76.6% 无文号</td></tr><tr><td>T-19</td><td>转载识别：地方站出现国办发/国发文号 → 归国家级</td><td>P1</td><td>现在会把中央文件标成本地</td></tr><tr><td>T-20</td><td>评测集外部重标（先做 30 题最小版）</td><td><strong>P0</strong></td><td>V3 已识别，未执行</td></tr><tr><td>T-21</td><td>法律条文原文（人大网 <code>/npc/c2/…</code> 栏目树）</td><td>P1</td><td>《城乡规划法》正文仍不在库</td></tr></tbody></table>
+<hr>
+<h1 id="1-背景与目标">1. 背景与目标</h1>
+<h2 id="11-业务背景">1.1 业务背景</h2>
+<p>规划师写的东西要交出去，交出去的东西会被人追问「依据是什么」。这个追问在三个环节上出现，每个环节现有工具都不管用。</p>
+<p><strong>环节一：立项前的政策梳理。</strong> 接了江西鹰潭的城市更新项目，需要知道鹰潭市本级有哪些文件、江西省有哪些、国务院和部委有哪些，以及历史文化保护方面的相关规定。现状是人工在 4–6 个政府站之间翻。<strong>判据是不能漏。</strong></p>
+<p><strong>环节二：起草时的引用核对。</strong> 写完一章，逐条核对引用的条号是否存在、引用的法规是否还有效。<strong>判据是不能错。</strong></p>
+<p><strong>环节三：送审前的自查。</strong> 出引用清单 + 时效状态 + 疑似问题列表。<strong>判据是可解释</strong>——每条问题要能指到具体位置。</p>
+<p>V4 的变化是：环节一现在有 8.4 万条可查，环节二现在有 1.86 万份能反查原文，环节三仍然只有 8 部的判定能力。<strong>这三个环节的完成度第一次不一样了，这是 V4 主要要处理的不平衡。</strong></p>
+<h2 id="12-问题定义全部换成实测">1.2 问题定义（全部换成实测）</h2>
+<table><thead><tr><th>编号</th><th>问题</th><th>V3 的写法</th><th>V4 的实测</th></tr></thead><tbody><tr><td>P1</td><td>政策清单靠人工翻站</td><td><strong>基线未测</strong></td><td>已测：鹰潭 × 城市更新，13 秒（浅抓 2 页/源）→ 24 条；2 分 19 秒（全量翻页）→ 扫 3,197 条。<strong>省级仍缺</strong>（江西站无可用接口）</td></tr><tr><td>P2</td><td>已废止文件混在检索结果里</td><td>8 部语料中有失效文件</td><td>全文库 <strong>702/18,608 = 3.8%</strong> 被源端标「已宣布失效」；其余 96.2% 是「未知」。此前抽样的 11.3% 是只看了最早几千份造成的偏差</td></tr><tr><td>P3</td><td>大模型引用的条号会编</td><td>「具体错误率待从 CSV 提取」</td><td>66 题上真编造 <strong>0%</strong>、引用可追溯 <strong>100%</strong>——<strong>但这组成绩建立在「模型只看到 8 条召回」的窄上下文上，1.86 万份库没有重测</strong></td></tr><tr><td>P4</td><td>政策文件格式不统一</td><td><code>.doc</code>/<code>.pdf</code> 零依赖不可解析</td><td>实测 18,900 份里 <strong>308 份（1.6%）</strong> 正文拿不到，抽样 60 份全是 1980–1990 年代扫描件</td></tr><tr><td><strong>P5</strong></td><td><strong>新增：目录大面积缺文号与日期</strong></td><td>—</td><td><strong>无文号 76.6%（49,897 条）、无日期 10.7%（6,952 条）、未来日期 87 条（最大 2099-11-20，明显脏数据）</strong></td></tr><tr><td><strong>P6</strong></td><td><strong>新增：抓不到的地方不显示为空，而显示为「没有」</strong></td><td>—</td><td>2,491 站里 946 站抓不到（38%）。如果界面只打印清单，用户会以为那些地方没发文件</td></tr></tbody></table>
+<p><strong>P5 和 P6 是 V4 新增的两条，也是这一版最重要的两条。</strong> 前四条是「能力不足」，后两条是「不足会伪装成正常」。按 §7.2 的定义，后者属于状态不诚实，门槛是 100%。</p>
+<h2 id="13-项目目标">1.3 项目目标</h2>
+<h3 id="a-业务目标对使用者承诺">A. 业务目标（对使用者承诺）</h3>
+<table><thead><tr><th>指标</th><th>基线</th><th>目标</th><th>上线门槛</th><th>口径</th></tr></thead><tbody><tr><td>单个专题的政策清单整理耗时</td><td>实测 13 秒（浅抓）/ 2 分 19 秒（深翻），不含人工筛选</td><td>≤ 30 分钟（含筛选与判断）</td><td>不设（人工基线仍未测）</td><td>从「打开第一个站点」到「清单可进文档」</td></tr><tr><td>清单完整性</td><td>鹰潭 × 城市更新：源端 287 → 去重 212 → 真命中 3，误杀 1（0.5%）</td><td>误杀 ≤ 2%（已达标）</td><td>≤ 5%</td><td>人工穷举一个方向做分母</td></tr><tr><td>引用核对耗时</td><td>未测</td><td>—</td><td>—</td><td>一稿 N 条引用的净耗时</td></tr><tr><td>作者信任度</td><td>未测</td><td>≥ 4.0（5 分制）</td><td>≥ 3.5</td><td>试运行 2 周问卷</td></tr></tbody></table>
+<h3 id="b-效果目标对工程承诺">B. 效果目标（对工程承诺）</h3>
+<table><thead><tr><th>指标</th><th>基线</th><th>目标</th><th>门槛</th><th>出处</th></tr></thead><tbody><tr><td>引用可追溯率</td><td>8 部语料 100%</td><td>≥ 99%</td><td>≥ 95%</td><td><code>eval/results/</code></td></tr><tr><td>真编造率</td><td>8 部语料 0</td><td>≤ 0.5%</td><td>≤ 2%</td><td>同上</td></tr><tr><td>对抗题通过率</td><td>40/40</td><td>40/40</td><td>≥ 36/40</td><td><strong>40 题自造，见 §7.1</strong></td></tr><tr><td>全库检索延迟（1.67 万块）</td><td><strong>实测 5–35 ms</strong></td><td>≤ 100 ms</td><td>≤ 300 ms</td><td>2026-10-20 实测</td></tr><tr><td>目录检索延迟（6.5 万行）</td><td><strong>实测 110–265 ms</strong></td><td>≤ 300 ms</td><td>≤ 800 ms</td><td>2026-10-20 实测</td></tr><tr><td>覆盖诚实度（抓不到必须说出来）</td><td>已在界面实现，<strong>未做全量检查</strong></td><td>100%</td><td>100%</td><td>见 §7.2</td></tr><tr><td>条数表覆盖率</td><td><strong>8 / 18,608 = 0.04%</strong></td><td>≥ 60%</td><td>≥ 30%</td><td><strong>最大的空洞，T-16</strong></td></tr><tr><td>时效台账覆盖率</td><td>3.8%（源端标记）+ 308 条法律名录</td><td>≥ 60%</td><td>≥ 30%</td><td>T-17</td></tr></tbody></table>
+<h3 id="c-成本目标">C. 成本目标</h3>
+<table><thead><tr><th>指标</th><th>目标</th><th>实测</th></tr></thead><tbody><tr><td>单次问答 API 成本</td><td>≤ ¥0.008</td><td><strong>¥0.00368</strong></td></tr><tr><td>月 API 成本（10 人 × 20 次/天）</td><td>≤ ¥30</td><td>¥16.20</td></tr><tr><td>单次问答完整响应 P95</td><td>≤ 8.0s</td><td><strong>最大 9.5s，超线</strong></td></tr><tr><td>首字延迟 P95</td><td>≤ 2.0s</td><td>最大 0.79s，达标</td></tr><tr><td>一次全量重建（清单 + 全文 + 索引）</td><td>—</td><td>约 2 小时（清单 10 分 + 全文 50 分 + 元信息 45 分 + 索引 1 分）</td></tr><tr><td>索引文件体积</td><td>—</td><td><strong>980 MB</strong>（见 §9.2，这是部署形态的硬约束）</td></tr></tbody></table>
+<h2 id="14-成功标准">1.4 成功标准</h2>
+<ol>
+<li>业务目标前三项达标</li>
+<li>效果目标的上线门槛全部通过，且<strong>没有「某一类问题通过率低于 60%」的短板</strong></li>
+<li>单次 API 成本 ≤ ¥0.008</li>
+<li>试运行期间无合规事故、无「引用失效文件却标为现行有效」</li>
+<li><strong>覆盖诚实度 100%</strong>——任何一个抓不到的源，用户都能在界面上看到它为什么没抓到</li>
+<li>至少 1 名非本人的规划师，在无陪同下独立完成「清单 → 核验 → 报告」</li>
+</ol>
+<p>第 5 条是 V4 新增，第 6 条沿用 V3。前者是工程能保证的，后者只能靠人。</p>
+<hr>
+<h1 id="2-用户与场景">2. 用户与场景</h1>
+<h2 id="21-用户角色">2.1 用户角色</h2>
+<table><thead><tr><th>角色</th><th>是谁</th><th>诉求</th><th>对 AI 的容忍度</th></tr></thead><tbody><tr><td>规划师（主用户）</td><td>规划院项目负责人、主创</td><td>要一份能进文档、能被追问的清单与依据</td><td>低。错一次不再信任，且不会主动举报</td></tr><tr><td>审校人</td><td>总工、审核岗</td><td>快速检查别人的稿子引了什么</td><td>中。看重可解释</td></tr><tr><td>管理员</td><td>一人维护全部库</td><td>库别烂、别过期</td><td>中。看重可批量</td></tr></tbody></table>
+<h2 id="22-权限矩阵">2.2 权限矩阵</h2>
+<table><thead><tr><th>功能</th><th>规划师</th><th>审校人</th><th>管理员</th></tr></thead><tbody><tr><td>查政策清单（三级目录）</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td>查全库全文</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td>触发重新抓取（联网）</td><td>✅</td><td>❌</td><td>✅</td></tr><tr><td>装配专题库</td><td>❌（申请）</td><td>❌</td><td>✅</td></tr><tr><td>确认效力状态</td><td>❌</td><td>✅（复核）</td><td>✅（主责）</td></tr><tr><td>执行逐条核验</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td>修改条数表 / 时效台账</td><td>❌</td><td>❌</td><td>✅</td></tr><tr><td>关闭 AI 能力</td><td>❌</td><td>❌</td><td>✅</td></tr><tr><td>查看看板与覆盖率</td><td>❌</td><td>✅</td><td>✅</td></tr></tbody></table>
+<p><strong>「确认效力状态」仍然不给规划师</strong>：这一栏被随手点过，整条链路的判据就废了。1.86 万份的规模下，这个角色必须是岗位，不是兼职。</p>
+<h2 id="23-端到端场景鹰潭城市更新v4-版">2.3 端到端场景（鹰潭城市更新，V4 版）</h2>
+<pre><code>① 规划师输入：地域=鹰潭，主题=城市更新
+   → 目录层返回：国家级 24 条 / 省级 0（显式标缺，附原因）/ 市级 3 条
+   → 覆盖度条写明「江西省站无可用检索接口，需人工补」
+   → 同时给出「全库全文命中 47 条」：这些是能直接看原文的
+
+② 规划师点开一条，看到的是：
+   → 标题 + 文号 + 发布日期 + 发文机关 + 原文链接
+   → 若是国家级全文命中：直接给条号 + 原文片段
+   → 若是地方目录：只有元信息，**界面明写「本条未取正文，引用前请回源」**
+
+③ 勾选 30 份申请装配
+   → 管理员执行：抓全文 → 解析 → 判型 → 体检 → 出条数表
+   → 失败进「待人工」，附原因（按格式分类统计，不笼统报「N 份失败」）
+
+④ 管理员确认效力状态
+   → 落台账；进入「可引用池」的只有「现行有效」+「未知（已标注）」
+
+⑤ 规划师提问 / 贴稿 → 检索 → 生成 → 闸门 2 → 结论 + 逐条依据 + 时效
+
+⑥ 出报告：引用清单 + 问题列表 + 漏引候选（目录 N 份 vs 稿子引了 M 份）</code></pre>
+<p><strong>第 ① 步和第 ② 步的分工是 V4 的关键。</strong> 目录层的条目和全文层的条目在界面上必须长得不一样：前者是「我知道这份文件存在」，后者是「我知道它怎么写的」。混在一起显示，用户会把前者当后者用。</p>
+<hr>
+<h1 id="3-功能范围">3. 功能范围</h1>
+<h2 id="31-本期交付范围">3.1 本期交付范围</h2>
+<table><thead><tr><th>编号</th><th>功能</th><th>AI 参与</th><th>自主程度</th><th>状态</th></tr></thead><tbody><tr><td>S1</td><td>三级政策清单（国家 / 省 / 市 / 县）</td><td>结构化检索，不用模型</td><td>L1 机器列，人决定</td><td>✅ 已实现（<code>/api/local</code> + <code>/api/catalog</code>）</td></tr><tr><td>S2</td><td>全库全文检索（1.86 万份）</td><td>FTS5 2-gram，不用模型</td><td>L1</td><td>✅ 已实现（<code>/api/kb</code>）</td></tr><tr><td>S3</td><td>专题库装配</td><td>抓取 + 解析 + 体检</td><td>L2 执行+确认</td><td>⬜ 未开发（FR-03）</td></tr><tr><td>S4</td><td>逐条核验（闸门 2）</td><td>模型生成 + 规则校验</td><td>L2</td><td>✅ 已实现（8 部语料）</td></tr><tr><td>S5</td><td>全稿自查</td><td>抽取引用 → 逐条核验</td><td>L2</td><td>⬜ 未开发</td></tr><tr><td>S6</td><td>时效台账维护</td><td>机器给候选，人工确认</td><td>L2</td><td>🟡 部分（8 部 + 308 条名录）</td></tr><tr><td>S7</td><td>评测与 badcase 看板</td><td>离线跑批 + 反馈汇集</td><td>内部工具</td><td>🟡 部分</td></tr><tr><td>S8</td><td>覆盖率与缺口语义（诚实层）</td><td>不用模型</td><td>系统能力</td><td>🟡 部分（界面已显示，未做全量检查）</td></tr><tr><td>S9</td><td>一键降级开关</td><td>关模型，退回清单 + 原文</td><td>运维</td><td>⬜ 未实现</td></tr></tbody></table>
+<h2 id="32-本期不做">3.2 本期不做</h2>
+<table><thead><tr><th>编号</th><th>不做</th><th>原因</th><th>写进提示词</th></tr></thead><tbody><tr><td>N1</td><td>不给法律意见、不给行动建议</td><td>错误代价不可接受</td><td>是</td></tr><tr><td>N2</td><td>不做地方站全量正文</td><td>65,111 条全抓正文 = 约 5,000 万字 + 无法维护的时效台账。按专题装配（50–80 份）才可控</td><td>不适用</td></tr><tr><td>N3</td><td>不自动确认效力状态</td><td>时效是外部事实，模型自报等于自验</td><td>是</td></tr><tr><td>N4</td><td>不替代正式法律检索</td><td>效力认定以法制部门口径为准</td><td>是</td></tr><tr><td>N5</td><td>不做通用问答</td><td>只回答可核验的问题</td><td>是</td></tr><tr><td>N6</td><td><strong>不承诺覆盖全国所有地市</strong></td><td>946 站抓不到，每站单独适配。做不到的必须显式标缺</td><td>是（界面强制）</td></tr><tr><td>N7</td><td>不做多轮追问</td><td>本期形态是「问一句 → 一份带依据的结论」</td><td>否</td></tr><tr><td>N8</td><td>不做模型微调</td><td>先验证 RAG + 规则的上限</td><td>—</td></tr><tr><td>N9</td><td>不做移动端</td><td>使用场景是坐在电脑前写文档</td><td>—</td></tr><tr><td><strong>N10</strong></td><td><strong>不做法律条文全文镜像</strong></td><td><code>flk.npc.gov.cn</code> 被 CWAP WAF 拦死（307 自跳，需执行 JS 拿会话）。现阶段只拿名录，不硬啃</td><td>否</td></tr><tr><td><strong>N11</strong></td><td><strong>不给「抓不到的站」估算文件量</strong></td><td>估算出来的数字会被当成真值传播。只报「未覆盖」</td><td>是</td></tr><tr><td><strong>N12</strong></td><td>不做爬虫池 / 分布式抓取</td><td>单机串行 + 限速是当前的合规底线，并发会变成对政府站的压测</td><td>—</td></tr></tbody></table>
+<p><strong>N11 是 V4 新增里最容易被违反的一条。</strong> 面对 38% 的空白，最自然的反应是「按邻省估算一下」——这个动作在产品里必须被禁止，因为一个估算数字一旦出现在界面上，就再也退不回「未知」了。</p>
+<hr>
+<h1 id="4-业务流程">4. 业务流程</h1>
+<h2 id="41-三层数据--四步流程">4.1 三层数据 × 四步流程</h2>
+<pre><code>【数据层 · 每天增量】
+  L0 法律名录 ── 人大网 PDF，按需重抓（不发PDF就说明没变）
+  L1 目录     ── 2,491 个门户，62% 可抓；国家级清单 18,916 条
+  L2 全文     ── 18,608 份国家级正文，7,291 万字，167,595 个检索块
+        │
+        ▼
+【① 发现】🤖 目录层：地域 × 主题 → 清单 + 覆盖度（不调模型）
+        │  👤 规划师：勾选要用的文件
+        ▼
+【② 装配】🤖 抓全文 → 判型 → 体检 → 条数表
+        │  👤 管理员：确认效力（台账唯一入口）
+        ▼
+【③ 核验】🤖 检索 → 生成 → 闸门 2（C1–C5，不调模型）
+        │  👤 规划师：看结论与依据
+        ▼
+【④ 交付】🤖 引用清单 + 时效 + 问题列表 + 漏引候选</code></pre>
+<h2 id="42-ai-参与节点决策表">4.2 AI 参与节点（决策表）</h2>
+<table><thead><tr><th>节点</th><th>AI 做什么</th><th>人工做什么</th><th>自主程度</th><th>失败怎么办</th></tr></thead><tbody><tr><td>发现</td><td>出清单 + 覆盖度</td><td>决定用哪些</td><td>L1</td><td>显示「该源未覆盖」</td></tr><tr><td>全文检索</td><td>2-gram 召回 + 排序</td><td>判断哪条能用</td><td>L1</td><td>无命中就明说「库里没有」，不给近邻凑数</td></tr><tr><td>装配</td><td>抓取 + 解析 + 判型 + 体检</td><td>确认效力</td><td>L2</td><td>失败的进「待人工」，不静默丢弃</td></tr><tr><td>核验</td><td>生成结论 + 规则校验</td><td>看结论是否采信</td><td>L2</td><td>校验不通过降级为「部分作答」或「拒答」</td></tr><tr><td>时效</td><td>给候选与来源链接</td><td>确认</td><td>L2</td><td>无证据标「未知」，不默认有效</td></tr></tbody></table>
+<h2 id="43-异常与降级">4.3 异常与降级</h2>
+<table><thead><tr><th>异常</th><th>判定</th><th>降级动作</th><th>用户看到什么</th></tr></thead><tbody><tr><td>模型超时</td><td>&gt; 30s</td><td>返回检索到的原文</td><td>「已切换为原文模式」</td></tr><tr><td>模型不可用</td><td>连续 3 次失败</td><td>全局关生成，只留清单 + 原文</td><td>「只读模式」</td></tr><tr><td>检索无结果</td><td>闸门 1 判不命中</td><td>不生成</td><td>「库里没有这个话题」+ 目录清单作替代</td></tr><tr><td>条号越界（C1）</td><td>条号 &gt; 条数表</td><td>该依据不通过，结论降级</td><td>「引用的第 X 条不存在，该文件共 N 条」</td></tr><tr><td>引用废止（C3）</td><td>台账命中且非现行有效</td><td>拦截该依据</td><td>「《X》已于 YYYY-MM-DD 废止，替代为《Z》」</td></tr><tr><td><strong>条目无正文（L1 命中）</strong></td><td>只命中目录</td><td>只给元信息</td><td><strong>「本条仅目录，未取正文，引用前请回源」</strong></td></tr><tr><td><strong>条目无文号</strong></td><td><code>doc_no</code> 为空（76.6%）</td><td>效力级别标「按标题推断」</td><td>「文号缺失，级别为标题推断」</td></tr><tr><td><strong>条目无日期</strong></td><td><code>published</code> 为空（10.7%）</td><td>排到末尾并标 <code>undated</code></td><td>「发布日期缺失」</td></tr><tr><td><strong>站点抓不到</strong></td><td><code>blocked/error</code></td><td>保留上次缓存标 <code>stale</code></td><td>「该源今日未更新，数据截至 YYYY-MM-DD」</td></tr><tr><td>成本超预算</td><td>日成本 &gt; 120%</td><td>降 topk，关闭重排</td><td>无感</td></tr></tbody></table>
+<p><strong>四种产品形态，任何一个都比报错好：</strong></p>
+<ol>
+<li>完整：清单 + 结论 + 依据 + 校验</li>
+<li>原文：清单 + 检索到的原文</li>
+<li>清单：只有目录层</li>
+<li><strong>空清单 + 缺口说明</strong>：什么都没有，但说清为什么没有</li>
+</ol>
+<p>第 4 种是 V4 新增的，因为 38% 的站抓不到这件事不会消失，它必须有一个体面的表达形态。</p>
+<hr>
+<h1 id="5-功能需求">5. 功能需求</h1>
+<h2 id="fr-01-三级政策清单目录层">FR-01 三级政策清单（目录层）</h2>
+<ul>
+<li><strong>优先级</strong>：P0 · <strong>状态</strong>：✅ 已实现（<code>scripts/catalog/</code>、<code>scripts/harvest/local_catalog.py</code>、<code>/api/local</code>）</li>
+<li><strong>功能描述</strong>：按地域 × 主题输出国家 / 省 / 市 / 县四级文件清单，带覆盖度与缺口原因</li>
+<li><strong>数据规模</strong>：65,111 条（省 15,864 / 市 16,303 / 县 32,614 / 国家名录 330），覆盖 1,491 个地域</li>
+<li><strong>处理规则</strong>：</li>
+</ul>
+<ol>
+<li>地域按 <code>regions.chain</code> 向上展开（鹰潭市 → 江西省 → 国家）</li>
+<li>主题按 11 个词表匹配标题，跨领域可多选</li>
+<li>每个源独立状态：<code>ok / empty / blocked / unavailable / error / skipped</code></li>
+<li>多源命中合并，<strong>每个推断字段带依据</strong>（文号 / 台账 / 来源库 / 站点 / 标题 / 无法判定）</li>
+<li>排序：完整串命中优先 → 日期倒序（6.5 万行 LIKE 扫描实测 110–265 ms）</li>
+<li>覆盖度四级汇总，<code>missing</code> 必须显式输出并附原因</li>
+</ol>
+<ul>
+<li><strong>异常处理</strong>：</li>
+<li>源端空 → <code>empty</code>，不当「没有文件」</li>
+<li>结构变化 → <code>error</code>，保留缓存标 <code>stale</code></li>
+<li>反爬 → <code>blocked</code>，附探测记录</li>
+<li><strong>验收标准</strong>：</li>
+<li>AC-01：输入「鹰潭 / 城市更新」，国家级 ≥ 20 条、市级 ≥ 3 条，省级显式 <code>missing</code></li>
+<li>AC-02：任一源失败时，界面不出现「该级没有文件」这类断言</li>
+<li>AC-03：离线自检 <code>crawl.py --selftest</code> 30/30 通过</li>
+<li>AC-04：覆盖率数字与 <code>data/catalog/local_sites.json</code> 一致（当前 1,545/2,491）</li>
+</ul>
+<h2 id="fr-02-全库全文检索">FR-02 全库全文检索</h2>
+<ul>
+<li><strong>优先级</strong>：P0 · <strong>状态</strong>：✅ 已实现（<code>/api/kb</code>、<code>scripts/harvest/build_index.py</code>）</li>
+<li><strong>功能描述</strong>：在 18,608 份国家级正文里检索，返回条号 + 原文片段 + 文号 + 链接</li>
+<li><strong>规格</strong>：FTS5 + 中文 2-gram（trigram 不支持两字词，「征收」「补偿」会失效）；167,595 块，平均 9 块/份</li>
+<li><strong>实测</strong>：查询 5–35 ms；「历史建筑 修缮」首条命中《历史文化名城名镇名村保护条例》第三十三条，返回原文「历史建筑的所有权人应当按照保护规划的要求，负责历史建筑的维护和修缮」</li>
+<li><strong>异常处理</strong>：</li>
+<li>两字词必须能查（2-gram 是为此设计的，不是优化项）</li>
+<li>命中块边界可能带上一块尾部（已知缺陷，见 §6.4）</li>
+<li><strong>验收标准</strong>：</li>
+<li>AC-05：<code>--search 征收</code> 能返回结果（验证两字词）</li>
+<li>AC-06：任一命中的 <code>url</code> 可回源打开</li>
+<li>AC-07：P95 查询延迟 ≤ 300 ms</li>
+</ul>
+<h2 id="fr-03-专题库装配">FR-03 专题库装配</h2>
+<ul>
+<li><strong>优先级</strong>：<strong>P0</strong>（V4 从 P0 升为「唯一 P0 阻塞项」） · <strong>状态</strong>：⬜ 未开发</li>
+<li><strong>功能描述</strong>：从清单勾选 N 份 → 抓全文 → 判型 → 体检 → 出条数表与时效台账</li>
+<li><strong>为什么 V4 把它提到最高</strong>：核验层要工作，必须有条数表（C1）和时效台账（C3）。现在这两张表只覆盖 8 部。<strong>扩库扩了 4 个数量级，核验能力原地不动——这个错配是本项目当前最大的结构性问题</strong>（T-16、T-17）。</li>
+<li><strong>处理规则</strong>：</li>
+</ul>
+<ol>
+<li>抓全文：HTML 优先；<code>.docx</code> 用 <code>zipfile</code> 读 <code>word/document.xml</code>；<code>.doc</code>/<code>.pdf</code> 归 <code>pending_convert</code></li>
+<li><strong>判型</strong>：分条型 / 分段型 / 无结构型，按型选判据</li>
+<li>体检三重判据：结构完整性、内容完整性、可引用性</li>
+<li>通过者自动生成条数表；不通过进「待人工」并附原因</li>
+<li><strong>同时抽文号与日期</strong>，回填目录层（解决 76.6% 无文号）</li>
+</ol>
+<ul>
+<li><strong>验收标准</strong>：</li>
+<li>AC-08：对已解析的 <code>.docx</code>，条数与原文「第X条」计数一致</li>
+<li>AC-09：体检不通过的 100% 出现在待人工清单，且带原因</li>
+<li>AC-10：按格式分类统计成功率，不笼统报「N 份失败」</li>
+<li>AC-11：装配 20 份真实省市文件后，文号抽取率 ≥ 80%</li>
+</ul>
+<h2 id="fr-04-逐条核验闸门-2">FR-04 逐条核验（闸门 2）</h2>
+<ul>
+<li><strong>优先级</strong>：P0 · <strong>状态</strong>：✅ 已实现（<code>scripts/gatekeeper.py</code>），<strong>语料仍是 8 部</strong></li>
+<li><strong>五项检查，全部不调模型</strong>：</li>
+</ul>
+<table><thead><tr><th>检查</th><th>判据</th><th>数据来源</th><th>在 1.86 万份上的可用性</th></tr></thead><tbody><tr><td>C1 条号越界</td><td>条号 &gt; 条数表</td><td><code>article_counts.json</code></td><td><strong>0.04% 可用</strong>（8 部）</td></tr><tr><td>C2 引文查不到</td><td>引用文本在原文中找不到</td><td>语料正文</td><td>✅ 可用（有全文就能查）</td></tr><tr><td>C3 时效违规</td><td>文件已废止/失效</td><td><code>stale_ledger.json</code> + <code>doc_meta</code></td><td><strong>3.8% + 308 条</strong></td></tr><tr><td>C4 名称错配</td><td>简称与全称对不上</td><td><code>doc_names.json</code></td><td>🟡 8 部精确 + 全库模糊</td></tr><tr><td>C5 所问法规划界</td><td>引用了问题范围外的法规</td><td>问题 → 法规映射</td><td>✅ 可用</td></tr></tbody></table>
+<ul>
+<li><strong>验收标准</strong>：</li>
+<li>AC-12：C1–C5 每组既有应通过用例，也有应拦截用例（现有 11 组）</li>
+<li>AC-13：校验层不发起任何网络请求（断网可跑）</li>
+<li>AC-14：同一输入两次运行结论完全一致</li>
+<li>AC-15：<strong>任一检查无法执行时必须标「未核」并降级结论，不得默认通过</strong></li>
+</ul>
+<p><strong>AC-15 是 V4 里最重的一条 AC。</strong> 因为在新库上，C1 和 C3 在 96% 以上的条目上是执行不了的。如果这时默认「通过」，整个产品就变成了一个假的核验器。</p>
+<h2 id="fr-05-全稿自查">FR-05 全稿自查</h2>
+<ul>
+<li><strong>优先级</strong>：P1（V4 保持 P1，但理由变了：V3 说「这是最重要的战略发现，应提 P0」，V4 说「先解决 FR-03，否则稿件核验也一样没条数表」）</li>
+<li><strong>状态</strong>：⬜ 未开发</li>
+<li><strong>规则</strong>：抽引用（《X》第 N 条 / 依据《X》/ 文号）→ 逐条走 FR-04 → 漏引候选（目录 N 份 vs 引用 M 份）→ 按「必须改 / 建议看 / 可忽略」分级</li>
+<li><strong>默认模式</strong>：<strong>纯规则，不调模型</strong>（合规要求，见 §10.1）</li>
+<li><strong>验收标准</strong>：AC-16 抽取召回率 ≥ 95%（20 条人工标注）；AC-17 漏引候选必须显式标注「以下是候选，请自行判断」</li>
+</ul>
+<h2 id="fr-06-时效台账维护">FR-06 时效台账维护</h2>
+<ul>
+<li><strong>优先级</strong>：P0 · <strong>状态</strong>：🟡 部分（8 部 + 308 条名录）</li>
+<li><strong>现状数据</strong>：<code>doc_meta.eff_status</code> —— unknown 17,906 / repealed 702</li>
+<li><strong>规则</strong>：机器给候选（源站文末标注）→ 人工确认 → 未确认标「未知」，不参与「现行有效」判定 → 废止必须记替代文件</li>
+<li><strong>验收标准</strong>：AC-18 每条有确认人与时间，无「机器自报」；AC-19 C3 只读台账，不读模型输出</li>
+</ul>
+<h2 id="fr-07-评测与-badcase-看板">FR-07 评测与 badcase 看板</h2>
+<ul>
+<li><strong>优先级</strong>：P1 · <strong>状态</strong>：🟡 部分（<code>eval_run_app.py</code>）</li>
+<li><strong>规则</strong>：评测集分层（能力 × 难度）→ 每次改动跑全量 → 逐题 diff → 线上反馈进 badcase 池 → 每月补 ≥ 10 题</li>
+<li><strong>验收标准</strong>：AC-20 任意两版可对比；AC-21 badcase 每条带原始输入与当时判定</li>
+</ul>
+<h2 id="fr-08-覆盖率与缺口语义诚实层">FR-08 覆盖率与缺口语义（诚实层）</h2>
+<ul>
+<li><strong>优先级</strong>：P0 · <strong>状态</strong>：🟡 部分（<code>coverage</code> 字段已返回，前端已展示）</li>
+<li><strong>功能描述</strong>：把「我没抓到」在界面上说成「我没抓到」，而不是留白</li>
+<li><strong>必须存在的五个显示位</strong>：</li>
+</ul>
+<ol>
+<li>清单顶部：各级命中数 + 各级状态</li>
+<li>缺口区：<strong>哪些源没通、原因、最后成功时间</strong></li>
+<li>每条目录条目：<code>仅目录</code> 徽标（无正文）</li>
+<li>每条缺字段条目：<code>文号缺失</code> / <code>日期缺失</code> 徽标</li>
+<li>报告页：库的整体覆盖度（站点 62%、全文 22%、条数表 0.04%、时效 3.8%）</li>
+</ol>
+<ul>
+<li><strong>验收标准</strong>：</li>
+<li>AC-22：任一 <code>blocked</code> 源在界面上有可见说明</li>
+<li>AC-23：全量检查 1,000 次查询，无一次把「未抓取」渲染成「0 条结果」</li>
+<li>AC-24：五个显示位在默认视图全部可见，不需要点开详情</li>
+</ul>
+<p><strong>AC-23 是全项目唯一的 100% 门槛指标</strong>，理由见 §7.2。</p>
+<h2 id="fr-09-一键降级">FR-09 一键降级</h2>
+<ul>
+<li><strong>优先级</strong>：P0 · <strong>状态</strong>：⬜ 未实现（当前需改代码）</li>
+<li><strong>验收标准</strong>：AC-25 关闭后所有问答返回「原文模式」而非报错；AC-26 关闭动作不发版</li>
+</ul>
+<hr>
+<h1 id="6-ai-能力设计">6. AI 能力设计</h1>
+<p>本产品的特殊之处：<strong>模型只承担链路上的一小段，其余全是确定性工程。</strong> 这一节的重点是「哪些地方故意不用模型」。</p>
+<h2 id="61-能力全景">6.1 能力全景</h2>
+<table><thead><tr><th>要办的事</th><th>方案</th><th>为什么不用别的</th></tr></thead><tbody><tr><td>这个方向有哪些文件</td><td>结构化查询（SQLite，6.5 万行）</td><td>不用向量：要能穷举、按级别过滤、能说「没有」</td></tr><tr><td>这一条怎么写的</td><td><strong>FTS5 + 2-gram ← RAG 的检索在这</strong></td><td>不用结构化：同一意思有多种说法</td></tr><tr><td>模型说的第 42 条有没有</td><td>确定性查找（全称 + 条号 + 原文子串）</td><td>不用模型：要可复现、断网可跑</td></tr><tr><td>这份文件还有效吗</td><td>查台账 + 法律名录</td><td>不用模型：自报「有效」等于自验</td></tr><tr><td>该归哪一级</td><td>文号 + 标题规则，无依据就留空</td><td>不用模型：推断必须能说清依据</td></tr></tbody></table>
+<p><strong>不用微调的理由（V4 补充）</strong>：18,608 份全文里，政策口径每年在变。微调改的是风格与格式，注不进「第 42 条是什么」，也注不进「什么时候废止的」。<strong>而且 1.86 万份的时效变更频率，决定了任何训练周期都追不上。</strong></p>
+<p><strong>工作流式而非自主 Agent</strong>：一个要写进合同的准确性承诺，承受不起不可复现。</p>
+<h2 id="62-模型分级">6.2 模型分级</h2>
+<table><thead><tr><th>任务</th><th>档位</th><th>实测/预估</th></tr></thead><tbody><tr><td>C1–C5 核验</td><td><strong>规则引擎（非模型）</strong></td><td>每次问答</td></tr><tr><td>目录字段推断</td><td><strong>规则引擎（非模型）</strong></td><td>每条目</td></tr><tr><td>抓取</td><td><strong>HTTP + 解析（非模型）</strong></td><td>每次刷新</td></tr><tr><td>结论生成</td><td>中杯（<code>qwen-plus</code>）</td><td>每次问答</td></tr><tr><td>引用抽取</td><td>轻量模型或规则（优先规则）</td><td>每次自查</td></tr><tr><td>评测打分</td><td>旗舰 + 人工抽检</td><td>每次跑批</td></tr></tbody></table>
+<h2 id="63-提示词">6.3 提示词</h2>
+<p>系统提示 4,317 字 / 实测 2,863 token，占单次输入 72%。四条硬约束 + 边界判定四行字段 + 固定拒答句式。</p>
+<p><strong>两条边界必须写死</strong>：N1 不给法律意见（「该问题需由主管部门认定」）；N3 不声称效力状态（「效力状态由系统台账给出，你的输出不包含该字段」）。</p>
+<p><strong>为什么不把五项校验写进提示词</strong>：C5 的诞生就是实证——Dify 链路上 66 题一次没犯的错，换直连 <code>qwen-plus</code> 第一次跑就犯了。写在提示词里的硬约束，可靠性跟模型绑死；搬进规则层才成立。</p>
+<h2 id="64-检索策略v4-重测">6.4 检索策略（V4 重测）</h2>
+<table><thead><tr><th>项</th><th>规格</th><th>依据</th></tr></thead><tbody><tr><td>检索方式</td><td>FTS5 + 中文 2-gram</td><td>trigram 不支持两字词；2-gram 是必需项</td></tr><tr><td>索引规模</td><td>167,595 块 / 980 MB</td><td>平均 9 块/份</td></tr><tr><td>召回数</td><td>top 8</td><td>8 部语料上标定，<strong>1.86 万份上未重标</strong></td></tr><tr><td>实测延迟</td><td>5–35 ms（4 次查询）</td><td>2026-10-20</td></tr><tr><td>上下文</td><td>830–2,125 字 ≈ 550–1,410 token</td><td>占输入 14%–36%</td></tr><tr><td>闸门 1 阈值</td><td>0.40</td><td><strong>8 部语料标定，换库必须重标</strong></td></tr><tr><td><strong>已知缺陷</strong></td><td><strong>块边界可能带上一块尾部</strong></td><td>命中的 <code>label</code> 会出现「（五）建筑的测绘信息记录和相关资料。 第三十三条」这种拼接</td></tr></tbody></table>
+<p><strong>这个缺陷为什么必须在 PRD 里写</strong>：因为 C2（引文查不到）依赖「引用文本能在原文中找到」。如果块边界是错的，拿 label 去做引用比对就会误判。C1/C2 在 1.86 万份上要真正可用，必须先解决切块与条边界的对齐（FR-03 的工作之一）。</p>
+<h2 id="65-核验层">6.5 核验层</h2>
+<p>见 FR-04。新增一条设计原则：</p>
+<p><strong>三张表缺失时的行为，比三张表存在时的行为更重要。</strong> 缺条数表 → C1 标「未核」；缺台账 → C3 标「未核」；两者都缺 → 结论最高只能到「部分作答」，且必须在界面上写清楚「本次核验只覆盖了 X 项」。</p>
+<h2 id="66-失败与降级">6.6 失败与降级</h2>
+<table><thead><tr><th>类型</th><th>例子</th><th>处理</th><th>用户看到</th></tr></thead><tbody><tr><td>技术异常</td><td>超时、格式错</td><td>重试 → 降级</td><td>「已切换为原文模式」</td></tr><tr><td>能力异常</td><td>检索未命中</td><td>兜底 + 回流</td><td>「库里没有这个话题」+ 清单</td></tr><tr><td>正确性异常</td><td>幻觉、引用失效</td><td>规则拦截 + 强制溯源</td><td>「第 X 条不存在」</td></tr><tr><td><strong>覆盖异常</strong></td><td>源站抓不到</td><td>显式标缺</td><td>「该级未覆盖，原因：…」</td></tr></tbody></table>
+<p>第三类最危险，因为<strong>它不会报错</strong>。第四类次危险，因为<strong>它会伪装成「没有」</strong>。</p>
+<h2 id="67-幻觉治理">6.7 幻觉治理</h2>
+<table><thead><tr><th>#</th><th>防线</th><th>状态</th></tr></thead><tbody><tr><td>1</td><td>只引用检索到的条文</td><td>✅</td></tr><tr><td>2</td><td>条号越界拦截（C1）</td><td>✅（8 部）</td></tr><tr><td>3</td><td>引文子串比对（C2）</td><td>✅</td></tr><tr><td>4</td><td>废止拦截（C3）</td><td>✅（8 部 + 308 条）</td></tr><tr><td>5</td><td>名称白名单</td><td>✅</td></tr><tr><td>6</td><td>合理拒答算正向</td><td>✅</td></tr><tr><td>7</td><td>每个数字/期限能追到原文</td><td>⬜</td></tr><tr><td>8</td><td>badcase 自动回流</td><td>⬜</td></tr><tr><td><strong>9</strong></td><td><strong>「仅目录条目」不得被当成引用依据</strong></td><td>🟡 界面已标，规则层未拦</td></tr></tbody></table>
+<hr>
+<h1 id="7-效果标准">7. 效果标准</h1>
+<h2 id="71-评测集">7.1 评测集</h2>
+<p><strong>现状</strong>：<code>eval/golden-set.csv</code> 66 题，L1 基础 12 / L2 推理 8 / L3 边界 6 / L4 对抗 40。<strong>对抗占 60.6%，测的是「多难被打穿」，不是「正常使用多好用」。</strong></p>
+<p><strong>重建规格（V4 不变，仍未执行）</strong>：120 题上线门槛 / 200 题目标；能力维度 基础 25% 推理 30% 边界 20% 对抗 25%；难度 简单 30% 中等 45% 复杂 25%；3 个专题各 ≥ 30 题；样本 50% 来自非本人提供的真实提问；2 名规划师交叉复核。</p>
+<p><strong>V4 新增一个分层要求</strong>：题目必须标注<strong>目标数据层</strong>（目录层 / 全文层 / 核验层）。现在 66 题全部测核验层，没有任何一题测「清单全不全」。这是评测集的结构性偏斜，比对抗题占比过高更严重。</p>
+<h2 id="72-指标与阈值">7.2 指标与阈值</h2>
+<h3 id="效果组">效果组</h3>
+<table><thead><tr><th>指标</th><th>定义</th><th>目标</th><th>门槛</th><th>来源</th></tr></thead><tbody><tr><td>引用可追溯率</td><td>引用能指到真实条款</td><td>≥ 99%</td><td>≥ 95%</td><td>评测集</td></tr><tr><td>真编造率</td><td>编出不存在的法条/文号</td><td>≤ 0.5%</td><td>≤ 2%</td><td>评测集</td></tr><tr><td>对抗通过率</td><td>对抗样本正确处理</td><td>≥ 95%</td><td>≥ 85%</td><td>评测集</td></tr><tr><td>合理拒答率</td><td>该拒则拒</td><td>≥ 90%</td><td>≥ 80%</td><td>评测集</td></tr><tr><td>误拒率</td><td>不该拒却拒</td><td>≤ 5%</td><td>≤ 8%</td><td>评测集</td></tr><tr><td>结论强度准确率</td><td>三档与人工判定一致</td><td>≥ 85%</td><td>≥ 75%</td><td>人工抽检</td></tr><tr><td><strong>状态诚实率</strong></td><td>未覆盖/未成功时显式说明，未伪装成「没有」</td><td><strong>100%</strong></td><td><strong>100%</strong></td><td>全量检查</td></tr></tbody></table>
+<h3 id="数据层质量组v4-新增此前完全没有">数据层质量组（V4 新增，此前完全没有）</h3>
+<p>这组指标衡量的是「库本身好不好」，与模型无关：</p>
+<table><thead><tr><th>指标</th><th>当前实测</th><th>目标</th><th>说明</th></tr></thead><tbody><tr><td>站点可抓率</td><td><strong>62%</strong>（1,545/2,491）</td><td>≥ 75%</td><td>省级 21/31、市级 409/685、县级 1,115/1,775</td></tr><tr><td>条目有正文率</td><td><strong>22.1%</strong>（18,608/84,027）</td><td>≥ 35%</td><td>地方目录无正文</td></tr><tr><td>条目有文号率</td><td><strong>23.4%</strong>（15,214/65,111）</td><td>≥ 60%</td><td><strong>最弱的一项</strong>，靠 FR-03 抽正文解决</td></tr><tr><td>条目有日期率</td><td><strong>89.3%</strong>（58,159/65,111）</td><td>≥ 95%</td><td>列表页不给日期的站</td></tr><tr><td>日期有效率</td><td>未来日期 87 条</td><td>0</td><td>最大 2099-11-20，抓取解析 bug</td></tr><tr><td>噪声已剔率</td><td>3,558 条（5.2%）</td><td>≥ 95% 剔除</td><td><code>_NOISE_TITLE</code> 词表</td></tr><tr><td>条数表覆盖率</td><td><strong>0.04%</strong>（8/18,608）</td><td>≥ 60%</td><td><strong>最大的空洞</strong></td></tr><tr><td>时效台账覆盖率</td><td><strong>3.8%</strong> + 308 条名录</td><td>≥ 60%</td><td>第二大的空洞</td></tr><tr><td>法律条文覆盖率</td><td><strong>0%</strong>（只有名录）</td><td>—</td><td>暂不设目标（N10）</td></tr></tbody></table>
+<p><strong>为什么单列这一组</strong>：V3 的指标全部是「模型答得对不对」，而 V4 的产品问题有一半在数据层。一个 100% 准确的模型，配一个文号缺失 76.6% 的目录，交付物依然是不可用的。</p>
+<p><strong>为什么状态诚实率定 100%</strong>：这一条没有「差不多」。抓到 3 份报 3 份、没抓到报「没抓到」都是诚实；抓到 3 份却让人以为这是全部，就是不诚实。前一种错能修，后一种错会让人基于错误前提工作。</p>
+<h2 id="73-评分标准">7.3 评分标准</h2>
+<table><thead><tr><th>档</th><th>判定</th></tr></thead><tbody><tr><td>通过</td><td>结论方向正确，且每条依据可核验</td></tr><tr><td>部分通过</td><td>结论正确但有依据不通过，或降级过度</td></tr><tr><td>不通过</td><td>结论错误、编造依据、该拒未拒</td></tr><tr><td>应拒已拒</td><td>正确拒答，计入分子，<strong>不算失败</strong></td></tr></tbody></table>
+<h2 id="74-评测流程">7.4 评测流程</h2>
+<ol>
+<li>改动前跑基线存档</li>
+<li>改动后跑全量，逐题 diff</li>
+<li>只看两类变化：由过转变不过（回归）、约束内变过（提升）</li>
+<li>任一门槛跌破，阻断发布</li>
+<li>补题后重跑历史基线，确认不是靠改题刷分</li>
+</ol>
+<h2 id="75-不得沿用的旧数字">7.5 不得沿用的旧数字</h2>
+<table><thead><tr><th>数字</th><th>出处</th><th>为什么不能沿用</th></tr></thead><tbody><tr><td>引用可追溯 100%</td><td>8 部 419 单元</td><td>库换大了，条款分布变了，且模型上下文未变（只塞 top8）</td></tr><tr><td>真编造 0</td><td>同上</td><td>8 部的名称空间小，模型容易命中</td></tr><tr><td>对抗 40/40</td><td>66 题自造</td><td>出题人 = 判分人 = 开发者</td></tr><tr><td>闸门 1 阈值 0.40</td><td>8 部标定</td><td>分数分布随语料规模变化</td></tr><tr><td>五类问答 5/5</td><td>MVP 演示</td><td>5 题不构成统计意义</td></tr><tr><td><strong>「差 4–5 个数量级」</strong></td><td>V3 §0.3</td><td><strong>已不成立，见 §0.3.1</strong></td></tr></tbody></table>
+<hr>
+<h1 id="8-数据与埋点">8. 数据与埋点</h1>
+<h2 id="81-埋点事件">8.1 埋点事件</h2>
+<table><thead><tr><th>事件</th><th>关键字段</th><th>回答什么</th></tr></thead><tbody><tr><td><code>catalog_query</code></td><td>地域、主题、结果数、各级状态、耗时</td><td>哪些方向查得多、哪级总缺</td></tr><tr><td><code>catalog_item_open</code></td><td>条目 ID、来源、<strong>是否有正文</strong></td><td>用户是否把「仅目录」当依据用</td></tr><tr><td><code>kb_search</code></td><td>查询、命中数、耗时、首条分数</td><td>全库检索在真实问题上的召回</td></tr><tr><td><code>assemble_request</code> / <code>assemble_result</code></td><td>勾选数、成功/待人工/失败、按格式</td><td>装配在真实文件上通不通</td></tr><tr><td><code>ledger_confirm</code></td><td>文件 ID、状态、确认人、耗时</td><td><strong>人工成本的唯一来源</strong></td></tr><tr><td><code>ask</code></td><td>问题长度、召回数、结论档位、秒数、token</td><td>效果与成本日常监控</td></tr><tr><td><code>gate_fail</code></td><td>哪一项（C1–C5）、哪份文件</td><td>哪类错误最常见</td></tr><tr><td>**<code>gate_unverified</code>**</td><td>哪一项、缺哪张表</td><td><strong>新增：核验没做成多少次</strong></td></tr><tr><td>**<code>coverage_gap</code>**</td><td>层级、站点、原因</td><td><strong>新增：缺口被展示的次数</strong></td></tr><tr><td><code>feedback_bad</code></td><td>问题、结论、当时判定</td><td>badcase 回流</td></tr></tbody></table>
+<p><code>gate_unverified</code> 是 V4 新增里最重要的一个。它量的是「我们没核成」的比例——现在这个比例在 C1 上是 96%，如果不打点，它会永远隐形。</p>
+<h2 id="82-数据飞轮">8.2 数据飞轮</h2>
+<pre><code>线上「不对」→ badcase 池 → 每月补 ≥10 题
+                    → 归因：检索错 / 生成错 / 表格错 / 目录缺 / 条目缺正文
+                    → 表格错 → 修条数表、台账（人工）
+                    → 目录缺 → 补源（工程）
+                    → 条目缺正文 → 装配（工程 + 人工确认）</code></pre>
+<p>飞轮转速的瓶颈是<strong>人工确认</strong>，不是机器。1.86 万份的规模下，这个瓶颈第一次变成了硬约束。</p>
+<h2 id="83-监控">8.3 监控</h2>
+<table><thead><tr><th>指标</th><th>告警线</th></tr></thead><tbody><tr><td>每日问答成功率</td><td>&lt; 95%</td></tr><tr><td>完整响应 P95</td><td>&gt; 10s</td></tr><tr><td>日 API 成本</td><td>&gt; 预算 120%</td></tr><tr><td>目录快照年龄</td><td>&gt; 7 天</td></tr><tr><td>单源连续失败</td><td>≥ 2</td></tr><tr><td>待人工队列</td><td>&gt; 20 份</td></tr><tr><td>台账覆盖率</td><td>&lt; 90%</td></tr><tr><td><strong>条数表覆盖率</strong></td><td><strong>&lt; 30%（新增）</strong></td></tr><tr><td><strong>索引体积</strong></td><td><strong>&gt; 1.5 GB（新增，影响部署）</strong></td></tr></tbody></table>
+<hr>
+<h1 id="9-成本与性能">9. 成本与性能</h1>
+<h2 id="91-单位经济">9.1 单位经济</h2>
+<p>实测：<code>qwen-plus</code>，top 8，2026-10-19，原始数据 <code>eval/results/cost_probe.json</code>。</p>
+<table><thead><tr><th>组成</th><th>字数</th><th>token</th><th>占输入</th></tr></thead><tbody><tr><td>系统提示</td><td>4,317</td><td>2,863</td><td>72%</td></tr><tr><td>输出规范</td><td>306</td><td>224</td><td>6%</td></tr><tr><td>检索条文（8 条）</td><td>830–2,125</td><td>550–1,410</td><td>14%–36%</td></tr><tr><td>问题</td><td>~20</td><td>21</td><td>0.5%</td></tr><tr><td><strong>合计</strong></td><td>—</td><td><strong>入 3,963 / 出 255</strong></td><td>—</td></tr></tbody></table>
+<p><strong>扩容对单次成本的影响：0。</strong> 因为上下文只塞 top 8，库从 419 块扩到 167,595 块，输入 token 一个不变。这是「检索层扩容、生成层不变」的直接结果。</p>
+<table><thead><tr><th>规模</th><th>调用量</th><th>月成本</th></tr></thead><tbody><tr><td>1 人（20 次/天 × 22 天）</td><td>440</td><td><strong>¥1.62</strong></td></tr><tr><td>10 人</td><td>4,400</td><td><strong>¥16.20</strong></td></tr><tr><td>100 人</td><td>44,000</td><td><strong>¥162</strong></td></tr></tbody></table>
+<p>真成本在人工：</p>
+<table><thead><tr><th>项</th><th>数量</th><th>单价</th><th>金额</th></tr></thead><tbody><tr><td>装配一个专题库：机器</td><td>~10 分钟</td><td>—</td><td>≈ ¥0</td></tr><tr><td>装配一个专题库：确认效力</td><td>80 份 × 1 分钟</td><td>¥80/小时</td><td><strong>¥107</strong></td></tr><tr><td>摊到单个项目（5 项目/年）</td><td>—</td><td>—</td><td><strong>≈ ¥21</strong></td></tr><tr><td>对照：人工梳理同类清单</td><td>4 小时</td><td>¥80/小时</td><td><strong>¥320</strong></td></tr></tbody></table>
+<p><strong>投入产出比约 1:15（估算）</strong>，两个输入仍未实测（要靠 <code>ledger_confirm</code> 埋点）。</p>
+<h2 id="92-扩容对部署形态的影响v4-新增">9.2 扩容对部署形态的影响（V4 新增）</h2>
+<p>这是 V4 最容易被忽略的一条产品约束：</p>
+<table><thead><tr><th>形态</th><th>V3（8 部）</th><th>V4（三层全量）</th></tr></thead><tbody><tr><td>可拷走的最小集合</td><td><strong>约 400 KB</strong></td><td><strong>约 1.0 GB</strong>（<code>kb.db</code> 980 MB + <code>catalog.db</code> 53 MB）</td></tr><tr><td>拷走要多久</td><td>秒级</td><td>分钟级（U 盘 / 网盘）</td></tr><tr><td>能不能塞进 git</td><td>能</td><td><strong>不能</strong>（需 LFS 或外置）</td></tr><tr><td>演示时启动</td><td>秒开</td><td>秒开（SQLite 局部读，不需要全载入）</td></tr></tbody></table>
+<p><strong>结论：MVP「拷到任何地方都能跑」这个卖点，在 1.86 万份的量级上失效了。</strong> 需要拆成两个包：轻包（8 部 + 校验层，400 KB，用于演示核心主张）与全包（三层数据，1 GB，用于真实查询）。这不是工程细节，它决定了这个产品怎么被交付。</p>
+<h2 id="93-延迟">9.3 延迟</h2>
+<table><thead><tr><th>指标</th><th>实测</th><th>目标</th><th>结论</th></tr></thead><tbody><tr><td>首字延迟</td><td>中位 558 ms，最大 788 ms</td><td>≤ 2.0s</td><td>达标</td></tr><tr><td>完整响应</td><td>中位 6,328 ms，最大 9,456 ms</td><td>≤ 8.0s</td><td>8 次中 1 次超线</td></tr><tr><td>全库检索（16.7 万块）</td><td>5–35 ms</td><td>≤ 100 ms</td><td>达标</td></tr><tr><td>目录检索（6.5 万行 LIKE）</td><td>110–265 ms</td><td>≤ 300 ms</td><td><strong>达标但接近上限</strong></td></tr></tbody></table>
+<p><strong>目录检索按 LIKE 扫全表，规模再涨一个数量级就必须换 FTS</strong>。当前 6.5 万行是这套做法还能用的最后一段。</p>
+<p><strong>延迟瓶颈仍是模型生成，不是检索。</strong> 三个手段：流式输出已具备；<code>max_tokens</code> 从 1800 降到 800；超 8s 显示进度。</p>
+<hr>
+<h1 id="10-风险与合规">10. 风险与合规</h1>
+<h2 id="101-数据合规">10.1 数据合规</h2>
+<table><thead><tr><th>项</th><th>要求</th><th>措施</th></tr></thead><tbody><tr><td>抓取对象</td><td>政府网站公开发布</td><td>只抓公开栏目与检索接口；限速 0.3–0.8 s/请求；带正常 Referer</td></tr><tr><td>抓取频率</td><td>不对源站造成压力</td><td>单主机串行 + 间隔；<strong>不做并发爆破</strong>（N12）</td></tr><tr><td><strong>用户稿件外泄</strong></td><td>稿件可能含未公开内容</td><td>默认只发检索条文与问题，不发全文；全稿自查走纯规则模式</td></tr><tr><td>数据留存</td><td>AI 调用可审计</td><td>记时间、能力、输入摘要（不存全文）、输出、判定</td></tr><tr><td>模型服务商</td><td>政策文本经第三方</td><td>首次使用前明示；提供纯规则模式</td></tr><tr><td>来源标注</td><td>每条依据可回溯</td><td>目录条目必带 URL；失效链接保留原 URL 标 <code>stale</code></td></tr><tr><td><strong>商业数据库</strong></td><td>不得系统性导出再分发</td><td>**禁止 <code>--import</code> 商业库导出物**（V3 §0.3.7，V4 仍在）</td></tr></tbody></table>
+<h2 id="102-内容安全">10.2 内容安全</h2>
+<table><thead><tr><th>风险</th><th>措施</th></tr></thead><tbody><tr><td>输出被当法律意见</td><td>提示词硬约束 + 界面固定提示</td></tr><tr><td>提示词注入（稿件藏指令）</td><td>用户输入用分隔符隔离；规则层不读用户输入里的指令</td></tr><tr><td>敏感项目推断</td><td>不推断能否获批、能否拿资金</td></tr><tr><td>政策文本被曲解</td><td>依据必须给原文</td></tr></tbody></table>
+<h2 id="103-风险清单">10.3 风险清单</h2>
+<table><thead><tr><th>编号</th><th>风险</th><th>影响</th><th>应对</th></tr></thead><tbody><tr><td>R1</td><td><strong>评测集自造，验证无效</strong></td><td>高</td><td>引入 2 名规划师重标；完成前所有效果指标只能标「自测」</td></tr><tr><td>R2</td><td><strong>条数表只覆盖 0.04%，C1 在 96% 条目上不可用</strong></td><td><strong>高（V4 新增首位）</strong></td><td>T-16：随装配自动生成</td></tr><tr><td>R3</td><td><strong>时效台账只覆盖 3.8%</strong></td><td>高</td><td>T-17</td></tr><tr><td>R4</td><td><strong>38% 站点抓不到，缺口长期存在</strong></td><td>高</td><td>显式标缺（FR-08）；按源头潜力排序逐个攻，不承诺覆盖</td></tr><tr><td>R5</td><td><strong>76.6% 条目无文号</strong></td><td>高</td><td>FR-03 抽正文回填</td></tr><tr><td>R6</td><td>装载解析在真实省市文件上成功率未知</td><td>高</td><td>先跑 20 份再定阈值</td></tr><tr><td>R7</td><td>地方站转载中央文件被标成本地</td><td>中</td><td>T-19 转载识别</td></tr><tr><td>R8</td><td><code>.doc</code>/<code>.pdf</code> 零依赖不可解析</td><td>中</td><td>归 <code>pending_convert</code>，报告分类统计</td></tr><tr><td>R9</td><td>未来日期 87 条等脏数据</td><td>中</td><td>解析层加日期合理性校验（≤ 今天 + 90 天）</td></tr><tr><td>R10</td><td>源站改版导致抓取中断</td><td>中</td><td>监控连续失败；保留缓存标 <code>stale</code></td></tr><tr><td>R11</td><td><strong>索引 980 MB，交付形态被迫分裂</strong></td><td>中</td><td>轻包 / 全包双形态（§9.2）</td></tr><tr><td>R12</td><td><strong>切块与条边界未对齐，影响 C2</strong></td><td>中</td><td>FR-03 顺带修</td></tr><tr><td>R13</td><td>法律条文不在库（《城乡规划法》等）</td><td>中</td><td>明确不承诺（N10）；引用时标「条文未入库」</td></tr><tr><td>R14</td><td>完整响应超 8s</td><td>低</td><td>流式 + 进度提示</td></tr><tr><td>R15</td><td>单人开发，无版本管理备份</td><td>中</td><td>代码与数据纳管</td></tr></tbody></table>
+<h2 id="104-预期管理">10.4 预期管理</h2>
+<p>界面上必须一直存在的四句话：</p>
+<ol>
+<li><strong>「本工具不给法律意见。」</strong> 效力认定以法制部门口径为准。</li>
+<li><strong>「清单可能不全。」</strong> 覆盖度写明哪一级缺、为什么缺。</li>
+<li><strong>「仅目录的条目没有正文。」</strong> 引用前请回源。</li>
+<li><strong>「依据请自行复核。」</strong> 每条都给原文与链接，点击可核。</li>
+</ol>
+<hr>
+<h1 id="11-附录">11. 附录</h1>
+<h2 id="111-术语">11.1 术语</h2>
+<table><thead><tr><th>术语</th><th>含义</th></tr></thead><tbody><tr><td><strong>L0 法律名录</strong></td><td>全国人大《现行有效法律目录》，308 条，判断「这部法还在不在」</td></tr><tr><td><strong>L1 目录层</strong></td><td>只存文件元数据（名称、文号、级别、地域、日期、链接），追求穷举</td></tr><tr><td><strong>L2 全文层</strong></td><td>有正文、可逐条引用的文件（当前 18,608 份国家级）</td></tr><tr><td>专题库</td><td>一个主题 × 地域链上的 50–80 份全文</td></tr><tr><td>地域链</td><td>鹰潭市 → 江西省 → 国家</td></tr><tr><td>闸门 1</td><td>话题级：检索分数过低判「库里没有」</td></tr><tr><td>闸门 2</td><td>条文级：C1–C5，不调模型</td></tr><tr><td>三张表</td><td>条数表、时效台账、名称映射</td></tr><tr><td>判型</td><td>分条型 / 分段型 / 无结构型</td></tr><tr><td>覆盖度</td><td>四级各自状态（ok / partial / missing）</td></tr><tr><td>状态诚实率</td><td>「没抓到」被如实说出的比例</td></tr><tr><td>自主程度 L1/L2/L3</td><td>L1 机器建议；L2 机器执行人确认；L3 全自动（不用）</td></tr></tbody></table>
+<h2 id="112-三层数据总表">11.2 三层数据总表</h2>
+<table><thead><tr><th>层</th><th>内容</th><th>规模</th><th>能否引用</th><th>数据文件</th></tr></thead><tbody><tr><td>L0</td><td>现行有效法律名录</td><td>308 条</td><td>❌</td><td><code>data/law/现行有效法律目录.csv</code></td></tr><tr><td>L1-a</td><td>国家级政策清单</td><td>18,916 条</td><td>❌</td><td><code>data/catalog/govcn_list.*.jsonl</code></td></tr><tr><td>L1-b</td><td>省 / 市 / 县目录</td><td>65,111 条</td><td>❌</td><td><code>data/catalog.db</code> · <code>items</code></td></tr><tr><td>L2-a</td><td>国家级正文</td><td>18,608 份 / 7,291 万字</td><td>✅</td><td><code>data/fulltext/</code></td></tr><tr><td>L2-b</td><td>全文检索索引</td><td>167,595 块 / 980 MB</td><td>✅</td><td><code>data/kb.db</code></td></tr><tr><td>核验</td><td>条数表 + 时效台账</td><td>8 部 / 419 单元</td><td>✅</td><td><code>data/article_counts.json</code>、<code>stale_ledger.json</code></td></tr></tbody></table>
+<h2 id="113-文档关系">11.3 文档关系</h2>
+<table><thead><tr><th>文档</th><th>作用</th></tr></thead><tbody><tr><td><code>prd/PRD-v4.md</code>（本文）</td><td>需求：范围、目标、流程、功能、效果、成本、风险</td></tr><tr><td><code>docs/项目总说明-v3.md</code></td><td>技术总说明：为什么这样做、每个数字怎么来的</td></tr><tr><td><code>scripts/harvest/README.md</code></td><td>取数层：十个脚本、三条路、四类坑</td></tr><tr><td><code>scripts/catalog/README.md</code></td><td>目录层：源配置、状态词表、覆盖度</td></tr><tr><td><code>mvp/README.md</code></td><td>最小可运行形态与三个面板</td></tr><tr><td><code>data/catalog/export/覆盖报告.md</code></td><td>覆盖率与缺口的当前快照</td></tr></tbody></table>
+<h2 id="114-与-v3-的差异">11.4 与 V3 的差异</h2>
+<table><thead><tr><th>项</th><th>V3</th><th>V4</th></tr></thead><tbody><tr><td>数据</td><td>8 部 / 419 条</td><td>三层 84,027 条记录，其中 18,608 份可引全文</td></tr><tr><td>竞品结论</td><td>差 4–5 个数量级，不可追赶</td><td>差 1–2 个数量级，可被追问，需正面回答</td></tr><tr><td>指标</td><td>一组（模型效果）</td><td>两组（模型效果 + 数据层质量）</td></tr><tr><td>最大风险</td><td>评测集自造</td><td>评测集自造 <strong>+ 条数表 0.04%</strong></td></tr><tr><td>P0 首位</td><td>FR-01 目录层</td><td><strong>FR-03 装配</strong>（核验层扩容的唯一路径）</td></tr><tr><td>交付形态</td><td>一个包</td><td>轻包 400 KB / 全包 1 GB</td></tr><tr><td>诚实层</td><td>分散在异常处理里</td><td>独立成 FR-08，含 5 个显示位与 100% 门槛</td></tr></tbody></table>
+</main>
+<script>
+(function(){
+  var k='pv-doc-theme';
+  var saved=localStorage.getItem(k);
+  document.documentElement.dataset.theme = saved ||
+    (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.getElementById('theme').onclick=function(){
+    var n = document.documentElement.dataset.theme==='dark' ? 'light':'dark';
+    document.documentElement.dataset.theme=n; localStorage.setItem(k,n);
+  };
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>有据 · 项目文件路径清单</title>
+<style>
+:root{
+  --bg:#ffffff; --ink:#1c2024; --ink2:#525a63; --ink3:#868e97; --line:#e4e8ec;
+  --panel:#f7f9fa; --accent:#2f6fd0; --code-bg:#f4f6f8; --quote:#f0f4fa;
+}
+html[data-theme=dark]{
+  --bg:#16191d; --ink:#e7eaee; --ink2:#a9b2bb; --ink3:#79828c; --line:#2e343b;
+  --panel:#1d2126; --accent:#6fa4e8; --code-bg:#1b1f24; --quote:#1b2531;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:15.5px;line-height:1.78;-webkit-font-smoothing:antialiased}
+.bar{position:sticky;top:0;z-index:9;background:var(--bg);border-bottom:1px solid var(--line);
+  padding:9px 20px;display:flex;gap:14px;align-items:center;font-size:13px}
+.bar .t{font-weight:600;color:var(--ink2)}
+.bar a{color:var(--accent);text-decoration:none}
+.bar button{margin-left:auto;font:inherit;font-size:13px;cursor:pointer;padding:5px 12px;
+  border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink)}
+main{max-width:900px;margin:0 auto;padding:26px 22px 90px}
+h1{font-size:26px;margin:34px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+h2{font-size:21px;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+h3{font-size:17.5px;margin:26px 0 9px}
+h4{font-size:15.5px;margin:20px 0 7px;color:var(--ink2)}
+p{margin:10px 0}
+a{color:var(--accent)}
+strong{font-weight:650}
+code{background:var(--code-bg);border:1px solid var(--line);border-radius:4px;
+  padding:1px 5px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+pre{background:var(--code-bg);border:1px solid var(--line);border-radius:9px;
+  padding:14px 16px;overflow:auto}
+pre code{background:none;border:none;padding:0;font-size:13px;line-height:1.65}
+blockquote{margin:14px 0;padding:10px 16px;background:var(--quote);
+  border-left:3px solid var(--accent);border-radius:0 8px 8px 0;color:var(--ink2)}
+blockquote p{margin:5px 0}
+hr{border:none;border-top:1px solid var(--line);margin:32px 0}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px;
+  display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--panel);font-weight:650;white-space:nowrap}
+ul,ol{padding-left:24px;margin:10px 0}
+li{margin:4px 0}
+.toc{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:14px 20px;margin:18px 0}
+.toc ul{list-style:none;padding-left:0;margin:0}
+@media print{
+  .bar{display:none} body{font-size:11.5pt}
+  a{color:inherit;text-decoration:none} h2{page-break-after:avoid}
+  table,pre,blockquote{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="bar">
+  <span class="t">有据 · 项目文件路径清单</span>
+  <a href="#top">回到开头</a>
+  <button id="theme">切换主题</button>
+</div>
+<main id="top">
+<h1 id="有据--项目文件路径清单">有据 · 项目文件路径清单</h1>
+<blockquote><p>根目录：<code>C:\Users\17378\WorkBuddy\ai-pm\projects\policy-verify-engine</code></p><p>生成时间：2026-10-20 15:25 · 共 <strong>18797 个文件 / 24 个目录</strong>，1.3 GB（已排除 <code>__pycache__</code>、<code>output/</code>、<code>.git</code>；<code>data/fulltext/</code> 只汇总不逐个列）</p><p>本文件由扫描生成，不要手改——文件一多，手写的目录必然过期，而且<strong>过期没有提示</strong>。</p></blockquote>
+<h2 id="一现行文档先看这几个">一、现行文档（先看这几个）</h2>
+<table><thead><tr><th>文档</th><th>路径</th><th>大小</th><th>读它干什么</th></tr></thead><tbody><tr><td>PRD v4（现行）</td><td><code>prd/PRD-v4.md</code></td><td>52.7 KB</td><td><strong>现行 PRD V4.0</strong>：三层数据 + 两组指标 + FR-01~FR-09 + 竞品结论重算</td></tr><tr><td>技术总说明 v3（现行）</td><td><code>docs/项目总说明-v3.md</code></td><td>41.9 KB</td><td><strong>现行技术总说明</strong>：三层数据、扩容的四个代价、十条判断、路线图</td></tr><tr><td>取数层说明</td><td><code>scripts/harvest/README.md</code></td><td>16.9 KB</td><td><strong>取数层说明</strong>：十一个脚本、四条抓取路径、四类坑、还没解决的</td></tr><tr><td>目录层说明</td><td><code>scripts/catalog/README.md</code></td><td>9.1 KB</td><td><strong>目录层说明</strong>：状态词表、覆盖度、源配置</td></tr><tr><td>MVP 说明</td><td><code>mvp/README.md</code></td><td>12.6 KB</td><td>MVP 说明：四个能力边界、轻包与全包、三层延迟实测</td></tr><tr><td>覆盖率快照</td><td><code>data/catalog/export/覆盖报告.md</code></td><td>3.7 KB</td><td>覆盖率与缺口的当前快照（脚本生成）</td></tr><tr><td>优化方向</td><td><code>docs/优化方向-v1.md</code></td><td>15.7 KB</td><td>四份外部评估的取舍 + 收录率实测（鹰潭 287→212→3，误杀 1）</td></tr></tbody></table>
+<h2 id="二按目录全量列出">二、按目录全量列出</h2>
+<h3 id="root--1-个文件49-kb"><code>(root)/</code> —— 1 个文件，4.9 KB</h3>
+<ul>
+<li><code>README.md</code></li>
+</ul>
+<h3 id="data--9-个文件9861-mb"><code>data/</code> —— 9 个文件，986.1 MB</h3>
+<ul>
+<li><code>data/article_counts.json</code>  ← ★ 条数表（C1 判据）——只覆盖 8 部</li>
+<li><code>data/catalog.db</code>  ← ★ 目录库 53 MB：items 65,111 / doc_meta 18,608 / fulltext 18,916 / local_site 2,491</li>
+<li><code>data/catalog.db-shm</code></li>
+<li><code>data/catalog.db-wal</code></li>
+<li><code>data/corpus.json</code></li>
+<li><code>data/doc_names.json</code>  ← 落库代号 ↔ 正式全称</li>
+<li><code>data/kb.db</code>  ← ★ 检索索引 980 MB：blocks 167,595 + FTS5</li>
+<li><code>data/manifest.verified.csv</code></li>
+<li><code>data/stale_ledger.json</code>  ← ★ 时效台账（C3 外部真值）——只覆盖 8 条</li>
+</ul>
+<h3 id="datacatalog--10-个文件417-mb"><code>data/catalog/</code> —— 10 个文件，41.7 MB</h3>
+<ul>
+<li><code>data/catalog/audit_yingtan.json</code></li>
+<li><code>data/catalog/cities.csv</code></li>
+<li><code>data/catalog/govcn_list.bm.jsonl</code></li>
+<li><code>data/catalog/govcn_list.gw.jsonl</code></li>
+<li><code>data/catalog/govcn_progress.json</code></li>
+<li><code>data/catalog/local_sites.json</code>  ← 2,491 个站的抓取状态与原因（24 MB）</li>
+<li><code>data/catalog/manual.csv</code></li>
+<li><code>data/catalog/manual.csv.example</code></li>
+<li><code>data/catalog/saas_sites.json</code></li>
+<li><code>data/catalog/was5_sites.json</code></li>
+</ul>
+<h3 id="datacatalogexport--6-个文件319-mb"><code>data/catalog/export/</code> —— 6 个文件，31.9 MB</h3>
+<ul>
+<li><code>data/catalog/export/法律_现行有效目录.csv</code></li>
+<li><code>data/catalog/export/目录_全部.csv</code>  ← ★ 65,111 条目录全量导出（16.7 MB）</li>
+<li><code>data/catalog/export/目录_县级.csv</code></li>
+<li><code>data/catalog/export/目录_市级.csv</code></li>
+<li><code>data/catalog/export/目录_省级.csv</code></li>
+<li><code>data/catalog/export/覆盖报告.md</code>  ← ★ 覆盖率与缺口的当前快照（脚本生成）</li>
+</ul>
+<h3 id="datacorpus--9-个文件8140-kb"><code>data/corpus/</code> —— 9 个文件，814.0 KB</h3>
+<ul>
+<li><code>data/corpus/manifest.csv</code></li>
+<li><code>data/corpus/中华人民共和国噪声污染防治法(FBM-CLI.1.5112804).doc</code></li>
+<li><code>data/corpus/中华人民共和国土壤污染防治法(FBM-CLI.1.321036).doc</code></li>
+<li><code>data/corpus/全国人民代表大会常务委员会关于授权国务院在中国(海南)自由贸易试验区暂时调整适用有关法律规定的决定(FBM-CLI.1.341898).doc</code></li>
+<li><code>data/corpus/呼伦贝尔市城市市容和环境卫生管理条例_20260923.docx</code></li>
+<li><code>data/corpus/怀化市扬尘污染防治条例_20260825.docx</code></li>
+<li><code>data/corpus/昌吉回族自治州天山天池风景名胜区保护管理条例_20260831.docx</code></li>
+<li><code>data/corpus/深圳经济特区规划土地监察条例_20260901.docx</code></li>
+<li><code>data/corpus/葫芦岛市生活垃圾分类管理条例_20260819.docx</code></li>
+</ul>
+<h3 id="datacorpus_docx--8-个文件4797-kb"><code>data/corpus_docx/</code> —— 8 个文件，479.7 KB</h3>
+<ul>
+<li><code>data/corpus_docx/呼伦贝尔市城市市容和环境卫生管理条例_20260923.docx</code></li>
+<li><code>data/corpus_docx/噪声污染防治法.docx</code></li>
+<li><code>data/corpus_docx/土壤污染防治法.docx</code></li>
+<li><code>data/corpus_docx/怀化市扬尘污染防治条例_20260825.docx</code></li>
+<li><code>data/corpus_docx/昌吉回族自治州天山天池风景名胜区保护管理条例_20260831.docx</code></li>
+<li><code>data/corpus_docx/海南决定.docx</code></li>
+<li><code>data/corpus_docx/深圳经济特区规划土地监察条例_20260901.docx</code></li>
+<li><code>data/corpus_docx/葫芦岛市生活垃圾分类管理条例_20260819.docx</code></li>
+</ul>
+<h3 id="datafulltext--18608-个文件2018-mb按-256-个子目录分片不逐个列"><code>data/fulltext/</code> —— <strong>18608 个文件，201.8 MB</strong>（按 256 个子目录分片，不逐个列）</h3>
+<p>正文全文，文件名是 <code>doc_key.txt</code>，可逐份追回 <code>catalog.db.doc_meta</code> 的 URL。</p>
+<h3 id="datakb_text--8-个文件1785-kb"><code>data/kb_text/</code> —— 8 个文件，178.5 KB</h3>
+<ul>
+<li><code>data/kb_text/呼伦贝尔市城市市容和环境卫生管理条例_20260923.txt</code></li>
+<li><code>data/kb_text/噪声污染防治法.txt</code></li>
+<li><code>data/kb_text/土壤污染防治法.txt</code></li>
+<li><code>data/kb_text/怀化市扬尘污染防治条例_20260825.txt</code></li>
+<li><code>data/kb_text/昌吉回族自治州天山天池风景名胜区保护管理条例_20260831.txt</code></li>
+<li><code>data/kb_text/海南决定.txt</code></li>
+<li><code>data/kb_text/深圳经济特区规划土地监察条例_20260901.txt</code></li>
+<li><code>data/kb_text/葫芦岛市生活垃圾分类管理条例_20260819.txt</code></li>
+</ul>
+<h3 id="datakb_text_v2--8-个文件1998-kb"><code>data/kb_text_v2/</code> —— 8 个文件，199.8 KB</h3>
+<ul>
+<li><code>data/kb_text_v2/中华人民共和国噪声污染防治法.txt</code></li>
+<li><code>data/kb_text_v2/中华人民共和国土壤污染防治法.txt</code></li>
+<li><code>data/kb_text_v2/全国人大常委会关于授权国务院在中国（海南）自由贸易试验区暂时调整适用有关法律规定的决定.txt</code></li>
+<li><code>data/kb_text_v2/呼伦贝尔市城市市容和环境卫生管理条例.txt</code></li>
+<li><code>data/kb_text_v2/怀化市扬尘污染防治条例.txt</code></li>
+<li><code>data/kb_text_v2/昌吉回族自治州天山天池风景名胜区保护管理条例.txt</code></li>
+<li><code>data/kb_text_v2/深圳经济特区规划土地监察条例.txt</code></li>
+<li><code>data/kb_text_v2/葫芦岛市生活垃圾分类管理条例.txt</code></li>
+</ul>
+<h3 id="datalaw--2-个文件72-mb"><code>data/law/</code> —— 2 个文件，7.2 MB</h3>
+<ul>
+<li><code>data/law/npc_law_index.pdf</code>  ← 人大网原版 PDF（2026-08-28）</li>
+<li><code>data/law/现行有效法律目录.csv</code>  ← ★ 308 条现行有效法律名录（名称 + 沿革，无条文）</li>
+</ul>
+<h3 id="datatext--8-个文件1875-kb"><code>data/text/</code> —— 8 个文件，187.5 KB</h3>
+<ul>
+<li><code>data/text/呼伦贝尔市城市市容和环境卫生管理条例_20260923.txt</code></li>
+<li><code>data/text/噪声污染防治法.txt</code></li>
+<li><code>data/text/土壤污染防治法.txt</code></li>
+<li><code>data/text/怀化市扬尘污染防治条例_20260825.txt</code></li>
+<li><code>data/text/昌吉回族自治州天山天池风景名胜区保护管理条例_20260831.txt</code></li>
+<li><code>data/text/海南决定.txt</code></li>
+<li><code>data/text/深圳经济特区规划土地监察条例_20260901.txt</code></li>
+<li><code>data/text/葫芦岛市生活垃圾分类管理条例_20260819.txt</code></li>
+</ul>
+<h3 id="demo--1-个文件640-kb"><code>demo/</code> —— 1 个文件，64.0 KB</h3>
+<ul>
+<li><code>demo/index.html</code></li>
+</ul>
+<h3 id="docs--11-个文件7456-kb"><code>docs/</code> —— 11 个文件，745.6 KB</h3>
+<ul>
+<li><code>docs/优化方向-v1.html</code></li>
+<li><code>docs/优化方向-v1.md</code>  ← ★ 四份外部评估的取舍 + 收录率实测（鹰潭 287→212→3，误杀 1）</li>
+<li><code>docs/文件路径清单.html</code></li>
+<li><code>docs/文件路径清单.md</code>  ← 本文件（由扫描脚本生成）</li>
+<li><code>docs/项目总说明-v1.html</code></li>
+<li><code>docs/项目总说明-v1.md</code>  ← v1 总说明（历史）</li>
+<li><code>docs/项目总说明-v2.docx</code></li>
+<li><code>docs/项目总说明-v2.html</code></li>
+<li><code>docs/项目总说明-v2.md</code>  ← v2 总说明（8 部语料时代的完整叙述，历史）</li>
+<li><code>docs/项目总说明-v3.html</code></li>
+<li><code>docs/项目总说明-v3.md</code>  ← ★ <strong>现行技术总说明</strong>：三层数据、扩容的四个代价、十条判断、路线图</li>
+</ul>
+<h3 id="eval--7-个文件617-kb"><code>eval/</code> —— 7 个文件，61.7 KB</h3>
+<ul>
+<li><code>eval/README.md</code>  ← 评估集设计与判分口径</li>
+<li><code>eval/app-v2.json</code></li>
+<li><code>eval/app-v3.json</code></li>
+<li><code>eval/app-v4.json</code></li>
+<li><code>eval/app-v6.json</code></li>
+<li><code>eval/app.json</code></li>
+<li><code>eval/golden-set.csv</code>  ← ★ 66 题评测集（含「期望边界」答案键）</li>
+</ul>
+<h3 id="evalresults--16-个文件110-mb"><code>eval/results/</code> —— 16 个文件，11.0 MB</h3>
+<ul>
+<li><code>eval/results/app-baseline.json</code></li>
+<li><code>eval/results/app-v2-ledger.json</code></li>
+<li><code>eval/results/app-v3.json</code></li>
+<li><code>eval/results/app-v4-rerank.json</code></li>
+<li><code>eval/results/app-v5-40adv.json</code></li>
+<li><code>eval/results/app-v6-boundary.json</code></li>
+<li><code>eval/results/app-v7-boundary.json</code></li>
+<li><code>eval/results/cloud-stack-signal.json</code></li>
+<li><code>eval/results/cost_probe.json</code></li>
+<li><code>eval/results/emb-v4-cache.json</code></li>
+<li><code>eval/results/gatekeeper-last.json</code></li>
+<li><code>eval/results/retrieval-baseline.json</code></li>
+<li><code>eval/results/retrieval-v2.json</code></li>
+<li><code>eval/results/retrieval-v3-norerank.json</code></li>
+<li><code>eval/results/retrieval-v3-rerank.json</code></li>
+<li><code>eval/results/retrieval-v5-40adv.json</code></li>
+</ul>
+<h3 id="evalresultsask-records--4-个文件607-kb"><code>eval/results/ask-records/</code> —— 4 个文件，60.7 KB</h3>
+<ul>
+<li><code>eval/results/ask-records/ask-20261014-131208.json</code></li>
+<li><code>eval/results/ask-records/ask-20261014-131221.json</code></li>
+<li><code>eval/results/ask-records/ask-20261014-131258.json</code></li>
+<li><code>eval/results/ask-records/ask-20261014-131930.json</code></li>
+</ul>
+<h3 id="mvp--3-个文件806-kb"><code>mvp/</code> —— 3 个文件，80.6 KB</h3>
+<ul>
+<li><code>mvp/README.md</code>  ← ★ MVP 说明：四个能力边界、轻包与全包、三层延迟实测</li>
+<li><code>mvp/index.html</code>  ← ★ 单文件前端：问答 / 政策清单 / 地方目录 三块面板</li>
+<li><code>mvp/server.py</code>  ← ★ 单文件服务：BM25 + 模型调用 + 闸门 2 + /api/kb + /api/local + /api/catalog</li>
+</ul>
+<h3 id="prd--7-个文件3894-kb"><code>prd/</code> —— 7 个文件，389.4 KB</h3>
+<ul>
+<li><code>prd/PRD-v1.md</code>  ← 最早一版（历史），核心是第 4 章「两道闸门」</li>
+<li><code>prd/PRD-v2.html</code></li>
+<li><code>prd/PRD-v2.md</code>  ← 架构说明版 PRD（两层库 + 四段链路 + 装配流水线规格）</li>
+<li><code>prd/PRD-v3.html</code></li>
+<li><code>prd/PRD-v3.md</code>  ← 上一版 PRD（V3.1，8 部语料时代，含 §0.3 竞品分析全文）</li>
+<li><code>prd/PRD-v4.html</code></li>
+<li><code>prd/PRD-v4.md</code>  ← ★ <strong>现行 PRD V4.0</strong>：三层数据 + 两组指标 + FR-01~FR-09 + 竞品结论重算</li>
+</ul>
+<h3 id="prompts--3-个文件174-kb"><code>prompts/</code> —— 3 个文件，17.4 KB</h3>
+<ul>
+<li><code>prompts/system-v1.md</code></li>
+<li><code>prompts/system-v2.md</code></li>
+<li><code>prompts/system-v3.md</code>  ← ★ 现行提示词（四条硬约束 + 边界判定四行字段）</li>
+</ul>
+<h3 id="research--11-个文件1437-kb"><code>research/</code> —— 11 个文件，143.7 KB</h3>
+<ul>
+<li><code>research/00-可行性探针.md</code></li>
+<li><code>research/01-语料核对报告.md</code></li>
+<li><code>research/02-Dify检索实测报告.md</code></li>
+<li><code>research/03-检索配置修复记录.md</code></li>
+<li><code>research/04-基线跑分与三轮迭代报告.md</code></li>
+<li><code>research/05-百炼接入与rerank判别力实测.md</code></li>
+<li><code>research/06-百炼全栈落地与重排实测.md</code></li>
+<li><code>research/07-对抗题扩容与阈值结论翻转.md</code></li>
+<li><code>research/08-边界判定字段与时效硬规则.md</code></li>
+<li><code>research/09-校验层落地与三处假阳性修正.md</code></li>
+<li><code>research/10-最小MVP与第五项检查.md</code></li>
+</ul>
+<h3 id="research_struct--8-个文件2743-kb"><code>research/_struct/</code> —— 8 个文件，274.3 KB</h3>
+<ul>
+<li><code>research/_struct/1.json</code></li>
+<li><code>research/_struct/2.json</code></li>
+<li><code>research/_struct/3.json</code></li>
+<li><code>research/_struct/4.json</code></li>
+<li><code>research/_struct/5.json</code></li>
+<li><code>research/_struct/6.json</code></li>
+<li><code>research/_struct/7.json</code></li>
+<li><code>research/_struct/8.json</code></li>
+</ul>
+<h3 id="scripts--23-个文件3074-kb"><code>scripts/</code> —— 23 个文件，307.4 KB</h3>
+<ul>
+<li><code>scripts/ask.py</code>  ← ★ 命令行入口 + <code>analyze()</code>（两版共用判定入口）</li>
+<li><code>scripts/build_corpus.py</code></li>
+<li><code>scripts/build_demo.py</code></li>
+<li><code>scripts/build_docs_html.py</code></li>
+<li><code>scripts/build_eval_set.py</code></li>
+<li><code>scripts/build_file_index.py</code></li>
+<li><code>scripts/build_kb_text_v2.py</code></li>
+<li><code>scripts/build_path_list.py</code>  ← 本脚本：扫描全项目生成 <code>docs/文件路径清单.md</code></li>
+<li><code>scripts/dify_add_bailian.py</code></li>
+<li><code>scripts/dify_build_app.py</code></li>
+<li><code>scripts/dify_build_kb.py</code></li>
+<li><code>scripts/dify_fix_retrieval.py</code></li>
+<li><code>scripts/dify_hit_test.py</code></li>
+<li><code>scripts/eval_run.py</code></li>
+<li><code>scripts/eval_run_app.py</code></li>
+<li><code>scripts/export_article_counts.py</code></li>
+<li><code>scripts/export_stale_ledger.py</code></li>
+<li><code>scripts/gatekeeper.py</code>  ← ★ <strong>闸门 2</strong>：C1–C5，不调用任何模型；11 组自检用例</li>
+<li><code>scripts/gatekeeper_sweep.py</code></li>
+<li><code>scripts/legalkit.py</code>  ← ★ 共用底层：名称归一 / 条号解析 / 三张表 / 文本比对</li>
+<li><code>scripts/measure_cost.py</code></li>
+<li><code>scripts/serve_demo.py</code></li>
+<li><code>scripts/verify_corpus.py</code></li>
+</ul>
+<h3 id="scriptscatalog--9-个文件1264-kb"><code>scripts/catalog/</code> —— 9 个文件，126.4 KB</h3>
+<ul>
+<li><code>scripts/catalog/README.md</code>  ← ★ <strong>目录层说明</strong>：状态词表、覆盖度、源配置</li>
+<li><code>scripts/catalog/__init__.py</code></li>
+<li><code>scripts/catalog/adapters.py</code>  ← 七种源形态适配器</li>
+<li><code>scripts/catalog/audit_source.py</code>  ← ★ 源端收录率审计（把「命中 N 条只收 M 条」摊开）</li>
+<li><code>scripts/catalog/crawl.py</code>  ← 目录层 CLI + 覆盖度审计 + 30 项自检</li>
+<li><code>scripts/catalog/model.py</code>  ← 目录层数据模型与推断规则</li>
+<li><code>scripts/catalog/net.py</code></li>
+<li><code>scripts/catalog/sites.json</code>  ← 源与地域链配置（加省市只改这里）</li>
+<li><code>scripts/catalog/store.py</code>  ← SQLite 落库与多源合并</li>
+</ul>
+<h3 id="scriptsharvest--17-个文件1758-kb"><code>scripts/harvest/</code> —— 17 个文件，175.8 KB</h3>
+<ul>
+<li><code>scripts/harvest/README.md</code>  ← ★ <strong>取数层说明</strong>：十一个脚本、四条抓取路径、四类坑、还没解决的</li>
+<li><code>scripts/harvest/__init__.py</code></li>
+<li><code>scripts/harvest/build_index.py</code>  ← ★ 全文切块 + FTS5 2-gram 索引（--search 词）</li>
+<li><code>scripts/harvest/city_registry.py</code>  ← 城市名 → 政府门户域名表</li>
+<li><code>scripts/harvest/diag_batch.py</code>  ← 批量诊断</li>
+<li><code>scripts/harvest/diag_blocked.py</code>  ← 单站受阻原因诊断</li>
+<li><code>scripts/harvest/diag_list.py</code>  ← 单站列表结构诊断</li>
+<li><code>scripts/harvest/diag_pages.py</code>  ← 单站翻页机制诊断</li>
+<li><code>scripts/harvest/export_catalog.py</code>  ← 导出三级 CSV + 覆盖报告</li>
+<li><code>scripts/harvest/extract.py</code>  ← 正文提取（HTML / docx）</li>
+<li><code>scripts/harvest/gov_full.py</code>  ← 国家级：清单枚举 + 全文抓取（--list / --fetch / --stats）</li>
+<li><code>scripts/harvest/local_catalog.py</code>  ← ★ 省/市/县三级目录：探入口 → 翻栏目 → 落库</li>
+<li><code>scripts/harvest/meta.py</code>  ← 元信息与时效（eff_status: valid/amended/repealed/unknown）</li>
+<li><code>scripts/harvest/npc_laws.py</code>  ← 人大网《现行有效法律目录》PDF → CSV + 入库</li>
+<li><code>scripts/harvest/report.py</code></li>
+<li><code>scripts/harvest/scan_saas.py</code>  ← 探测失败站里有多少用政务 SaaS（只读，结论：3 站、均不可用）</li>
+<li><code>scripts/harvest/scan_was5.py</code>  ← 探测失败站有没有可用 TRS WAS5（只读，结论：0 站）</li>
+</ul>
+<h2 id="三数据资产一览">三、数据资产一览</h2>
+<table><thead><tr><th>资产</th><th>文件</th><th>规模</th><th>能不能引用</th></tr></thead><tbody><tr><td>L0 法律名录</td><td><code>data/law/现行有效法律目录.csv</code></td><td>308 条</td><td>❌ 只有名称与沿革</td></tr><tr><td>L1 国家级清单</td><td><code>data/catalog/govcn_list.*.jsonl</code></td><td>18,916 条</td><td>❌</td></tr><tr><td>L1 地方目录</td><td><code>data/catalog.db</code> · <code>items</code></td><td>65,111 条</td><td>❌ 只有元信息</td></tr><tr><td>L1 站点状态</td><td><code>data/catalog/local_sites.json</code></td><td>2,491 站</td><td>—</td></tr><tr><td>L2 国家级正文</td><td><code>data/fulltext/</code></td><td>18,608 份 / 7,291 万字</td><td>✅</td></tr><tr><td>L2 检索索引</td><td><code>data/kb.db</code></td><td>167,595 块 / 980 MB</td><td>✅</td></tr><tr><td>核验：条数表</td><td><code>data/article_counts.json</code></td><td>8 部 / 419 单元</td><td>✅</td></tr><tr><td>核验：时效台账</td><td><code>data/stale_ledger.json</code></td><td>8 条</td><td>✅</td></tr><tr><td>核验：元信息时效</td><td><code>data/catalog.db</code> · <code>doc_meta</code></td><td>18,608 条（702 条已失效）</td><td>🟡 仅标记</td></tr><tr><td>评测：题目</td><td><code>eval/golden-set.csv</code></td><td>66 题</td><td>—</td></tr></tbody></table>
+<p><strong>三层数据的可信度不一样，别混着用</strong>：目录层「知道这份文件存在」，全文层「知道它怎么写的」，核验层「能判断引的那一条对不对」。前两层只能搜，第三层才能判。</p>
+</main>
+<script>
+(function(){
+  var k='pv-doc-theme';
+  var saved=localStorage.getItem(k);
+  document.documentElement.dataset.theme = saved ||
+    (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.getElementById('theme').onclick=function(){
+    var n = document.documentElement.dataset.theme==='dark' ? 'light':'dark';
+    document.documentElement.dataset.theme=n; localStorage.setItem(k,n);
+  };
+})();
+</script>
+</body>
+</html>

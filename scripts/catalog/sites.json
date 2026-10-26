@@ -1,0 +1,108 @@
+{
+  "_说明": [
+    "目录层的源配置。加一个省市不用改代码，在这里加一条即可。",
+    "regions.chain 决定「地域向上展开」：查鹰潭时会自动带上江西省和国家两级。",
+    "每个源的 type 决定走哪个适配器：govcn / jsearch / govsite / manual / flk / note。",
+    "note 类型不抓任何东西，只声明「这一级这次没能覆盖，原因是……」，目的是让缺失可见。"
+  ],
+  "defaults": {
+    "pages": 3,
+    "max_per_source": 200
+  },
+  "regions": {
+    "鹰潭市": {
+      "aliases": [
+        "鹰潭",
+        "鹰潭市",
+        "江西省鹰潭市"
+      ],
+      "chain": [
+        "鹰潭市",
+        "江西省",
+        "国家"
+      ]
+    },
+    "江西省": {
+      "aliases": [
+        "江西",
+        "江西省"
+      ],
+      "chain": [
+        "江西省",
+        "国家"
+      ]
+    },
+    "国家": {
+      "aliases": [
+        "全国",
+        "国家级",
+        "中央"
+      ],
+      "chain": [
+        "国家"
+      ]
+    }
+  },
+  "sources": [
+    {
+      "name": "govcn_gw",
+      "type": "govcn",
+      "kind": "gw",
+      "label": "国务院政策文件库",
+      "region": "国家"
+    },
+    {
+      "name": "govcn_bm",
+      "type": "govcn",
+      "kind": "bm",
+      "label": "国务院部门文件库",
+      "region": "国家"
+    },
+    {
+      "name": "flk_npc",
+      "type": "flk",
+      "label": "国家法律法规数据库（法律／行政法规／地方性法规）",
+      "region": "国家",
+      "note": "2026-10-19 复查：已从前端脚本中提取出 17 个真实接口路径（law-search/search/list、law-search/search/flfgDetails、law-search/index/aggregateData 等），但 POST 返回「系统异常」，且首页带 law-search/index/captchaImage（风控）。状态由「无接口」改判为「有接口、参数与风控未通」，是先补的源之一。"
+    },
+    {
+      "name": "yingtan",
+      "type": "jsearch",
+      "label": "鹰潭市人民政府（站内检索）",
+      "region": "鹰潭市",
+      "base": "http://www.yingtan.gov.cn",
+      "websiteid": "360600000000000",
+      "endpoint": "/jsearchfront/interfaces/cateSearch.do",
+      "pages": 23,
+      "interval": 0.3
+    },
+    {
+      "name": "yingtan_col",
+      "type": "govsite",
+      "label": "鹰潭市人民政府（政府文件栏目）",
+      "region": "鹰潭市",
+      "base": "http://www.yingtan.gov.cn",
+      "max_pages": 1,
+      "columns": [
+        {
+          "path": "/col/col19195/index.html?vc_xxgkarea=YT0001&number=A00003A00003",
+          "label": "政府文件"
+        }
+      ]
+    },
+    {
+      "name": "jiangxi_prov",
+      "type": "note",
+      "label": "江西省人民政府（省政府文件）",
+      "region": "江西省",
+      "status": "blocked",
+      "reason": "该站检索为 TRS search5（/search5/html/searchResult.html），列表与检索结果均前端渲染，未暴露可用接口；省级清单需人工导出后经 manual 接入"
+    },
+    {
+      "name": "manual",
+      "type": "manual",
+      "label": "人工清单（CSV / JSONL）",
+      "path": "data/catalog/manual.csv"
+    }
+  ]
+}

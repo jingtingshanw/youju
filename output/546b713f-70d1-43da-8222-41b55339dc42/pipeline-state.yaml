@@ -1,0 +1,63 @@
+schema_version: 1
+request_id: 546b713f-70d1-43da-8222-41b55339dc42
+created_at: 2026-10-15T07:19:43+08:00
+updated_at: 2026-10-15T07:31:00+08:00
+
+entry_type: beautify_only
+stage_chain: [2, 3]
+
+output_docx_path: "C:/Users/17378/WorkBuddy/ai-pm/projects/policy-verify-engine/docs/项目总说明-v2.docx"
+output_docx_user_specified: true
+
+current_stage: 3
+
+stages:
+  stage_0:
+    status: completed
+    completed_at: 2026-10-15T07:19:43+08:00
+    decision: beautify_only
+  stage_1:
+    status: skipped
+    started_at: null
+    completed_at: null
+    output_path: null
+    genre: null
+    expert_used: null
+    route_tag: null
+  stage_2:
+    status: completed
+    started_at: 2026-10-15T07:20:00+08:00
+    completed_at: 2026-10-15T07:31:00+08:00
+    route: html
+    html_sub: template
+    output_path: "stage2/formatted-项目总说明.html"
+    output_format: html
+    skills_invoked: ["design-token", "doc-typeset", "html-review"]
+    design_tokens_path: "stage2/design_tokens.json"
+    fallback: false
+    fallback_reason: null
+    genre: business-report
+    source_content_path: "docs/项目总说明-v2.md"
+    generator_script: "stage2/build_html.py"
+    html_review: "passed=true score=96 (design_token 100 / structural 100 / typographic 80 / genre_fit 100 / decoration 100 / security pass)"
+    preflight: "passed=true (PF-01/PF-02/PF-03 全过，--require-page-furniture)"
+    accepted_deviations: ["TQ-04 五个 h1（nav 一级 li ↔ h1 契约要求）", "TQ-05 二十九个 h2（源文档真实章节数，WARNING 不扣分）"]
+  stage_3:
+    status: completed
+    started_at: 2026-10-15T07:27:00+08:00
+    completed_at: 2026-10-15T07:28:11+08:00
+    executor: doc-converter
+    input_format: html
+    output_path: "C:/Users/17378/WorkBuddy/ai-pm/projects/policy-verify-engine/docs/项目总说明-v2.docx"
+    skill_used: ["html-to-doc"]
+    present_files_opened: true
+    fallback: false
+    fallback_reason: null
+    verify: "passed=true content 920/920（missing 0）structure 全过（toc_field true / pageref_count 34 / heading_style_bound 83/83 / cover_toc_sectioned true / toc_tail_sectioned true / body_start1 true）"
+
+consistency_check:
+  output_files_exist: pass
+  stage_chain_complete: pass
+  last_checked_at: 2026-10-15T07:28:11+08:00
+  errors: []
+  note: "stage_1 为 skipped（beautify_only 链路不含 S1），stage_chain [2,3] 全部 completed"

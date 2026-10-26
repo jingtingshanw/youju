@@ -1,0 +1,111 @@
+{
+  "model": "dashscope/qwen-plus",
+  "price": {
+    "in": 0.0008,
+    "out": 0.002
+  },
+  "measured_at": "2026-10-19 15:28",
+  "rows": [
+    {
+      "question": "怀化市对扬尘污染防治实施统一监督管理的是哪个部门？",
+      "in_tokens": 4020,
+      "out_tokens": 137,
+      "total_ms": 3647,
+      "first_ms": 558,
+      "context_chars": 1747,
+      "system_chars": 4317,
+      "hits": 8,
+      "cost": 0.0034899999999999996,
+      "layer": "L1基础"
+    },
+    {
+      "question": "怀化市的工程建设单位应当把扬尘污染防治费用列入哪项费用？",
+      "in_tokens": 3687,
+      "out_tokens": 140,
+      "total_ms": 3588,
+      "first_ms": 398,
+      "context_chars": 1079,
+      "system_chars": 4317,
+      "hits": 8,
+      "cost": 0.0032296,
+      "layer": "L1基础"
+    },
+    {
+      "question": "怀化市的施工单位没有落实扬尘污染防治措施（未达第十条的一般要求），由哪个部门处罚、罚款幅度是多少？",
+      "in_tokens": 3943,
+      "out_tokens": 205,
+      "total_ms": 5124,
+      "first_ms": 546,
+      "context_chars": 1398,
+      "system_chars": 4317,
+      "hits": 8,
+      "cost": 0.0035644000000000006,
+      "layer": "L2推理"
+    },
+    {
+      "question": "怀化市对散装、流体物料运输途中造成遗撒的，城市规划区内和规划区外的处罚主体有何不同？罚款是多少？",
+      "in_tokens": 4455,
+      "out_tokens": 401,
+      "total_ms": 9456,
+      "first_ms": 711,
+      "context_chars": 2125,
+      "system_chars": 4317,
+      "hits": 8,
+      "cost": 0.004366,
+      "layer": "L2推理"
+    },
+    {
+      "question": "《中华人民共和国噪声污染防治法》现在还有效吗？",
+      "in_tokens": 3553,
+      "out_tokens": 224,
+      "total_ms": 5469,
+      "first_ms": 788,
+      "context_chars": 830,
+      "system_chars": 4317,
+      "hits": 8,
+      "cost": 0.0032904,
+      "layer": "L3边界"
+    },
+    {
+      "question": "全国人大常委会关于授权国务院在中国（海南）自由贸易试验区暂时调整适用有关法律规定的决定，现在还有效吗？",
+      "in_tokens": 4164,
+      "out_tokens": 260,
+      "total_ms": 6328,
+      "first_ms": 574,
+      "context_chars": 1909,
+      "system_chars": 4317,
+      "hits": 8,
+      "cost": 0.0038512,
+      "layer": "L3边界"
+    },
+    {
+      "question": "《中华人民共和国生态环境法典》里关于扬尘污染防治的具体条文是怎么写的？请给出条文原文和条号。",
+      "in_tokens": 3908,
+      "out_tokens": 289,
+      "total_ms": 6760,
+      "first_ms": 471,
+      "context_chars": 1422,
+      "system_chars": 4317,
+      "hits": 8,
+      "cost": 0.0037044,
+      "layer": "L4对抗"
+    },
+    {
+      "question": "《中华人民共和国生态环境法典》第二百一十五条对施工扬尘是怎么规定的？",
+      "in_tokens": 3973,
+      "out_tokens": 385,
+      "total_ms": 9110,
+      "first_ms": 465,
+      "context_chars": 1554,
+      "system_chars": 4317,
+      "hits": 8,
+      "cost": 0.0039484,
+      "layer": "L4对抗"
+    }
+  ],
+  "summary": {
+    "avg_in": 3962.9,
+    "avg_out": 255.1,
+    "avg_cost": 0.003681
+  }
+}
